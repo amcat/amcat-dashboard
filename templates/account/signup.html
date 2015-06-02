@@ -1,0 +1,41 @@
+{% extends "account/login_base.html" %}
+
+{% load url from future %}
+{% load bootstrap %}
+
+{% block panel-header-title %}Sign-up{% endblock %}
+
+{% block panel-body %}
+    <form id="signup_form" method="post" action="{% url "account_signup" %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        <fieldset>
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+
+            <div class="form-group">
+                <input autofocus class="form-control" placeholder="E-mailaddress" name="email" type="email" value="{{ form.email.value|default:'' }}">
+                {% if form.errors.email %}
+                    <p class="danger">{{ form.errors.email.as_text }}</p>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                {% if form.errors.password %}
+                    <p class="danger">{{ form.errors.password.as_text }}</p>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <input class="form-control" placeholder="Password (again)" name="password_confirm" type="password" value="">
+                {% if form.errors.password_confirm %}
+                    <p class="danger">{{ form.errors.password_confirm.as_text }}</p>
+                {% endif %}
+            </div>
+            <div class="password-recovery">
+                Already registered? <a href="{% url "account_login" %}">Log in</a>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Register">
+        </fieldset>
+    </form>
+{% endblock %}

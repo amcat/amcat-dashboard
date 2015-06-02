@@ -1,0 +1,13 @@
+{% extends "account/login_base.html" %}
+
+{% load url from future %}
+
+{% block panel-header-title %}Are you sure?{% endblock %}
+{% block panel-body %}
+    <form method="POST" action="{% url "account_logout" %}">
+        <fieldset>
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Log out</button>
+        </fieldset>
+    </form>
+{% endblock %}

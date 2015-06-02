@@ -1,0 +1,46 @@
+{% extends "account/login_base.html" %}
+{% load url from future %}
+
+{% block panel-header-title %}Existing users{% endblock %}
+
+{% block panel-body %}
+    <style>
+        .password-recovery{
+            float:right;
+            padding-top:8px;
+        }
+    </style>
+
+    <form autocapitalize="off" action="{% url 'account_login' %}" method="post" role="form">
+        {% csrf_token %}
+
+        {% if form.errors %}
+            <p class="danger">Credentials not recognized. Please try again.</p>
+        {% endif %}
+
+        <fieldset>
+            <div class="form-group">
+                <input class="form-control" placeholder="E-mail" name="username" type="text" value="{{ form.username.value|default:'' }}" autofocus>
+            </div>
+            <div class="form-group">
+                <input class="form-control" placeholder="Password" name="password" type="password" value="">
+            </div>
+            <div class="password-recovery">
+                <a href="{% url "account_password_reset" %}">Forgot your password?</a>
+            </div>
+            <input type="submit" class="btn btn-primary" value="Login">
+        </fieldset>
+    </form>
+{% endblock %}
+
+{% block after-first-panel %}
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a href="{% url 'account_signup' %}" class="btn btn-lg btn-block">Create a new account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

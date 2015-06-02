@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <style>
+        .password-recovery{
+            font-size:0.9em;
+            text-align: right;
+            float:right;
+            padding-top:8px;
+        }
+    </style>
+
+    <style>
+        .danger{
+            color: #d9534f;
+        }
+    </style>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4">
+                <div class="login-panel panel panel-default">
+                    {% block panel-header%}
+                        <div class="panel-heading">
+                            <h3 class="panel-title">{% block panel-header-title %}{% endblock %}</h3>
+                        </div>
+                    {% endblock %}
+
+                    <div class="panel-body">
+                        {% block panel-body %}{% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% block  after-first-panel %}{% endblock %}
+
+    <script>
+        require(["jquery", "bootstrap", "metis-menu", "sb-admin"], function(){})
+    </script>
+{% endblock %}

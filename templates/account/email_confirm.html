@@ -1,0 +1,13 @@
+{% extends "account/login_base.html" %}
+
+{% load url from future %}
+
+{% block panel-header-title %}Confirm e-mailaddress?{% endblock %}
+{% block panel-body %}
+    <form method="post" action="{% url "account_confirm_email" key=confirmation.key %}">
+        <fieldset>
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Confirm</button>
+        </fieldset>
+    </form>
+{% endblock %}

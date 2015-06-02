@@ -1,1 +1,2 @@
 django==1.8
+django-user-accounts==1.0
