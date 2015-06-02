@@ -18,6 +18,10 @@
             <p class="danger">Credentials not recognized. Please try again.</p>
         {% endif %}
 
+        {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+        {% endif %}
+
         <fieldset>
             <div class="form-group">
                 <input class="form-control" placeholder="E-mail" name="username" type="text" value="{{ form.username.value|default:'' }}" autofocus>
