@@ -30,8 +30,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Query(models.Model):
-    amcat_query_id = models.IntegerField(db_index=True)
-    amcat_project_id = models.IntegerField()
+    amcat_query_id = models.IntegerField(db_index=True, unique=True)
+    amcat_project_id = models.IntegerField(db_index=True)
 
     amcat_name = models.TextField()
     amcat_parameters = models.TextField()
