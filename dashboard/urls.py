@@ -1,6 +1,7 @@
 from django.conf.urls import url
-from dashboard.views.dashboard import index, AmCATSettingsView, get_saved_query_result, \
+from dashboard.views.dashboard import index, get_saved_query_result, \
     get_saved_query, clear_cache
+from dashboard.views.account import AmCATSettingsView
 
 urlpatterns = [
     url("^$", index, name="index"),
