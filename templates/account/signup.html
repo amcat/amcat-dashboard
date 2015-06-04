@@ -32,6 +32,13 @@
                     <p class="danger">{{ form.errors.password_confirm.as_text }}</p>
                 {% endif %}
             </div>
+            <p>For amcat.nl users:</p>
+            <div class="form-group">
+                <input class="form-control" placeholder="AmCAT username" name="amcat_username" type="text">
+                {% if form.errors.amcat_username %}
+                    <p class="danger">{{ form.errors.amcat_username.as_text }}</p>
+                {% endif %}
+            </div>
             <div class="password-recovery">
                 Already registered? <a href="{% url "account_login" %}">Log in</a>
             </div>

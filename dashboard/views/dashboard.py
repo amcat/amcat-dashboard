@@ -7,11 +7,14 @@ from django.shortcuts import render
 from django.views.generic import FormView
 import requests
 
-from dashboard.models import User
+from dashboard.models import User, Query
 
 
 def index(request):
-    return render(request, "dashboard/base.html")
+    q1, = Query.objects.all()
+    return render(request, "dashboard/dashboard.html", {
+        "query": q1
+    })
 
 class UserForm(forms.ModelForm):
     amcat_token = forms.CharField(required=False)
@@ -21,7 +24,7 @@ class UserForm(forms.ModelForm):
     def clean(self):
         data = super().clean()
 
-        url = "https://amcat.nl/api/v4/get_token"
+        url = "http://preview.amcat.nl/api/v4/get_token"
         response = requests.post(url, data={
             'username': data["amcat_username"],
             'password': data["password"]
