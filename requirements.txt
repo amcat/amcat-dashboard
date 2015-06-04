@@ -1,4 +1,4 @@
 django==1.8
 django-user-accounts==1.0
 django-extensions
-git+git@github.com:amcat/amcatclient.git
+psycopg2

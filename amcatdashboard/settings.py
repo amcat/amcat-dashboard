@@ -32,14 +32,19 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 
 # Application definition
-EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST", "localhost")
-EMAIL_PORT = os.environ.get("DJANGO_EMAIL_PORT", 1025)
-
 AUTH_USER_MODEL = 'dashboard.User'
 
 LOGIN_EXEMPT_URLS = [
     '^account/.+'
 ]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST", 'localhost')
+EMAIL_PORT = os.environ.get("DJANGO_EMAIL_PORT", 1025)
+EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_USER", '')
+EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_PASSWORD", '')
+EMAIL_USE_TLS = os.environ.get("DJANGO_EMAIL_TLS", 'Y') in ("1", "Y", "ON")
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -99,8 +104,8 @@ WSGI_APPLICATION = 'amcatdashboard.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'amcatdashboard',
     }
 }
 
