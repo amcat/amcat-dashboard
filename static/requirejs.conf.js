@@ -19,7 +19,7 @@ requirejs.config({
         "datatables.tabletools": "datatables/extensions/TableTools/js/dataTables.tableTools",
         "jshashset": "jshashtable/hashset",
         "jshashtable": "jshashtable/hashtable",
-        "query/utils/articlemodal": "../query/utils/mock",
+        "query/utils/articlemodal": "amcat-query/query/utils/mock",
         "jquery.cookie": "jquery-cookie/jquery.cookie",
         "metis-menu": "metisMenu/dist/metisMenu",
         "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2",
@@ -27,6 +27,12 @@ requirejs.config({
         "pnotify.nonblock": "pnotify/pnotify.nonblock"
     },
     shim:{
+        "sb-admin": {
+            deps: ["jquery"]
+        },
+        "metis-menu": {
+            deps: ["jquery"]
+        },
         "pnotify.nonblock": {
             deps: ['pnotify']
         },

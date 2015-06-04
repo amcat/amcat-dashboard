@@ -35,7 +35,22 @@ class Query(models.Model):
     amcat_parameters = models.TextField()
 
     def get_parameters(self):
-        return json.loads(self.amcat_parameters)
+        parameters = json.loads(self.amcat_parameters)
+
+        # HACK
+        if isinstance(parameters['mediums'], int):
+            parameters['mediums'] = [parameters['mediums']]
+
+        return parameters
+
+    def get_articleset_ids(self):
+        return list(map(int, self.get_parameters()["articlesets"]))
+
+    def get_script(self):
+        return self.get_parameters()["script"]
+
+    def get_output_type(self):
+        return self.get_parameters()["output_type"]
 
     def update(self, user):
         url = "http://preview.amcat.nl/api/v4/projects/{project}/querys/{query}/?format=json"

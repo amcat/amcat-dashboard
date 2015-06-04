@@ -1,6 +1,8 @@
 import json
+from urllib.parse import urlencode
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
@@ -9,12 +11,36 @@ import requests
 
 from dashboard.models import User, Query
 
+PREVIEW_URL = "http://preview.amcat.nl/api/v4/query/"
+
 
 def index(request):
-    q1, = Query.objects.all()
-    return render(request, "dashboard/dashboard.html", {
-        "query": q1
+    s = requests.Session()
+
+    sessionid = settings.SESSION_ID
+
+    # Login using session id provided via environment variables
+    s.cookies.set("sessionid", settings.SESSION_ID, domain="preview.amcat.nl")
+
+    # Get CSRF token
+    s.get("http://preview.amcat.nl")
+    s.headers["X-CSRFTOKEN"] = s.cookies.get("csrftoken")
+    csrftoken = s.cookies.get("csrftoken")
+
+    query, = Query.objects.all()
+
+    url = PREVIEW_URL + "{script}?format=json&project={project}&sets={sets}".format(**{
+        "sets": ",".join(map(str, query.get_articleset_ids())),
+        "project": query.amcat_project_id,
+        "query": query.amcat_query_id,
+        "script": query.get_script()
     })
+
+    s.headers["Content-Type"] = "application/x-www-form-urlencoded"
+    response = s.post(url, data=urlencode(query.get_parameters(), True))
+    uuid = json.loads(response.content.decode("utf-8"))["uuid"]
+
+    return render(request, "dashboard/dashboard.html", locals())
 
 class UserForm(forms.ModelForm):
     amcat_token = forms.CharField(required=False)
