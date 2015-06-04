@@ -1,7 +1,7 @@
 requirejs.config({
     "baseUrl": "/static/components",
     "paths": {
-        "query": "../query",
+        "query": "amcat-query/query",
         "jquery": "jquery/dist/jquery",
         "papaparse": "papaparse/papaparse",
         "highlight": "highlight/build/highlight.pack",
