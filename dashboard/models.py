@@ -1,3 +1,5 @@
+from account.forms import SettingsForm
+from django import forms
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, PermissionsMixin, UserManager
@@ -13,9 +15,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(_('email address'), blank=False, unique=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+
     amcat_token = models.TextField(null=True)
+    amcat_username = models.TextField(null=True)
 
     objects = UserManager()
 
     class Meta:
         app_label = "dashboard"
+

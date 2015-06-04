@@ -1,0 +1,15 @@
+{% extends "dashboard/base.html" %}
+{% load bootstrap %}
+
+{% block dashboard-body %}
+    <div class="row">
+        <div class="col-lg-4">
+            <form method="POST" action="{% url "account_settings" %}">
+                <h1>Account</h1>
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <button class="btn btn-primary" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

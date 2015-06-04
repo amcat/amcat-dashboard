@@ -1,0 +1,17 @@
+{% extends "dashboard/base.html" %}
+{% load bootstrap %}
+
+{% block dashboard-body %}
+    <h1>AmCAT Settings</h1>
+    <p>You can use your amcat.nl username and password to fetch a (temporary) token
+    to authenticate. </p>
+    <div class="row">
+        <div class="col-lg-4">
+            <form method="POST" action="{% url "dashboard:amcat-settings" %}">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <button class="btn btn-primary" type="submit">Save</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

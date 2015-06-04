@@ -22,11 +22,16 @@ requirejs.config({
         "query/utils/articlemodal": "../query/utils/mock",
         "jquery.cookie": "jquery-cookie/jquery.cookie",
         "metis-menu": "metisMenu/dist/metisMenu",
-        "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2"
+        "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2",
+        "pnotify": "pnotify/pnotify.core",
+        "pnotify.nonblock": "pnotify/pnotify.nonblock"
     },
     shim:{
+        "pnotify.nonblock": {
+            deps: ['pnotify']
+        },
         "highcharts.core":{
-            dpes: ['jquery']
+            deps: ['jquery']
         },
         "highcharts.data":{
             deps: ['highcharts.core']
