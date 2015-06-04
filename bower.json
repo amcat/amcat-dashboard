@@ -5,6 +5,10 @@
     "bootstrap": "3.1.1",
     "startbootstrap-sb-admin-2": "",
     "requirejs": "",
-    "pnotify": ""
+    "pnotify": "",
+    "amcat-query": "git@github.com:amcat/amcat-query-js.git"
+  },
+  "resolutions": {
+    "bootstrap": "~3.3.0"
   }
 }
