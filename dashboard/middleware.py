@@ -32,6 +32,6 @@ class LoginRequiredMiddleware:
         if not request.user.is_authenticated():
             path = request.path_info.lstrip('/')
             if not any(m.match(path) for m in EXEMPT_URLS):
-                redirect_url = "{}?{}".format(reverse("account_login"), urlencode({"next": path}))
+                redirect_url = "{}?{}".format(reverse("account_login"), urlencode({"next": request.path_info}))
                 return HttpResponseRedirect(redirect_url)
 
