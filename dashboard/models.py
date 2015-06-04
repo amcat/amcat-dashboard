@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.conf import settings
@@ -7,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractUser, AbstractBaseUser, PermissionsMixin, UserManager
 from django.db import models
 
+EPOCH = datetime.datetime.fromtimestamp(0)
 
 class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "email"
@@ -28,20 +30,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Query(models.Model):
-    amcat_query_id = models.IntegerField()
+    amcat_query_id = models.IntegerField(db_index=True)
     amcat_project_id = models.IntegerField()
 
     amcat_name = models.TextField()
     amcat_parameters = models.TextField()
 
+    # To prevent bombarding the AmCAT servers with request, we cache results. These
+    # caches might be refreshed by a cronjob or manually
+    cache = models.TextField(null=True)
+    cache_timestamp = models.DateTimeField(default=EPOCH)
+    cache_mimetype = models.TextField(null=True)
+    cache_uuid = models.TextField(null=True)
+
     def get_parameters(self):
-        parameters = json.loads(self.amcat_parameters)
-
-        # HACK
-        if isinstance(parameters['mediums'], int):
-            parameters['mediums'] = [parameters['mediums']]
-
-        return parameters
+        return json.loads(self.amcat_parameters)
 
     def get_articleset_ids(self):
         return list(map(int, self.get_parameters()["articlesets"]))
