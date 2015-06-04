@@ -1,13 +1,15 @@
 
 <ul class="nav navbar-top-links navbar-right">
+
     <!-- Project dropdown -->
     <li class="dropdown">
-        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-            <i class="fa fa-bars fa-fw"></i> Projects <i class="fa fa-caret-down"></i>
+        <a class="dropdown-toggle" data-toggle="dropdown" href="{% url 'dashboard:import-query' %}">
+            <i class="fa fa-bars fa-fw"></i> Edit dashboard <i class="fa fa-caret-down"></i>
         </a>
         <ul class="dropdown-menu dropdown-user">
-            <li><a href="#">Project 1</a></li>
-            <li><a href="#">Project 2</a></li>
+            <li>
+                <a href=""><i class="fa fa-fw fa-cloud-download"></i> Import query</a>
+            </li>
         </ul>
     </li>
 

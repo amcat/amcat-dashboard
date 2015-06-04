@@ -80,8 +80,11 @@ def get_saved_query_result(request, query_id):
 
 
 def index(request):
-    clustermap = Query.objects.get(id=1)
-    geenstijl = Query.objects.get(id=2)
-    dagbladen = Query.objects.get(id=3)
+    q1 = Query.objects.get(id=1)
+    q2 = Query.objects.get(id=2)
+    q3 = Query.objects.get(id=3)
+    q4 = Query.objects.get(id=4)
+    q5 = Query.objects.get(id=5)
+
     return render(request, "dashboard/dashboard.html", locals())
 

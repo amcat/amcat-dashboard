@@ -3,15 +3,17 @@
 {% block dashboard-body %}
     <p><br/></p>
     <div class="row">
-        {% include "dashboard/query_panel.html" with panel_size=12 panel_id="geenstijl" query_id=geenstijl.id %}
+        {% include "dashboard/query_panel.html" with panel_size=5 panel_id="q2" query_id=q2.id %}
+        {% include "dashboard/query_panel.html" with panel_size=7 panel_id="q3" query_id=q3.id %}
     </div>
 
     <div class="row">
-        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="clustermap" query_id=clustermap.id %}
-        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="dagbladen" query_id=dagbladen.id %}
+        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="q4" query_id=q4.id %}
+        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="q1" query_id=q1.id %}
     </div>
 
-    {% include "dashboard/render_query.html" with query=geenstijl container="geenstijl" %}
-    {% include "dashboard/render_query.html" with query=clustermap container="clustermap" %}
-    {% include "dashboard/render_query.html" with query=dagbladen container="dagbladen" %}
+    {% include "dashboard/render_query.html" with query=q1 container="q1" %}
+    {% include "dashboard/render_query.html" with query=q2 container="q2" %}
+    {% include "dashboard/render_query.html" with query=q3 container="q3" %}
+    {% include "dashboard/render_query.html" with query=q4 container="q4" %}
 {% endblock %}

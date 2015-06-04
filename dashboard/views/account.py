@@ -1,6 +1,6 @@
 import json
-from account import forms, views
 from django import forms
+from account import forms as account_forms, views
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.views.generic import FormView
@@ -8,13 +8,13 @@ import requests
 from dashboard.models import User
 
 
-class SignupForm(forms.SignupForm):
+class SignupForm(account_forms.SignupForm):
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
         del self.fields["username"]
 
 class LoginView(views.LoginView):
-    form_class = forms.LoginEmailForm
+    form_class = account_forms.LoginEmailForm
 
 class SignupView(views.SignupView):
     form_class = SignupForm
@@ -36,6 +36,8 @@ class UserForm(forms.ModelForm):
             'username': data["amcat_username"],
             'password': data["password"]
         })
+
+        print(response.content)
 
         if (response.status_code != 200):
             raise ValidationError("AmCAT replied with status code {}".format(response.status_code))
