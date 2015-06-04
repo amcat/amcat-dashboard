@@ -55,7 +55,13 @@ class Query(models.Model):
     def get_output_type(self):
         return self.get_parameters()["output_type"]
 
-    def update(self, user):
+    def clear_cache(self):
+        self.cache = None
+        self.cache_timestamp = EPOCH
+        self.cache_mimetype = None
+        self.cache_uuid = None
+
+    def update(self):
         url = "http://preview.amcat.nl/api/v4/projects/{project}/querys/{query}/?format=json"
         url = url.format(project=self.amcat_project_id, query=self.amcat_query_id)
 

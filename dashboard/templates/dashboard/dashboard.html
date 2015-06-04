@@ -1,37 +1,17 @@
 {% extends "dashboard/base.html" %}
 
 {% block dashboard-body %}
-    <h1>Dashboard</h1>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <i class="fa fa-bar-chart-o fa-fw"></i> {{ query.amcat_name }}
-        </div>
-        <div id="first-query" class="panel-body">
-        </div>
+    <p><br/></p>
+    <div class="row">
+        {% include "dashboard/query_panel.html" with panel_size=12 panel_id="geenstijl" query_id=geenstijl.id %}
     </div>
 
-    <script>
-        requirejs(["jquery", "query/utils/poll", "query/renderers", "query/utils/format", "jquery.cookie"], function($, Poll, renderers){
-            // XSS below
-            var formData = {{ query.amcat_parameters|safe }};
-            var script_name = "{{ query.get_script }}";
-            var uuid = "{{ uuid }}";
+    <div class="row">
+        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="clustermap" query_id=clustermap.id %}
+        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="dagbladen" query_id=dagbladen.id %}
+    </div>
 
-            var project = {{ query.amcat_project_id }};
-            var articleset_ids = {{ query.get_articleset_ids }};
-
-            var output_type = "{{ query.get_output_type }}";
-
-            $.cookie('sessionid', '{{ sessionid }}', { domain: 'preview.amcat.nl' });
-
-            var url = "http://preview.amcat.nl/api/v4/query/{script}?format=json&project={project}&sets={sets}";
-            url = url.format({script: script_name, project: project, sets: articleset_ids.join(",")})
-
-            Poll("{{ uuid }}", {host: "http://preview.amcat.nl"}).result(function(result){
-                renderers[output_type](formData, $("#first-query"), result);
-            });
-        })
-    </script>
-    <p>{{ query }}</p>
+    {% include "dashboard/render_query.html" with query=geenstijl container="geenstijl" %}
+    {% include "dashboard/render_query.html" with query=clustermap container="clustermap" %}
+    {% include "dashboard/render_query.html" with query=dagbladen container="dagbladen" %}
 {% endblock %}

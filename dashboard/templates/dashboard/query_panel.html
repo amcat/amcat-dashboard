@@ -1,0 +1,23 @@
+<div class="col-lg-{{ panel_size }}">
+    <div id="{{ panel_id }}" class="panel panel-default">
+        <div class="panel-heading">
+            <div class="pull-right">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                        Actions
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu pull-right" role="menu">
+                        <li>
+                            <a href="{% url 'dashboard:clear-cache' query_id %}">
+                                <i class="fa fa-refresh fa-fw"></i> Clear cache
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <i class="query-icon fa fa-bar-chart-o fa-fw"></i> <span class="query-name"></span>
+        </div>
+        <div class="query-container panel-body"></div>
+    </div>
+</div>

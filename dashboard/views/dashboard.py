@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import FormView
 import requests
 
@@ -21,13 +21,14 @@ class STATUS:
     INPROGRESS = "INPROGRESS"
     SUCCESS = "SUCCESS"
     FAILED = "FAILURE"
+    PENDING = "PENDING"
 
 def poll(session, uuid, timeout=0.2, max_timeout=2):
     response = session.get(TASK_URL.format(uuid=uuid))
     task = json.loads(response.content.decode("utf-8"))
     status = task["results"][0]["status"]
 
-    if status == STATUS.INPROGRESS:
+    if status in (STATUS.INPROGRESS, STATUS.PENDING):
         return poll(session, uuid, timeout=min(timeout * 2, max_timeout))
     elif status == STATUS.FAILED:
         raise ValueError("Task {!r} failed.".format(uuid))
@@ -36,14 +37,63 @@ def poll(session, uuid, timeout=0.2, max_timeout=2):
     else:
         raise ValueError("Unknown status value {!r} returned.".format(status))
 
+def start_task(session, query):
+    if query.cache_uuid is not None:
+        return query.cache_uuid
+
+    # Start job
+    session.headers["Content-Type"] = "application/x-www-form-urlencoded"
+    url = PREVIEW_URL + "query/{script}?format=json&project={project}&sets={sets}".format(**{
+        "sets": ",".join(map(str, query.get_articleset_ids())),
+        "project": query.amcat_project_id,
+        "query": query.amcat_query_id,
+        "script": query.get_script()
+    })
+
+    response = session.post(url, data=urlencode(query.get_parameters(), True))
+    uuid = json.loads(response.content.decode("utf-8"))["uuid"]
+    query.cache_uuid = uuid
+    query.save()
+
+    return uuid
+
+def clear_cache(request, query_id):
+    query = Query.objects.get(id=query_id)
+    query.clear_cache()
+    query.update()
+    query.save()
+
+    start_task(get_session(), query)
+
+    return redirect(reverse("dashboard:index"))
 
 def get_saved_query(request, query_id):
+    query = Query.objects.get(id=query_id)
+    return HttpResponse(content_type="application/json", content=json.dumps({
+        "amcat_project_id": query.amcat_project_id,
+        "amcat_query_id": query.amcat_query_id,
+        "amcat_name": query.amcat_name,
+        "amcat_parameters": query.get_parameters(),
+        "script": query.get_script(),
+        "output_type": query.get_output_type(),
+        "articleset_ids": query.get_articleset_ids()
+    }))
+
+def get_session():
+    session = requests.Session()
+    session.cookies.set("sessionid", settings.SESSION_ID, domain="preview.amcat.nl")
+    session.get("http://preview.amcat.nl")
+    session.headers["X-CSRFTOKEN"] = session.cookies.get("csrftoken")
+    return session
+
+
+def get_saved_query_result(request, query_id):
     """
     Returns the results of a saved query either from cache or from AmCAT server. This
     code is not thread-safe.
     """
     try:
-        query = Query.objects.get(amcat_query_id=query_id)
+        query = Query.objects.get(id=query_id)
     except Query.DoesNotExist:
         raise Http404("No such object")
 
@@ -52,14 +102,7 @@ def get_saved_query(request, query_id):
         return HttpResponse(query.cache, content_type=query.cache_mimetype)
 
     # We need to fetch it from preview.amcat.nl
-    s = requests.Session()
-
-    # Login using session id provided via environment variables
-    s.cookies.set("sessionid", settings.SESSION_ID, domain="preview.amcat.nl")
-
-    # Get CSRF token
-    s.get("http://preview.amcat.nl")
-    s.headers["X-CSRFTOKEN"] = s.cookies.get("csrftoken")
+    s = get_session()
 
     if query.cache_uuid is None:
         # Start job
@@ -90,6 +133,9 @@ def get_saved_query(request, query_id):
 
 
 def index(request):
+    clustermap = Query.objects.get(id=1)
+    geenstijl = Query.objects.get(id=2)
+    dagbladen = Query.objects.get(id=3)
     return render(request, "dashboard/dashboard.html", locals())
 
 class UserForm(forms.ModelForm):
