@@ -13,6 +13,7 @@ requirejs.config({
         "bootstrap-multiselect": "bootstrap-multiselect/dist/js/bootstrap-multiselect",
         "bootstrap-tooltip": "bootstrap/js/tooltip",
         "bootstrap-datepicker": "bootstrap-datepicker/dist/js/bootstrap-datepicker",
+        "bootstrap-switch": "bootstrap-switch/dist/js/bootstrap-switch",
         "moment": "moment/moment",
         "renderjson": "renderjson/renderjson",
         "datatables": "datatables/media/js/jquery.dataTables",
@@ -27,6 +28,9 @@ requirejs.config({
         "pnotify.nonblock": "pnotify/pnotify.nonblock"
     },
     shim:{
+        "bootstrap-multiselect": {
+            deps: ["jquery", "bootstrap"]
+        },
         "sb-admin": {
             deps: ["jquery"]
         },

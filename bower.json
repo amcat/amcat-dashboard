@@ -6,7 +6,8 @@
     "startbootstrap-sb-admin-2": "",
     "requirejs": "",
     "pnotify": "",
-    "amcat-query": "git@github.com:amcat/amcat-query-js.git"
+    "amcat-query": "git@github.com:amcat/amcat-query-js.git",
+    "bootstrap-multiselect": ""
   },
   "resolutions": {
     "bootstrap": "~3.3.0"
