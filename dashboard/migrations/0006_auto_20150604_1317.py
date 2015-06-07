@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='query',
             name='amcat_query_id',
-            field=models.IntegerField(db_index=True),
+            field=models.IntegerField(db_index=True, unique=True),
         ),
     ]

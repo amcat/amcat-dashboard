@@ -16,9 +16,10 @@ class Migration(migrations.Migration):
             name='amcat_project_id',
             field=models.IntegerField(db_index=True),
         ),
-        migrations.AlterField(
-            model_name='query',
-            name='amcat_query_id',
-            field=models.IntegerField(db_index=True, unique=True),
-        ),
+        # Moved to 0007_auto_20150604_1317
+        #migrations.AlterField(
+        #    model_name='query',
+        #    name='amcat_query_id',
+        #    field=models.IntegerField(db_index=True, unique=True),
+        #),
     ]
