@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 
-from dashboard.models import Query
+from dashboard.models import Query, Page
 from dashboard.util.api import poll, start_task, PREVIEW_URL, get_session
 
 
@@ -78,13 +78,20 @@ def get_saved_query_result(request, query_id):
     # Return cached result
     return HttpResponse(query.cache, content_type=query.cache_mimetype)
 
+def empty(request):
+    return render(request, "dashboard/empty.html", locals())
 
 def index(request):
-    q1 = Query.objects.get(id=1)
-    q2 = Query.objects.get(id=2)
-    q3 = Query.objects.get(id=3)
-    q4 = Query.objects.get(id=4)
-    q5 = Query.objects.get(id=5)
+    if not Page.objects.filter(visible=True).exists():
+        return redirect(reverse("dashboard:empty"))
 
+    first_page = Page.objects.all().only("id")[0]
+    url_kwargs = {"page_id": first_page.id}
+    return redirect(reverse("dashboard:page", kwargs=url_kwargs))
+
+def page(request, page_id):
+    all_pages = Page.objects.all().exclude("ordernr")
+    page = Page.objects.get(id=page_id).only("name", "icon")
+    rows = page.get_cells(select_related=("row", "query"))
     return render(request, "dashboard/dashboard.html", locals())
 

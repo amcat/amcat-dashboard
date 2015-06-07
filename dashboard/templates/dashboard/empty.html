@@ -1,0 +1,15 @@
+{% extends "account/login_base.html" %}
+{% load url from future %}
+
+{% block panel-header-title %}Empty dashboard{% endblock %}
+{% block panel-body %}
+    {% if request.user.is_superuser %}
+        <p>Hello administrator! This dashboard is empty, so head on to the <a href="{% url 'dashboard:edit-index' %}">editing page</a>..</p>
+    {% elif request.user.is_superuser %}
+        <p>This dashboard has no (visible) pages yet. Please stand by while pages are being created!</p>
+    {% endif %}
+
+    <p>
+        <a class="btn btn-primary" href="{% url 'account_logout' %}"> Log out</a>
+    </p>
+{% endblock %}

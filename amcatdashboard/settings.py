@@ -35,7 +35,9 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 AUTH_USER_MODEL = 'dashboard.User'
 
 LOGIN_EXEMPT_URLS = [
-    '^account/.+'
+    '^account/.+',
+    '^dashboard/set_token$',
+    '^dashboard/amcat'
 ]
 
 MIGRATION_MODULES = {
@@ -74,6 +76,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.LocaleMiddleware',
     'account.middleware.TimezoneMiddleware',
+    'dashboard.middleware.APITokenNeededMiddleware'
 )
 
 STATICFILES_DIRS = (

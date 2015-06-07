@@ -3,14 +3,18 @@
 
 {% block dashboard-body %}
     <h1>AmCAT Settings</h1>
-    <p>You can use your amcat.nl username and password to fetch a (temporary) token
-    to authenticate. </p>
     <div class="row">
         <div class="col-lg-4">
+            {% if system.api_user.amcat_token == None and system.api_user == request.user %}
+                <div class="alert alert-warning">You need to set a token in order for </div>
+            {% endif %}
+
+            <p>You can use your amcat.nl username and password to fetch a (temporary) token
+                to authenticate. </p>
             <form method="POST" action="{% url "dashboard:amcat-settings" %}">
                 {% csrf_token %}
                 {{ form|bootstrap }}
-                <button class="btn btn-primary" type="submit">Save</button>
+                <button class="btn btn-primary" type="submit">Request token</button>
             </form>
         </div>
     </div>

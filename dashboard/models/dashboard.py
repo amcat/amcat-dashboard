@@ -9,7 +9,7 @@ def get_active_queries():
 class Page(models.Model):
     name = models.TextField()
     icon = models.TextField(null=True)
-    ordernr = models.PositiveSmallIntegerField(db_index=True)
+    ordernr = models.PositiveSmallIntegerField(db_index=True, unique=True)
     visible = models.BooleanField(default=False)
 
     def get_cells(self, select_related=("row",)):
@@ -52,4 +52,4 @@ class Cell(models.Model):
     class Meta:
         app_label = "dashboard"
         ordering = ["row__ordernr", "ordernr"]
-
+        unique_together = (("page", "ordernr"),)

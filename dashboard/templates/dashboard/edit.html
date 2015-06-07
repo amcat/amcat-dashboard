@@ -1,0 +1,68 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/edit.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css' %}">
+{% endblock %}
+
+{% block dashboard-body %}
+    <p><br/></p>
+
+    <div id="page-data" data-page="{{ page_json }}"></div>
+
+    <div id="global-options" class="row">
+        <div class="col-lg-12">
+            <div data-query-id="" class="panel panel-default">
+                <div class="panel-heading">Global options</div>
+                <div class="panel-body">
+                    <div class="dashboard-save btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Save</div>
+                    <div class="dashboard-autoresize btn btn-default"><i class="glyphicon glyphicon-resize-horizontal"></i> Autoresize</div>
+                    <div class="dashboard-synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
+                    <div class="dashboard-preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="row-template" class="hidden">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="selected query-stub panel panel-default">
+                    <div class="panel-heading">
+                        <!--<i class="query-icon fa fa-bar-chart-o fa-fw"></i>-->
+                        <select class="saved-query multiselect"></select>
+
+                        <div class="btn-group">
+                            <div class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></div>
+                            <div class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></div>
+                            <div class="btn btn-default disabled">Resize</div>
+                            <div class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
+                            <div class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></div>
+                        </div>
+
+                        <div class="btn-group">
+                            <div class="btn btn-default"><i class="glyphicon glyphicon-arrow-left"></i></div>
+                            <div class="btn btn-default disabled">Add</div>
+                            <div class="btn btn-default"><i class="glyphicon glyphicon-arrow-right"></i></div>
+                        </div>
+
+                        <div class="btn btn-warning pull-right"><i class="glyphicon glyphicon-trash"></i></div>
+                    </div>
+                    <div class="query-container panel-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="add-row btn btn-default"><i class="glyphicon glyphicon-plus"></i> Add row</button>
+
+    <script>
+        require(["jquery", "bootstrap-multiselect"], function($){
+            $(".multiselect").multiselect();
+        });
+    </script>
+{% endblock %}

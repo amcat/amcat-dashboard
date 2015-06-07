@@ -1,0 +1,14 @@
+.query-stub{
+    height:200px;
+    background-image: none;
+}
+
+.query-stub.selected {
+    color: white;
+    background-image: repeating-linear-gradient(
+        45deg, white, white 10px,
+        #ebebeb 10px, #ebebeb 20px
+    );
+
+
+}
