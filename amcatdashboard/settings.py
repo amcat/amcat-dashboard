@@ -38,6 +38,9 @@ LOGIN_EXEMPT_URLS = [
     '^account/.+'
 ]
 
+MIGRATION_MODULES = {
+    'account': 'amcatdashboard.account_migrations'
+}
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST", 'localhost')
@@ -53,10 +56,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'dashboard',
     'pinax_theme_bootstrap',
     'bootstrapform',
     'account',
-    'dashboard',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -105,7 +108,7 @@ WSGI_APPLICATION = 'amcatdashboard.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'amcatdashboard',
+        'NAME': 'dashboard_test',
     }
 }
 
