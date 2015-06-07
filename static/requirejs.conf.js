@@ -25,7 +25,8 @@ requirejs.config({
         "metis-menu": "metisMenu/dist/metisMenu",
         "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2",
         "pnotify": "pnotify/pnotify.core",
-        "pnotify.nonblock": "pnotify/pnotify.nonblock"
+        "pnotify.nonblock": "pnotify/pnotify.nonblock",
+        "dashboard": "../dashboard"
     },
     shim:{
         "bootstrap-multiselect": {

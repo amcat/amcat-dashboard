@@ -1,6 +1,11 @@
 .query-stub{
-    height:200px;
     background-image: none;
+}
+
+.query-stub .query-container{
+    text-align: center;
+    font-size: 6em;
+    color: lightgray;
 }
 
 .query-stub.selected {

@@ -17,41 +17,41 @@
             <div data-query-id="" class="panel panel-default">
                 <div class="panel-heading">Global options</div>
                 <div class="panel-body">
-                    <div class="dashboard-save btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Save</div>
-                    <div class="dashboard-autoresize btn btn-default"><i class="glyphicon glyphicon-resize-horizontal"></i> Autoresize</div>
-                    <div class="dashboard-synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
-                    <div class="dashboard-preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>
+                    <div class="save btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Save</div>
+                    <div class="autoresize btn btn-default"><i class="glyphicon glyphicon-resize-horizontal"></i> Autoresize</div>
+                    <div class="synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
+                    <div class="preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="row-template" class="hidden">
+    <div id="row-template" style="display:none;">
         <div class="row">
-            <div class="col-lg-12">
-                <div class="selected query-stub panel panel-default">
+            <div class="col col-lg-12">
+                <div class="query-stub panel panel-default">
                     <div class="panel-heading">
                         <!--<i class="query-icon fa fa-bar-chart-o fa-fw"></i>-->
                         <select class="saved-query multiselect"></select>
 
                         <div class="btn-group">
-                            <div class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></div>
-                            <div class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></div>
-                            <div class="btn btn-default disabled">Resize</div>
-                            <div class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
-                            <div class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></div>
+                            <div class="autoresize-left btn btn-xs btn-default"><i class="glyphicon glyphicon-step-backward"></i></div>
+                            <div class="resize-left btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-left"></i></div>
+                            <div class="btn btn-default btn-xs disabled">Resize</div>
+                            <div class="resize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
+                            <div class="autoresize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-step-forward"></i></div>
                         </div>
 
                         <div class="btn-group">
-                            <div class="btn btn-default"><i class="glyphicon glyphicon-arrow-left"></i></div>
-                            <div class="btn btn-default disabled">Add</div>
-                            <div class="btn btn-default"><i class="glyphicon glyphicon-arrow-right"></i></div>
+                            <div class="add-left btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-left"></i></div>
+                            <div class="btn btn-xs btn-default disabled">Add</div>
+                            <div class="add-right btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-right"></i></div>
                         </div>
 
-                        <div class="btn btn-warning pull-right"><i class="glyphicon glyphicon-trash"></i></div>
+                        <div class="btn btn-xs btn-warning pull-right"><i class="glyphicon glyphicon-trash"></i></div>
                     </div>
                     <div class="query-container panel-body">
-
+                        <i class="fa fa-bar-chart"></i>
                     </div>
                 </div>
             </div>
@@ -61,8 +61,12 @@
     <button class="add-row btn btn-default"><i class="glyphicon glyphicon-plus"></i> Add row</button>
 
     <script>
-        require(["jquery", "bootstrap-multiselect"], function($){
-            $(".multiselect").multiselect();
+        require(["dashboard/editing"], function(editor){
+            editor({
+                page: $("#page-data").data("page"),
+                container: $("body"),
+                rowTemplate: $("#row-template")
+            });
         });
     </script>
 {% endblock %}
