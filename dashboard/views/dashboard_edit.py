@@ -59,13 +59,18 @@ def save_rows(request, page_id):
 
 def page(request, page_id):
     page = Page.objects.get(id=page_id)
-    rows = page.get_cells(select_related=("row", "query"))
+    rows = page.get_cells(select_related=("row",))
 
     page_json = json.dumps({
         "name": page.name,
         "icon": page.icon,
         "visibible": page.visible,
-        #"rows": tuple(rows.items())
+        "rows": [[{
+            "width": cell.width,
+            "query_id": cell.query_id
+        }
+        for cell in cells]
+        for row, cells in rows.items()]
     })
 
     queries = Query.objects.only("amcat_name", "id").order_by("amcat_name")

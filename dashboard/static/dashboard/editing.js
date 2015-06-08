@@ -1,12 +1,12 @@
 "use strict";
 
-define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie"], function($, PNotify){
+define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/utils/format"], function($, PNotify){
     return function(opts){
         // Options
         var $container     = opts.container;
-        var $pageData      = opts.page;
         var $rowTemplate   = opts.rowTemplate;
         var $colTemplate   = opts.rowTemplate.find(".col");
+        var pageData       = opts.page;
         var synchroniseUrl = opts.synchroniseUrl;
         var saveUrl        = opts.saveUrl;
 
@@ -53,13 +53,20 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie"], function
             return [$.map($(row).find(".col"), serialiseCell)];
         };
 
-        var _newCol = function(width, query){
+        var _newCol = function(width, queryId){
             var newCol = $colTemplate.clone().show();
+            var select = newCol.find(".saved-query");
+
             newCol.removeClass(bootstrapColums.join(" "));
             newCol.addClass(numToCol(width));
-            newCol.find(".saved-query").addClass("multiselect-orig").multiselect({
+            select.addClass("multiselect-orig").multiselect({
                 buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle"
             });
+
+            // Set default value for query
+            if (queryId !== undefined){
+                select.val(queryId).multiselect("rebuild")
+            }
 
             return newCol;
         };
@@ -146,9 +153,23 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie"], function
             $save.click(save);
         };
 
+        var initPage = function(){
+            var rows = $.map(pageData.rows, function(row){
+                return $("<div class='query-row row'>").append(
+                    $.map(row, function(col){
+                        var newCol = _newCol(col.width, col.query_id);
+                        initQueryButtons(newCol);
+                        return newCol;
+                    })
+                );
+            });
+
+            $addRow.before(rows);
+        };
+
         var init = function(){
             initButtons();
-            $addRow.click();
+            initPage();
         };
 
         init();
