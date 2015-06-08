@@ -42,26 +42,37 @@ define(["jquery", "bootstrap-multiselect"], function($){
 
         /** EVENTS **/
         var addRow = function(){
-            var newRow = $rowTemplate.clone().show();
+            var newRow = $rowTemplate.clone();
             $addRow.before(newRow);
+            newRow.show("fast");
             initQueryButtons(newRow.find(".col"));
         };
 
         var addCol = function(){
             var currentWidth = colToNum(this.col.attr('class'));
-            var newWidth = currentWidth / 2;
-            var newCol = $colTemplate.clone().show();
+            var newWidth = Math.floor(currentWidth / 2);
 
+            if (newWidth < 2){
+                return;
+            }
+
+            // Set new width on old cell
             this.col.removeClass(bootstrapColums.join(" "));
             this.col.addClass(numToCol(newWidth));
-            newCol.removeClass(bootstrapColums.join(" "))
+
+            // Set width on new cell
+            var newCol = $colTemplate.clone().show();
+            newCol.removeClass(bootstrapColums.join(" "));
             newCol.addClass(numToCol(currentWidth - newWidth));
 
+            // Add new cell to either left or right side of existing one
             if (this.position === "left"){
                 this.col.before(newCol);
             } else {
                 this.col.after(newCol);
             }
+
+            initQueryButtons(newCol);
         };
 
         /**
