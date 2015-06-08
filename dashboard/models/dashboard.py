@@ -52,4 +52,4 @@ class Cell(models.Model):
     class Meta:
         app_label = "dashboard"
         ordering = ["row__ordernr", "ordernr"]
-        unique_together = (("page", "ordernr"),)
+        unique_together = (("page", "row", "ordernr"),)

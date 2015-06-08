@@ -20,7 +20,7 @@
                     <div class="save btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Save</div>
                     <!--<div class="autoresize btn btn-default"><i class="glyphicon glyphicon-resize-horizontal"></i> Autoresize</div>-->
                     <div class="synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
-                    <div class="preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>
+                    <!--<div class="preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>-->
                     <input data-label-text="Hints" class="hints" type="checkbox" checked />
                 </div>
             </div>
@@ -74,15 +74,24 @@
 
     <script>
         require(["jquery", "bootstrap-switch"], function($){
-            $("#global-options").find(".hints").bootstrapSwitch({
+            var hints = $("#global-options").find(".hints");
+
+            hints.bootstrapSwitch({
                 onSwitchChange: function(event, state){
                     if (state){
                         $(".hint").show("fast");
+                        $.cookie("hints", "1");
                     } else {
                         $(".hint").hide("fast");
+                        $.cookie("hints", "0");
                     }
                 }
             });
+
+            if ($.cookie("hints") === "0"){
+                $(".hint").hide();
+                hints.click();
+            }
         });
 
         require(["dashboard/editing"], function(editor){
@@ -90,7 +99,8 @@
                 page: $("#page-data").data("page"),
                 container: $("body"),
                 rowTemplate: $("#row-template"),
-                synchroniseUrl: "{% url 'dashboard:synchronise-queries' %}"
+                synchroniseUrl: "{% url 'dashboard:synchronise-queries' %}",
+                saveUrl: "{% url 'dashboard:save-rows' page_id %}"
             });
         });
     </script>

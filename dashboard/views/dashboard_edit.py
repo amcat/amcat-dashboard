@@ -1,8 +1,12 @@
+from itertools import chain, count
 import json
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from dashboard.models import Page, System, Query
+import time
+from dashboard.models import Page, System, Query, Row, Cell
+from dashboard.util.django import bulk_insert_returning_ids
 
 
 def import_query(request):
@@ -24,6 +28,35 @@ def synchronise_queries(request):
     queries = list(serialise_queries(Query.objects.order_by("amcat_name")))
     return HttpResponse(json.dumps(queries), content_type="application/json")
 
+@transaction.atomic
+def save_rows(request, page_id):
+    page = Page.objects.get(id=page_id)
+
+    rows = json.loads(request.body.decode("utf-8"))
+
+    # Remove existing rows and cells
+    row_ids = set(page.cells.values_list("row__id", flat=True))
+    Row.objects.filter(id__in=row_ids).delete()
+    page.cells.all().delete()
+
+    # Insert new rows
+    new_rows = [Row(ordernr=n) for n in range(len(rows))]
+    new_rows = bulk_insert_returning_ids(new_rows)
+
+    queries = Query.objects.only("id").in_bulk([q["query_id"] for q in chain(*rows)])
+
+    cells = []
+    for row, cols in zip(new_rows, rows):
+        for i, col in zip(count(), cols):
+            query = queries[int(col["query_id"])]
+            width = col["width"]
+            cells.append(Cell(width=width, query=query, page=page, row=row, ordernr=i))
+
+    Cell.objects.bulk_create(cells)
+
+    return HttpResponse("OK", status=201)
+
+
 def page(request, page_id):
     page = Page.objects.get(id=page_id)
     rows = page.get_cells(select_related=("row", "query"))
@@ -32,7 +65,7 @@ def page(request, page_id):
         "name": page.name,
         "icon": page.icon,
         "visibible": page.visible,
-        "rows": tuple(rows.items())
+        #"rows": tuple(rows.items())
     })
 
     queries = Query.objects.only("amcat_name", "id").order_by("amcat_name")

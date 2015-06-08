@@ -1,6 +1,6 @@
 "use strict";
 
-define(["jquery", "pnotify", "bootstrap-multiselect"], function($, PNotify){
+define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie"], function($, PNotify){
     return function(opts){
         // Options
         var $container     = opts.container;
@@ -8,6 +8,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect"], function($, PNotify){
         var $rowTemplate   = opts.rowTemplate;
         var $colTemplate   = opts.rowTemplate.find(".col");
         var synchroniseUrl = opts.synchroniseUrl;
+        var saveUrl        = opts.saveUrl;
 
         // Button elements
         var $save        = $container.find(".save");
@@ -41,9 +42,31 @@ define(["jquery", "pnotify", "bootstrap-multiselect"], function($, PNotify){
             return "col-lg-" + num.toString();
         };
 
+        var serialiseCell = function(cell){
+            return {
+                width: colToNum($(cell).attr("class")),
+                query_id: $(cell).find(".saved-query").val()
+            };
+        };
+
+        var serialiseRow = function(row){
+            return [$.map($(row).find(".col"), serialiseCell)];
+        };
+
+        var _newCol = function(width, query){
+            var newCol = $colTemplate.clone().show();
+            newCol.removeClass(bootstrapColums.join(" "));
+            newCol.addClass(numToCol(width));
+            newCol.find(".saved-query").addClass("multiselect-orig").multiselect({
+                buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle"
+            });
+
+            return newCol;
+        };
+
         /** EVENTS **/
         var addRow = function(){
-            var newRow = $rowTemplate.clone();
+            var newRow = $("<div class='query-row row'>").hide().append(_newCol(12));
             $addRow.before(newRow);
             newRow.show("fast");
             initQueryButtons(newRow.find(".col"));
@@ -62,9 +85,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect"], function($, PNotify){
             this.col.addClass(numToCol(newWidth));
 
             // Set width on new cell
-            var newCol = $colTemplate.clone().show();
-            newCol.removeClass(bootstrapColums.join(" "));
-            newCol.addClass(numToCol(currentWidth - newWidth));
+            var newCol = _newCol(currentWidth - newWidth);
 
             // Add new cell to either left or right side of existing one
             if (this.position === "left"){
@@ -76,13 +97,34 @@ define(["jquery", "pnotify", "bootstrap-multiselect"], function($, PNotify){
             initQueryButtons(newCol);
         };
 
+        var save = function(){
+            var page = $.map($container.find(".query-row"), serialiseRow);
+            $save.addClass("disabled").find("i").addClass("fa-spin");
+
+            $.ajax({
+                url: saveUrl,
+                type: "post",
+                data: JSON.stringify(page),
+                contentType: "application/json",
+                headers: {
+                    "X-CSRFTOKEN": $.cookie("csrftoken")
+                }
+            }).done(function(){
+                $save.removeClass("disabled").find("i").removeClass("fa-spin");
+                new PNotify({text: "Saving OK", type: "success", delay: 200})
+            }).fail(function(){
+                $save.removeClass("disabled").find("i").removeClass("fa-spin");
+                new PNotify({text: "Saving failed", type: "error"})
+            })
+        };
+
         var synchronise = function(){
             $synchronise.addClass("disabled").find("i").addClass("fa-spin");
 
             $.get(synchroniseUrl).done(function(queries){
                 // TODO: Synchronise with existing buttons
                 $synchronise.removeClass("disabled").find("i").removeClass("fa-spin");
-                new PNotify({text: "Queries synchronised", type: "success", delay: 200})
+                new PNotify({text: "Queries synchronised. Reload page to view changes.", type: "success", delay: 1500})
             }).fail(function(){
                 $synchronise.removeClass("disabled").find("i").removeClass("fa-spin");
                 new PNotify({text: "Synchronising failed", type: "error"})
@@ -95,15 +137,13 @@ define(["jquery", "pnotify", "bootstrap-multiselect"], function($, PNotify){
         var initQueryButtons = function(col){
             col.find(".add-left").click(addCol.bind({col: col, position: "left"}));
             col.find(".add-right").click(addCol.bind({col: col, position: "right"}));
-            col.find(".saved-query").addClass("multiselect-orig").multiselect({
-                buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle"
-            });
 
             $synchronise.click(synchronise);
         };
 
         var initButtons = function(){
             $addRow.click(addRow);
+            $save.click(save);
         };
 
         var init = function(){

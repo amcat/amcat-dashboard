@@ -7,7 +7,8 @@
     "requirejs": "",
     "pnotify": "",
     "amcat-query": "git@github.com:amcat/amcat-query-js.git",
-    "bootstrap-multiselect": ""
+    "bootstrap-multiselect": "",
+    "jquery-cookie": ""
   },
   "resolutions": {
     "bootstrap": "~3.3.0"
