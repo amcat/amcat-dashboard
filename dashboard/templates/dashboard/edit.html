@@ -21,6 +21,7 @@
                     <div class="autoresize btn btn-default"><i class="glyphicon glyphicon-resize-horizontal"></i> Autoresize</div>
                     <div class="synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
                     <div class="preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>
+                    <input data-label-text="Hints" class="hints" type="checkbox" checked />
                 </div>
             </div>
         </div>
@@ -32,23 +33,29 @@
                 <div class="query-stub panel panel-default">
                     <div class="panel-heading">
                         <!--<i class="query-icon fa fa-bar-chart-o fa-fw"></i>-->
+
+                        <div class="btn-group">
+                            <div class="resize-left btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-left"></i></div>
+                            <div class="hint btn btn-default btn-xs disabled">Resize</div>
+                            <div class="resize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
+                        </div>
+
                         <select class="saved-query multiselect"></select>
 
                         <div class="btn-group">
-                            <div class="autoresize-left btn btn-xs btn-default"><i class="glyphicon glyphicon-step-backward"></i></div>
-                            <div class="resize-left btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-left"></i></div>
-                            <div class="btn btn-default btn-xs disabled">Resize</div>
-                            <div class="resize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
-                            <div class="autoresize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-step-forward"></i></div>
-                        </div>
-
-                        <div class="btn-group">
                             <div class="add-left btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-left"></i></div>
-                            <div class="btn btn-xs btn-default disabled">Add</div>
+                            <div class="hint btn btn-xs btn-default disabled">Add</div>
                             <div class="add-right btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-right"></i></div>
                         </div>
 
-                        <div class="btn btn-xs btn-warning pull-right"><i class="glyphicon glyphicon-trash"></i></div>
+                        <div class="btn btn-xs btn-warning"><i class="glyphicon glyphicon-trash"></i></div>
+
+                        <div class="pull-right btn-group">
+                            <div class="resize-left btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-left"></i></div>
+                            <div class="hint btn btn-default btn-xs disabled">Resize</div>
+                            <div class="resize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
+                        </div>
+
                     </div>
                     <div class="query-container panel-body">
                         <i class="fa fa-bar-chart"></i>
@@ -61,6 +68,18 @@
     <button class="add-row btn btn-default"><i class="glyphicon glyphicon-plus"></i> Add row</button>
 
     <script>
+        require(["jquery", "bootstrap-switch"], function($){
+            $("#global-options").find(".hints").bootstrapSwitch({
+                onSwitchChange: function(event, state){
+                    if (state){
+                        $(".hint").show("fast");
+                    } else {
+                        $(".hint").hide("fast");
+                    }
+                }
+            });
+        });
+
         require(["dashboard/editing"], function(editor){
             editor({
                 page: $("#page-data").data("page"),

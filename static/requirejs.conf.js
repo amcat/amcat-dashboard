@@ -32,6 +32,9 @@ requirejs.config({
         "bootstrap-multiselect": {
             deps: ["jquery", "bootstrap"]
         },
+        "bootstrap-switch": {
+            deps: ["jquery", "bootstrap"]
+        },
         "sb-admin": {
             deps: ["jquery"]
         },
