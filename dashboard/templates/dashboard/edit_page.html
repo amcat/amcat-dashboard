@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block head %}
-    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/edit.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/edit_page.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css' %}">
 {% endblock %}
@@ -77,7 +77,7 @@
     <button class="add-row btn btn-default"><i class="glyphicon glyphicon-plus"></i> Add row</button>
 
     <script>
-        require(["jquery", "bootstrap-switch"], function($){
+        require(["jquery", "jquery.cookie", "bootstrap-switch"], function($){
             var hints = $("#global-options").find(".hints");
 
             hints.bootstrapSwitch({
@@ -98,7 +98,7 @@
             }
         });
 
-        require(["dashboard/editing"], function(editor){
+        require(["dashboard/page_editor"], function(editor){
             editor({
                 page: $("#page-data").data("page"),
                 container: $("body"),

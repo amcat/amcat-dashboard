@@ -62,6 +62,10 @@ def save_rows(request, page_id):
 
     return OK_CREATED
 
+def menu(request):
+    pages = Page.objects.all()
+    editing = True
+    return render(request, "dashboard/edit_menu.html", locals())
 
 def page(request, page_id):
     page = Page.objects.get(id=page_id)
@@ -80,8 +84,9 @@ def page(request, page_id):
     })
 
     queries = Query.objects.only("amcat_name", "id").order_by("amcat_name")
+    pages = Page.objects.all()
 
-    return render(request, "dashboard/edit.html", locals())
+    return render(request, "dashboard/edit_page.html", locals())
 
 def index(request):
     if not Page.objects.exists():

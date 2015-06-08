@@ -87,7 +87,7 @@ def index(request):
 
     first_page = Page.objects.all().only("id")[0]
     url_kwargs = {"page_id": first_page.id}
-    return redirect(reverse("dashboard:page", kwargs=url_kwargs))
+    return redirect(reverse("dashboard:view-page", kwargs=url_kwargs))
 
 def page(request, page_id):
     all_pages = Page.objects.all().exclude("ordernr")

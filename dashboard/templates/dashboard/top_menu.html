@@ -1,17 +1,28 @@
 
 <ul class="nav navbar-top-links navbar-right">
 
-    <!-- Project dropdown -->
-    <li class="dropdown">
-        <a  href="{% url 'dashboard:import-query' %}">
-            <i class="glyphicon glyphicon-edit"></i> Edit page
-        </a>
-        <ul class="dropdown-menu dropdown-user">
-            <li>
-                <a href=""><i class="fa fa-fw fa-cloud-download"></i> Import query</a>
-            </li>
-        </ul>
-    </li>
+    {% if request.user.is_superuser %}
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-edit fa-fw"></i> Edit <i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+                <li>
+                    <a href="{% url 'dashboard:edit-menu' %}">
+                        Menu
+                    </a>
+                </li>
+                {% if page_id %}
+                    <li>
+                        <a href="{% url 'dashboard:edit-page' page_id %}">
+                            Page
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </li>
+    {% endif %}
+
 
     <!-- Account dropdown -->
     <li class="dropdown">
