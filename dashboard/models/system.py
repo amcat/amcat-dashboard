@@ -4,6 +4,7 @@ from django.db import models
 
 class System(models.Model):
     api_user = models.ForeignKey(settings.AUTH_USER_MODEL, help_text="User on whose behalf API calls are made to AmCAT")
+    hostname = models.TextField(default="http://preview.amcat.nl")
     project_id = models.PositiveIntegerField(help_text="AmCAT project this dashboard is linked to", null=True)
     project_name = models.TextField(null=True)
 
