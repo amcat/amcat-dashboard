@@ -19,8 +19,9 @@
             <i class="fa fa-user fa-fw"></i> User <i class="fa fa-caret-down"></i>
         </a>
         <ul class="dropdown-menu dropdown-user">
-            <li><a href="{% url 'dashboard:amcat-settings' %}"><i class="fa fa-plug fa-fw"></i> AmCAT settings</a></li>
-            <li><a href="{% url 'account_settings' %}"><i class="fa fa-user fa-fw"></i> View profile</a></li>
+            <li><a href="{% url 'dashboard:system-settings' %}"><i class="glyphicon glyphicon-globe"></i> Global settings</a></li>
+            <li><a href="{% url 'dashboard:amcat-settings' %}"><i class="fa fa-plug fa-fw"></i> AmCAT token</a></li>
+            <li><a href="{% url 'account_settings' %}"><i class="fa fa-user fa-fw"></i> User profile</a></li>
             <li><a href="https://github.com/amcat/amcat-dashboard/issues/new"><i class="fa fa-bug fa-fw"></i> Report error</a></li>
             <li class="divider"></li>
             <li><a href="{% url 'account_logout' %}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>

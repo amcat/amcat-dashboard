@@ -2,6 +2,7 @@ from django.conf.urls import url
 
 from dashboard.views import dashboard_edit
 from dashboard.views import dashboard_view
+from dashboard.views import settings
 
 from dashboard.views.account import AmCATSettingsView
 
@@ -16,4 +17,5 @@ urlpatterns = [
     url("^edit$", dashboard_edit.index, name="edit-index"),
     url("^edit/(?P<page_id>[0-9]+)$", dashboard_edit.page, name="edit-page"),
     url("^import_query$", dashboard_edit.import_query, name="import-query"),
+    url("^system_settings$", settings.SystemSettingsView.as_view(), name="system-settings"),
 ]
