@@ -144,13 +144,12 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
         var initQueryButtons = function(col){
             col.find(".add-left").click(addCol.bind({col: col, position: "left"}));
             col.find(".add-right").click(addCol.bind({col: col, position: "right"}));
-
-            $synchronise.click(synchronise);
         };
 
         var initButtons = function(){
             $addRow.click(addRow);
             $save.click(save);
+            $synchronise.click(synchronise);
         };
 
         var initPage = function(){
