@@ -1,4 +1,5 @@
 import datetime
+from amcatclient import AmcatAPI
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.db import models
@@ -22,6 +23,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     amcat_username = models.TextField(null=True)
 
     objects = UserManager()
+
+    def get_api(self, host):
+        return AmcatAPI(host=host, token=self.amcat_token)
 
     class Meta:
         app_label = "dashboard"

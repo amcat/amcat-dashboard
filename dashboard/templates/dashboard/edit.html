@@ -18,7 +18,7 @@
                 <div class="panel-heading">Global options</div>
                 <div class="panel-body">
                     <div class="save btn btn-primary"><i class="glyphicon glyphicon-floppy-disk"></i> Save</div>
-                    <div class="autoresize btn btn-default"><i class="glyphicon glyphicon-resize-horizontal"></i> Autoresize</div>
+                    <!--<div class="autoresize btn btn-default"><i class="glyphicon glyphicon-resize-horizontal"></i> Autoresize</div>-->
                     <div class="synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
                     <div class="preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>
                     <input data-label-text="Hints" class="hints" type="checkbox" checked />
@@ -40,7 +40,12 @@
                             <div class="resize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
                         </div>
 
-                        <select class="saved-query multiselect"></select>
+                        <select class="saved-query">
+                            <option value="">-- choose query --</option>
+                            {% for query in queries %}
+                                <option value="{{ query.id }}">{{ query.amcat_name }}</option>
+                            {% endfor %}
+                        </select>
 
                         <div class="btn-group">
                             <div class="add-left btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-left"></i></div>
@@ -84,7 +89,8 @@
             editor({
                 page: $("#page-data").data("page"),
                 container: $("body"),
-                rowTemplate: $("#row-template")
+                rowTemplate: $("#row-template"),
+                synchroniseUrl: "{% url 'dashboard:synchronise-queries' %}"
             });
         });
     </script>

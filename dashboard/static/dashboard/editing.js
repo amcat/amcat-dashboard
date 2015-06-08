@@ -1,12 +1,13 @@
 "use strict";
 
-define(["jquery", "bootstrap-multiselect"], function($){
+define(["jquery", "pnotify", "bootstrap-multiselect"], function($, PNotify){
     return function(opts){
         // Options
-        var $container   = opts.container;
-        var $pageData    = opts.page;
-        var $rowTemplate = opts.rowTemplate;
-        var $colTemplate = opts.rowTemplate.find(".col");
+        var $container     = opts.container;
+        var $pageData      = opts.page;
+        var $rowTemplate   = opts.rowTemplate;
+        var $colTemplate   = opts.rowTemplate.find(".col");
+        var synchroniseUrl = opts.synchroniseUrl;
 
         // Button elements
         var $save        = $container.find(".save");
@@ -75,12 +76,30 @@ define(["jquery", "bootstrap-multiselect"], function($){
             initQueryButtons(newCol);
         };
 
+        var synchronise = function(){
+            $synchronise.addClass("disabled").find("i").addClass("fa-spin");
+
+            $.get(synchroniseUrl).done(function(queries){
+                // TODO: Synchronise with existing buttons
+                $synchronise.removeClass("disabled").find("i").removeClass("fa-spin");
+                new PNotify({text: "Queries synchronised", type: "success", delay: 200})
+            }).fail(function(){
+                $synchronise.removeClass("disabled").find("i").removeClass("fa-spin");
+                new PNotify({text: "Synchronising failed", type: "error"})
+            });
+        };
+
         /**
          * Initialise buttons on a query
          */
         var initQueryButtons = function(col){
             col.find(".add-left").click(addCol.bind({col: col, position: "left"}));
             col.find(".add-right").click(addCol.bind({col: col, position: "right"}));
+            col.find(".saved-query").addClass("multiselect-orig").multiselect({
+                buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle"
+            });
+
+            $synchronise.click(synchronise);
         };
 
         var initButtons = function(){
