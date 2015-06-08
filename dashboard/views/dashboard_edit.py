@@ -28,6 +28,9 @@ def synchronise_queries(request):
     queries = list(serialise_queries(Query.objects.order_by("amcat_name")))
     return HttpResponse(json.dumps(queries), content_type="application/json")
 
+
+OK_CREATED = HttpResponse("OK", status=201)
+
 @transaction.atomic
 def save_rows(request, page_id):
     page = Page.objects.get(id=page_id)
@@ -40,6 +43,9 @@ def save_rows(request, page_id):
     page.cells.all().delete()
 
     # Insert new rows
+    if not rows:
+        return OK_CREATED
+
     new_rows = [Row(ordernr=n) for n in range(len(rows))]
     new_rows = bulk_insert_returning_ids(new_rows)
 
@@ -54,7 +60,7 @@ def save_rows(request, page_id):
 
     Cell.objects.bulk_create(cells)
 
-    return HttpResponse("OK", status=201)
+    return OK_CREATED
 
 
 def page(request, page_id):
