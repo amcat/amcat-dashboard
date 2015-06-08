@@ -138,12 +138,33 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             });
         };
 
+        var delete_ = function(){
+            var $sibling = this.siblings().first();
+
+            // Remove whole row if we're the only one left
+            if (!$sibling.length){
+                this.closest(".row").remove();
+                return;
+            }
+
+            // Remove yourself, and choose on of the siblings to expand 'into'
+            // the old place
+            var ownSize = colToNum(this.attr('class'));
+            var siblingSize = colToNum($sibling.attr('class'));
+
+            this.remove();
+
+            $sibling.removeClass(bootstrapColums.join(" ")).addClass(numToCol(siblingSize + ownSize))
+
+        };
+
         /**
          * Initialise buttons on a query
          */
         var initQueryButtons = function(col){
             col.find(".add-left").click(addCol.bind({col: col, position: "left"}));
             col.find(".add-right").click(addCol.bind({col: col, position: "right"}));
+            col.find(".delete").click(delete_.bind(col));
         };
 
         var initButtons = function(){
