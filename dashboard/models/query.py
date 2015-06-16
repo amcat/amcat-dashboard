@@ -1,7 +1,11 @@
+from __future__ import absolute_import
+
 import json
+import requests
+
 from django.conf import settings
 from django.db import models
-import requests
+
 from dashboard.models.user import EPOCH
 
 

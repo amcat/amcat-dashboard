@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import json
 
 from django import forms
@@ -27,7 +29,7 @@ class SignupView(views.SignupView):
     form_class = SignupForm
 
     def create_user(self, form, commit=True, **kwargs):
-        user = super().create_user(form, commit=False, **kwargs)
+        user = super(SignupView, self).create_user(form, commit=False, **kwargs)
         user.amcat_username = form.cleaned_data["amcat_username"]
 
         if not User.objects.exists():
@@ -39,7 +41,7 @@ class SignupView(views.SignupView):
         return user
 
     def form_valid(self, form):
-        redirect_response = super().form_valid(form)
+        redirect_response = super(SignupView, self).form_valid(form)
 
         if User.objects.count() == 1:
             system = System.load()
@@ -58,7 +60,7 @@ class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, required=False)
 
     def clean(self):
-        data = super().clean()
+        data = super(UserForm, self).clean()
 
         url = "http://preview.amcat.nl/api/v4/get_token"
         response = requests.post(url, data={
@@ -86,13 +88,13 @@ class AmCATSettingsView(FormView):
         return reverse("dashboard:amcat-settings")
 
     def get_context_data(self, **kwargs):
-        return dict(super().get_context_data(**kwargs), system=System.load())
+        return dict(super(AmCATSettingsView, self).get_context_data(**kwargs), system=System.load())
 
     def get_form_kwargs(self):
-        return dict(super().get_form_kwargs(), instance=self.request.user)
+        return dict(super(AmCATSettingsView, self).get_form_kwargs(), instance=self.request.user)
 
     def form_valid(self, form):
-        super().form_valid(form)
+        super(AmCATSettingsView, self).form_valid(form)
         form.save()
         messages.add_message(self.request, messages.INFO, "Token generated.")
         return redirect(reverse("dashboard:index"))

@@ -1,10 +1,16 @@
 import re
-from urllib.parse import urlencode
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.shortcuts import redirect
 from dashboard.models import System
+
+try:
+    # Python 3.X
+    from urllib.parse import urlencode
+except ImportError:
+    # Python 2.7
+    from urllib import urlencode
 
 EXEMPT_URLS = [re.compile(expr) for expr in getattr(settings, "LOGIN_EXEMPT_URLS", ())]
 

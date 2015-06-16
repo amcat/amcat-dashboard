@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 from django.conf import settings
 from django.db import models
 
@@ -30,7 +32,7 @@ class System(models.Model):
 
     def save(self, *args, **kwargs):
         self.__class__.objects.exclude(id=self.id).delete()
-        super().save(*args, **kwargs)
+        super(System, self).save(*args, **kwargs)
 
     @classmethod
     def load(cls):

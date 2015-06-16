@@ -1,6 +1,8 @@
+from __future__ import absolute_import
+
+from dashboard.models.query import Query
 from collections import OrderedDict
 from django.db import models
-from dashboard.models.query import Query
 
 def get_active_queries():
     query_ids = Cell.objects.values_list("query__id", flat=True)
@@ -11,6 +13,9 @@ class Page(models.Model):
     icon = models.TextField(null=True)
     ordernr = models.PositiveSmallIntegerField(db_index=True, unique=True)
     visible = models.BooleanField(default=False)
+
+    def serialise(self):
+        return dict(name=self.name, icon=self.icon, visible=self.visible)
 
     def get_cells(self, select_related=("row",)):
         """
