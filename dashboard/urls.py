@@ -22,4 +22,5 @@ urlpatterns = [
     url("^save_rows/(?P<page_id>[0-9]+)$", dashboard_edit.save_rows, name="save-rows"),
     url("^page/(?P<page_id>[0-9]+)$", dashboard_view.page, name="view-page"),
     url("^menu/$", dashboard_edit.menu, name="edit-menu"),
+    url("^save_menu/$", dashboard_edit.save_menu, name="save-menu"),
 ]

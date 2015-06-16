@@ -1,7 +1,12 @@
  .sidebar {
-     width: 400px;
+     width: 500px;
+ }
+
+input.form-control{
+    width: initial;
+    display: inline;
  }
 
  #page-wrapper{
-     margin: 0 0 0 400px;
+     margin: 0 0 0 500px;
  }

@@ -2,18 +2,17 @@
 
 {% block dashboard-body %}
     <p><br/></p>
-    <div class="row">
-        {% include "dashboard/query_panel.html" with panel_size=5 panel_id="q2" query_id=q2.id %}
-        {% include "dashboard/query_panel.html" with panel_size=7 panel_id="q3" query_id=q3.id %}
-    </div>
+    {% for row, cells in rows.items %}
+        <div class="row">
+            {% for cell in cells %}
+                {% include "dashboard/query_panel.html" with panel_size=cell.width panel_id=cell.id query_id=cell.query_id %}
+            {% endfor %}
+        </div>
+    {% endfor %}
 
-    <div class="row">
-        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="q4" query_id=q4.id %}
-        {% include "dashboard/query_panel.html" with panel_size=6 panel_id="q1" query_id=q1.id %}
-    </div>
-
-    {% include "dashboard/render_query.html" with query=q1 container="q1" %}
-    {% include "dashboard/render_query.html" with query=q2 container="q2" %}
-    {% include "dashboard/render_query.html" with query=q3 container="q3" %}
-    {% include "dashboard/render_query.html" with query=q4 container="q4" %}
+    {% for row, cells in rows.items %}
+        {% for cell in cells %}
+            {% include "dashboard/render_query.html" with query=cell.query container=cell.id %}
+        {% endfor %}
+    {% endfor %}
 {% endblock %}

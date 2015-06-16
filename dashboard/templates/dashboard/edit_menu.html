@@ -10,7 +10,7 @@
 {% block dashboard-body %}
     <p><br/></p>
 
-    <div id="global-options" class="row">
+    <div data-pages="{{ pages }}" id="global-options" class="row">
         <div class="col-lg-12">
             <div data-query-id="" class="panel panel-default">
                 <div class="panel-heading">Global options</div>
@@ -23,4 +23,26 @@
     </div>
 
     <div class="alert alert-info">You can edit the menu to the left of this screen. When done, press 'save'.</div>
+
+    <li style="display:none;" class="menu-template">
+        <i class="fa fa-fw"></i>
+        <input placeholder="Name.." class="form-control" name="name" type="text" value="{{ page.name }}" />
+        <div class="btn-group btn-group-sm">
+            <button class="move-down btn btn-default"><i class="glyphicon glyphicon-arrow-down"></i></button>
+            <button class="move-up btn btn-default"><i class="glyphicon glyphicon-arrow-up"></i></button>
+        </div>
+        <input name="visible" class="page-visible" data-size="small" data-on-text="Visible" data-off-text="Hidden" type="checkbox"/>
+        <button class="delete btn btn-sm btn-warning"><i class="glyphicon glyphicon-trash"></i></button>
+    </li>
+
+    <script>
+        require(["jquery", "dashboard/menu_editor"], function($, editor){
+            editor({
+                menu: $("#side-menu"),
+                menuTemplate: $(".menu-template"),
+                pageData: $("#global-options").data("pages"),
+                saveUrl: "{% url 'dashboard:save-menu' %}"
+            });
+        });
+    </script>
 {% endblock %}

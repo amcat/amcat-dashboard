@@ -90,8 +90,8 @@ def index(request):
     return redirect(reverse("dashboard:view-page", kwargs=url_kwargs))
 
 def page(request, page_id):
-    all_pages = Page.objects.all().exclude("ordernr")
-    page = Page.objects.get(id=page_id).only("name", "icon")
+    all_pages = Page.objects.defer("ordernr")
+    page = Page.objects.only("name", "icon").get(id=page_id)
     rows = page.get_cells(select_related=("row", "query"))
     return render(request, "dashboard/dashboard.html", locals())
 

@@ -1,7 +1,10 @@
 from __future__ import absolute_import
+import itertools
+import transaction
 
 from dashboard.models.query import Query
 from collections import OrderedDict
+from django.db import transaction
 from django.db import models
 
 def get_active_queries():
@@ -30,6 +33,13 @@ class Page(models.Model):
                 odict[cell.row] = []
             odict[cell.row].append(cell)
         return odict
+
+    @transaction.atomic
+    def delete(self, using=None):
+        cells = self.cells.only("id", "row_id")
+        Row.objects.filter(id__in={c.row_id for c in cells}).delete()
+        Cell.objects.filter(id__in={c.id for c in cells}).delete()
+        super(Page, self).delete(using=using)
 
     class Meta:
         app_label = "dashboard"

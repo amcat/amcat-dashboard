@@ -1,5 +1,6 @@
 from itertools import chain, count
 import json
+from operator import itemgetter
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse
@@ -7,6 +8,7 @@ from django.shortcuts import redirect, render
 import time
 from dashboard.models import Page, System, Query, Row, Cell
 from dashboard.util.django import bulk_insert_returning_ids
+from dashboard.util.itertools import split
 
 
 def import_query(request):
@@ -62,8 +64,38 @@ def save_rows(request, page_id):
 
     return OK_CREATED
 
+@transaction.atomic
+def save_menu(request):
+    pages = json.loads(request.body.decode("utf-8"))
+    existing_pages, new_pages = split(itemgetter("id"), pages)
+
+    # We must use delete() on a single Page objects, as it deletes associated rows/cells
+    existing_pages_ids = list(map(itemgetter("id"), existing_pages))
+    for page in Page.objects.exclude(id__in=existing_pages_ids):
+        Page.objects.only("id").get(id=page["id"]).delete()
+
+    for page, page_obj in zip(existing_pages, Page.objects.filter(id__in=existing_pages_ids)):
+        page_obj.name = page["name"]
+        page_obj.visible = page["visible"]
+        page_obj.icon = page["icon"]
+        page_obj.ordernr = pages.index(page)
+        page_obj.save()
+
+    if not pages:
+        return OK_CREATED
+
+    Page.objects.bulk_create([Page(ordernr=pages.index(page), **page) for page in new_pages])
+    return OK_CREATED
+
+
 def menu(request):
     pages = Page.objects.all()
+    pages = json.dumps([{
+        "id": page.id,
+        "icon": page.icon,
+        "visible": page.visible,
+        "name": page.name
+    } for page in pages])
     editing = True
     return render(request, "dashboard/edit_menu.html", locals())
 
@@ -71,10 +103,8 @@ def page(request, page_id):
     page = Page.objects.get(id=page_id)
     rows = page.get_cells(select_related=("row",))
 
-    page_json = json.dumps({
-        "name": page.name,
-        "icon": page.icon,
-        "visibible": page.visible,
+    page_json = page.serialise()
+    page_json.update({
         "rows": [[{
             "width": cell.width,
             "query_id": cell.query_id
@@ -82,6 +112,8 @@ def page(request, page_id):
         for cell in cells]
         for row, cells in rows.items()]
     })
+
+    page_json = json.dumps(page_json)
 
     queries = Query.objects.only("amcat_name", "id").order_by("amcat_name")
     pages = Page.objects.all()
