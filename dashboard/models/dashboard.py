@@ -12,6 +12,9 @@ class Page(models.Model):
     ordernr = models.PositiveSmallIntegerField(db_index=True, unique=True)
     visible = models.BooleanField(default=False)
 
+    def serialise(self):
+        return dict(name=self.name, icon=self.icon, visible=self.visible)
+
     def get_cells(self, select_related=("row",)):
         """
         Efficiently determine a mapping from row to cells.

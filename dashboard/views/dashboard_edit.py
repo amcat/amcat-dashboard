@@ -71,10 +71,8 @@ def page(request, page_id):
     page = Page.objects.get(id=page_id)
     rows = page.get_cells(select_related=("row",))
 
-    page_json = json.dumps({
-        "name": page.name,
-        "icon": page.icon,
-        "visibible": page.visible,
+    page_json = page.serialise()
+    page_json.update({
         "rows": [[{
             "width": cell.width,
             "query_id": cell.query_id
@@ -82,6 +80,8 @@ def page(request, page_id):
         for cell in cells]
         for row, cells in rows.items()]
     })
+
+    page_json = json.dumps(page_json)
 
     queries = Query.objects.only("amcat_name", "id").order_by("amcat_name")
     pages = Page.objects.all()
