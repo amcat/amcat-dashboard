@@ -20,7 +20,7 @@ urlpatterns = [
     url("^system_settings$", settings.SystemSettingsView.as_view(), name="system-settings"),
     url("^synchronise_queries$", dashboard_edit.synchronise_queries, name="synchronise-queries"),
     url("^save_rows/(?P<page_id>[0-9]+)$", dashboard_edit.save_rows, name="save-rows"),
-    url("^page/(?P<page_id>[0-9]+)$", dashboard_view.page, name="view-page"),
+    url("^page/(?P<page_id>[0-9]+)$", dashboard_view.DashboardPageView.as_view(), name="view-page"),
     url("^menu/$", dashboard_edit.menu, name="edit-menu"),
     url("^save_menu/$", dashboard_edit.save_menu, name="save-menu"),
 ]

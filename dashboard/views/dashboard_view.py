@@ -6,10 +6,27 @@ from django.core.urlresolvers import reverse
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
 
 from dashboard.models import Query, Page
 from dashboard.util.api import poll, start_task, PREVIEW_URL, get_session
 
+class MenuViewMixin(object):
+    pass
+
+class BaseDashboardView(TemplateView):
+    """Adds basic context to a view, for menu rendering."""
+    template_name = "dashboard/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        pages = Page.objects.all().only("id", "name", "icon")
+        return dict(super().get_context_data(**kwargs), pages=pages)
+
+class DashboardPageView(BaseDashboardView):
+    def get_context_data(self, **kwargs):
+        page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
+        rows = page.get_cells(select_related=("row", "query"))
+        return dict(super().get_context_data(**kwargs), page=page, rows=rows)
 
 def clear_cache(request, query_id):
     query = Query.objects.get(id=query_id)
@@ -88,10 +105,4 @@ def index(request):
     first_page = Page.objects.all().only("id")[0]
     url_kwargs = {"page_id": first_page.id}
     return redirect(reverse("dashboard:view-page", kwargs=url_kwargs))
-
-def page(request, page_id):
-    all_pages = Page.objects.defer("ordernr")
-    page = Page.objects.only("name", "icon").get(id=page_id)
-    rows = page.get_cells(select_related=("row", "query"))
-    return render(request, "dashboard/dashboard.html", locals())
 
