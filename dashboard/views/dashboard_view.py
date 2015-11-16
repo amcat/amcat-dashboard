@@ -71,8 +71,9 @@ def get_saved_query_result(request, query_id):
     if query.cache_uuid is None:
         # Start job
         s.headers["Content-Type"] = "application/x-www-form-urlencoded"
-        url = PREVIEW_URL + "query/{script}?format=json&project={project}&sets={sets}".format(**{
+        url = PREVIEW_URL + "query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}".format(**{
             "sets": ",".join(map(str, query.get_articleset_ids())),
+            "jobs": ",".join(map(str, query.get_codingjob_ids())),
             "project": query.amcat_project_id,
             "query": query.amcat_query_id,
             "script": query.get_script()

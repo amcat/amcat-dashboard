@@ -29,6 +29,9 @@ class Query(models.Model):
     def get_articleset_ids(self):
         return list(map(int, self.get_parameters()["articlesets"]))
 
+    def get_codingjob_ids(self):
+        return list(map(int, self.get_parameters().get("codingjobs", [])))
+
     def get_script(self):
         return self.get_parameters()["script"]
 
