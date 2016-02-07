@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from audioop import reverse
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -112,6 +111,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'dashboard',
+        'USER': os.environ.get("DASHBOARD_DB_USER", "dashboard"),
+        'PASSWORD': os.environ.get("DASHBOARD_DB_PASSWORD", ""),
+        'HOST': os.environ.get("DASHBOARD_DB_HOST", ""),
+        'PORT': os.environ.get("DASHBOARD_DB_PORT", "")
     }
 }
 
