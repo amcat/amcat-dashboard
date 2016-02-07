@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 import itertools
-import transaction
 
 from dashboard.models.query import Query
 from collections import OrderedDict
