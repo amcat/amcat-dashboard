@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 
+import requests
 import json
 
 from django import forms
@@ -9,14 +10,11 @@ from django.core.urlresolvers import reverse
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.generic import FormView
-import requests
 
 from dashboard.models import User, System
 
 
 class SignupForm(account_forms.SignupForm):
-    amcat_username = forms.CharField()
-
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
         del self.fields["username"]
@@ -28,9 +26,13 @@ class SignupView(views.SignupView):
     """The first user who registers is promoted to superuser"""
     form_class = SignupForm
 
+    def get_context_data(self, **kwargs):
+        context_data = super(SignupView, self).get_context_data(**kwargs)
+        context_data["first_signup"] = User.objects.count() == 0
+        return context_data
+
     def create_user(self, form, commit=True, **kwargs):
         user = super(SignupView, self).create_user(form, commit=False, **kwargs)
-        user.amcat_username = form.cleaned_data["amcat_username"]
 
         if not User.objects.exists():
             user.is_superuser = True
@@ -39,16 +41,6 @@ class SignupView(views.SignupView):
             user.save()
 
         return user
-
-    def form_valid(self, form):
-        redirect_response = super(SignupView, self).form_valid(form)
-
-        if User.objects.count() == 1:
-            system = System.load()
-            system.api_user = self.created_user
-            system.save()
-
-        return redirect_response
 
     def generate_username(self, form):
         return "This value is not used."
@@ -68,7 +60,7 @@ class UserForm(forms.ModelForm):
             'password': data["password"]
         })
 
-        if (response.status_code != 200):
+        if response.status_code != 200:
             raise ValidationError("AmCAT replied with status code {}".format(response.status_code))
 
         data["amcat_token"] = json.loads(response.content.decode("utf-8"))["token"]

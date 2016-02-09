@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.shortcuts import redirect
-from dashboard.models import System
+from dashboard.models import System, Page
 
 try:
     # Python 3.X
@@ -43,21 +43,20 @@ class APITokenNeededMiddleware:
             # Do nothing when on login / register page
             return None
 
+        if request.path_info == reverse("dashboard:token-setup"):
+            return None
+
         if request.user.is_authenticated():
-            system = System.load()
+            try:
+                system = System.load()
+            except System.DoesNotExist:
+                token = None
+            else:
+                token = system.amcat_token
 
-            assert system.api_user, "No user account linked to System.api_user. This " \
-                                    "should have happened while registering the first " \
-                                    "user!"
-
-            assert system.api_user.is_superuser, "System.api_user should be a superuser"
-
-            if system.api_user.amcat_token is not None:
-                # Token set, so we can do nothing
+            if not request.user.is_superuser:
                 return None
 
-            if system.api_user == request.user:
-                return redirect(reverse("dashboard:amcat-settings"))
-
-            return redirect(reverse("dashboard:empty"))
+            if not token:
+                return redirect(reverse("dashboard:token-setup"))
 

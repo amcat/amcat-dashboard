@@ -45,8 +45,11 @@ class Query(models.Model):
         self.cache_uuid = None
 
     def update(self):
-        url = "http://preview.amcat.nl/api/v4/projects/{project}/querys/{query}/?format=json"
+        from dashboard.models import System
+        url = "projects/{project}/querys/{query}/"
         url = url.format(project=self.amcat_project_id, query=self.amcat_query_id)
+
+        print(list(System.get_api().get_pages(url)))
 
         response = requests.get(url, cookies={
             "sessionid": settings.SESSION_ID

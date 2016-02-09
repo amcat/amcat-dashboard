@@ -24,8 +24,8 @@ requirejs.config({
         "jquery.cookie": "jquery-cookie/jquery.cookie",
         "metis-menu": "metisMenu/dist/metisMenu",
         "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2",
-        "pnotify": "pnotify/pnotify.core",
-        "pnotify.nonblock": "pnotify/pnotify.nonblock",
+        "pnotify": "pnotify/dist/pnotify",
+        "pnotify.nonblock": "pnotify/dist/pnotify.nonblock",
         "dashboard": "../dashboard"
     },
     shim:{

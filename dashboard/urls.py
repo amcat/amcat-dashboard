@@ -18,6 +18,7 @@ urlpatterns = [
     url("^edit/(?P<page_id>[0-9]+)$", dashboard_edit.page, name="edit-page"),
     url("^import_query$", dashboard_edit.import_query, name="import-query"),
     url("^system_settings$", settings.SystemSettingsView.as_view(), name="system-settings"),
+    url("^token_setup$", settings.SetupTokenView.as_view(), name="token-setup"),
     url("^synchronise_queries$", dashboard_edit.synchronise_queries, name="synchronise-queries"),
     url("^save_rows/(?P<page_id>[0-9]+)$", dashboard_edit.save_rows, name="save-rows"),
     url("^page/(?P<page_id>[0-9]+)$", dashboard_view.DashboardPageView.as_view(), name="view-page"),

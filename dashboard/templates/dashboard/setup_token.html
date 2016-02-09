@@ -1,0 +1,25 @@
+{% extends "account/login_base.html" %}
+
+{% load url from future %}
+{% load bootstrap %}
+
+{% block panel-header-title %}Token setup{% endblock %}
+
+{% block panel-body %}
+    <form id="signup_form" method="post" action="{% url "dashboard:token-setup" %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+        <div class="panel panel-default">
+            <div class="panel-body">
+                Dashboard needs to gain access to an AmCAT instance, to fetch saved
+                queries. Although
+                you need to enter your credentials below, this dashboard will never
+                store your credentials directly. Instead, it requests an authentication
+                token and uses that to access AmCAT in the future.
+            </div>
+        </div>
+
+        {{ form|bootstrap }}
+
+        <input type="submit" class="btn btn-primary" value="Get token">
+    </form>
+{% endblock %}

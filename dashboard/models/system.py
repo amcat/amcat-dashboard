@@ -8,16 +8,15 @@ from dashboard.models import Query
 
 
 class System(models.Model):
-    api_user = models.ForeignKey(settings.AUTH_USER_MODEL, help_text="User on whose behalf API calls are made to AmCAT")
     hostname = models.TextField(default="http://preview.amcat.nl")
     project_id = models.PositiveIntegerField(help_text="AmCAT project this dashboard is linked to", null=True)
     project_name = models.TextField(null=True)
+    amcat_token = models.TextField(null=True)
 
     def synchronise_queries(self):
-        api = self.api_user.get_api(self.hostname)
         url = "projects/{project}/querys/".format(project=self.project_id)
 
-        for api_query in api.get_pages(url):
+        for api_query in self.get_api().get_pages(url):
             amcat_query_id = api_query["id"]
 
             try:
@@ -34,9 +33,23 @@ class System(models.Model):
         self.__class__.objects.exclude(id=self.id).delete()
         super(System, self).save(*args, **kwargs)
 
+    def set_token(self, username, password):
+        self.amcat_token = self.get_api(username, password).token
+
+    def get_api(self, username=None, password=None):
+        """
+        Get amcatclient API object. If username and password is given, authenticate with
+        those credentials, else use System.token.
+
+        @return: AmcatAPI
+        """
+        if username and password:
+            return AmcatAPI(host=self.hostname, user=username, password=password)
+        assert self.amcat_token, "No username and password supplied, but no token was set too."
+        return AmcatAPI(host=self.hostname, token=self.amcat_token)
+
     @classmethod
     def load(cls):
-        try:
-            return cls.objects.get()
-        except cls.DoesNotExist:
-            return cls()
+        return cls.objects.get()
+
+

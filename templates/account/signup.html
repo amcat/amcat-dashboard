@@ -8,6 +8,13 @@
 {% block panel-body %}
     <form id="signup_form" method="post" action="{% url "account_signup" %}" autocapitalize="off" {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
         {% csrf_token %}
+        {% if first_signup %}
+        <div class="panel panel-success">
+            <div class="panel-body">
+                Welcome to Dashboard! No users have singed up yet, so you're the new administrator.
+            </div>
+        </div>
+        {% endif %}
 
         <fieldset>
             {% if redirect_field_value %}
@@ -30,13 +37,6 @@
                 <input class="form-control" placeholder="Password (again)" name="password_confirm" type="password" value="">
                 {% if form.errors.password_confirm %}
                     <p class="danger">{{ form.errors.password_confirm.as_text }}</p>
-                {% endif %}
-            </div>
-            <p>For amcat.nl users:</p>
-            <div class="form-group">
-                <input class="form-control" placeholder="AmCAT username" name="amcat_username" type="text">
-                {% if form.errors.amcat_username %}
-                    <p class="danger">{{ form.errors.amcat_username.as_text }}</p>
                 {% endif %}
             </div>
             <div class="password-recovery">

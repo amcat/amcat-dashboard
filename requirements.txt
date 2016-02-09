@@ -2,5 +2,6 @@ django==1.8
 django-user-accounts==1.0
 django-extensions
 pinax_theme_bootstrap
+django-forms-bootstrap
 psycopg2
 requests
