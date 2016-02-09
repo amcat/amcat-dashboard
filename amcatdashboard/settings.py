@@ -49,7 +49,7 @@ if DEBUG:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.environ.get("DASHBOARD_EMAIL_HOST", 'localhost')
-    EMAIL_PORT = os.environ.get("DASHBOARD_EMAIL_PORT", 1025)
+    EMAIL_PORT = os.environ.get("DASHBOARD_EMAIL_PORT", 587)
     EMAIL_HOST_USER = os.environ.get("DASHBOARD_EMAIL_USER", '')
     EMAIL_HOST_PASSWORD = os.environ.get("DASHBOARD_EMAIL_PASSWORD", '')
     EMAIL_USE_TLS = os.environ.get("DASHBOARD_EMAIL_TLS", 'Y') in ("1", "Y", "ON")
