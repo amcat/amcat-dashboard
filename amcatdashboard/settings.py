@@ -29,6 +29,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "default")
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 
+STATIC_ROOT = os.path.join(BASE_DIR, "srv")
 
 # Application definition
 AUTH_USER_MODEL = 'dashboard.User'
@@ -47,11 +48,11 @@ if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get("DJANGO_EMAIL_HOST", 'localhost')
-    EMAIL_PORT = os.environ.get("DJANGO_EMAIL_PORT", 1025)
-    EMAIL_HOST_USER = os.environ.get("DJANGO_EMAIL_USER", '')
-    EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_PASSWORD", '')
-    EMAIL_USE_TLS = os.environ.get("DJANGO_EMAIL_TLS", 'Y') in ("1", "Y", "ON")
+    EMAIL_HOST = os.environ.get("DASHBOARD_EMAIL_HOST", 'localhost')
+    EMAIL_PORT = os.environ.get("DASHBOARD_EMAIL_PORT", 1025)
+    EMAIL_HOST_USER = os.environ.get("DASHBOARD_EMAIL_USER", '')
+    EMAIL_HOST_PASSWORD = os.environ.get("DASHBOARD_EMAIL_PASSWORD", '')
+    EMAIL_USE_TLS = os.environ.get("DASHBOARD_EMAIL_TLS", 'Y') in ("1", "Y", "ON")
 
 INSTALLED_APPS = (
     'django.contrib.auth',
