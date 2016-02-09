@@ -6,7 +6,7 @@
     "startbootstrap-sb-admin-2": "",
     "requirejs": "",
     "pnotify": "",
-    "amcat-query": "git@github.com:amcat/amcat-query-js.git",
+    "amcat-query": "https://github.com/amcat/amcat-query-js.git",
     "bootstrap-multiselect": "",
     "jquery-cookie": "",
     "bootstrap-switch": ""
