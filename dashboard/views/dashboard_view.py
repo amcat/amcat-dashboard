@@ -1,6 +1,10 @@
 import datetime
 import json
-from urllib.parse import urlencode
+
+try:
+    from urllib.parse import urlencode
+except ImportError:
+    from urllib import urlencode
 
 from django.core.urlresolvers import reverse
 
@@ -20,13 +24,13 @@ class BaseDashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         pages = Page.objects.all().only("id", "name", "icon")
-        return dict(super().get_context_data(**kwargs), pages=pages)
+        return dict(super(BaseDashboardView, self).get_context_data(**kwargs), pages=pages)
 
 class DashboardPageView(BaseDashboardView):
     def get_context_data(self, **kwargs):
         page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
         rows = page.get_cells(select_related=("row", "query"))
-        return dict(super().get_context_data(**kwargs), page=page, rows=rows)
+        return dict(super(DashboardPageView, self).get_context_data(**kwargs), page=page, rows=rows)
 
 def clear_cache(request, query_id):
     query = Query.objects.get(id=query_id)

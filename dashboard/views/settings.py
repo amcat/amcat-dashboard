@@ -78,12 +78,12 @@ class SystemSettingsView(FormView):
     template_name = "dashboard/system.html"
 
     def get_form_kwargs(self):
-        return dict(super().get_form_kwargs(), instance=System.load())
+        return dict(super(SystemSettingsView, self).get_form_kwargs(), instance=System.load())
 
     def form_valid(self, form):
         form.save()
         messages.add_message(self.request, messages.SUCCESS, "Form saved.")
-        return super().form_valid(form)
+        return super(SystemSettingsView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse("dashboard:system-settings")
