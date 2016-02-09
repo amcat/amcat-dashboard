@@ -8,8 +8,8 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 
-from dashboard.models import Query, Page
-from dashboard.util.api import poll, start_task, PREVIEW_URL, get_session
+from dashboard.models import Query, Page, System
+from dashboard.util.api import poll, start_task, get_session
 
 class MenuViewMixin(object):
     pass
@@ -65,18 +65,19 @@ def get_saved_query_result(request, query_id):
     if query.cache is not None:
         return HttpResponse(query.cache, content_type=query.cache_mimetype)
 
-    # We need to fetch it from preview.amcat.nl
+    # We need to fetch it from an amcat instance
     s = get_session()
 
     if query.cache_uuid is None:
         # Start job
         s.headers["Content-Type"] = "application/x-www-form-urlencoded"
-        url = PREVIEW_URL + "query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}".format(**{
+        url = "{host}/query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}".format(**{
             "sets": ",".join(map(str, query.get_articleset_ids())),
             "jobs": ",".join(map(str, query.get_codingjob_ids())),
             "project": query.amcat_project_id,
             "query": query.amcat_query_id,
-            "script": query.get_script()
+            "script": query.get_script(),
+            "host": System.load().hostname
         })
 
         response = s.post(url, data=urlencode(query.get_parameters(), True))

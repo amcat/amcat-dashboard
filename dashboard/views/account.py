@@ -1,13 +1,8 @@
 from __future__ import absolute_import
 
-import requests
-import json
-
-from django import forms
 from account import forms as account_forms, views
-from django.core.exceptions import ValidationError
+from django import forms
 from django.core.urlresolvers import reverse
-from django.contrib import messages
 from django.shortcuts import redirect
 from django.views.generic import FormView
 
@@ -47,29 +42,9 @@ class SignupView(views.SignupView):
 
 
 class UserForm(forms.ModelForm):
-    amcat_token = forms.CharField(required=False)
-    amcat_username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput, required=False)
-
-    def clean(self):
-        data = super(UserForm, self).clean()
-
-        url = "http://preview.amcat.nl/api/v4/get_token"
-        response = requests.post(url, data={
-            'username': data["amcat_username"],
-            'password': data["password"]
-        })
-
-        if response.status_code != 200:
-            raise ValidationError("AmCAT replied with status code {}".format(response.status_code))
-
-        data["amcat_token"] = json.loads(response.content.decode("utf-8"))["token"]
-
-        return data
-
     class Meta:
         model = User
-        fields = ("amcat_token", "amcat_username")
+        fields = ()
 
 
 class AmCATSettingsView(FormView):
@@ -88,5 +63,4 @@ class AmCATSettingsView(FormView):
     def form_valid(self, form):
         super(AmCATSettingsView, self).form_valid(form)
         form.save()
-        messages.add_message(self.request, messages.INFO, "Token generated.")
         return redirect(reverse("dashboard:index"))

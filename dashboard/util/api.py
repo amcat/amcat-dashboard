@@ -1,12 +1,12 @@
 import json
-
 from urllib.parse import urlencode
-from django.conf import settings
+
 import requests
 
-PREVIEW_URL = "http://preview.amcat.nl/api/v4/"
-TASK_URL = PREVIEW_URL + "task?uuid={uuid}&format=json"
-TASKRESULT_URL = PREVIEW_URL + "taskresult/{uuid}?format=json"
+from dashboard.models import System
+
+TASK_URL = "{host}/task?uuid={uuid}&format=json"
+TASKRESULT_URL = "{host}/taskresult/{uuid}?format=json"
 
 
 class STATUS:
@@ -15,8 +15,9 @@ class STATUS:
     FAILED = "FAILURE"
     PENDING = "PENDING"
 
+
 def poll(session, uuid, timeout=0.2, max_timeout=2):
-    response = session.get(TASK_URL.format(uuid=uuid))
+    response = session.get(TASK_URL.format(uuid=uuid, host=System.load().hostname))
     task = json.loads(response.content.decode("utf-8"))
     status = task["results"][0]["status"]
 
@@ -25,7 +26,7 @@ def poll(session, uuid, timeout=0.2, max_timeout=2):
     elif status == STATUS.FAILED:
         raise ValueError("Task {!r} failed.".format(uuid))
     elif status == STATUS.SUCCESS:
-        return session.get(TASKRESULT_URL.format(uuid=uuid))
+        return session.get(TASKRESULT_URL.format(uuid=uuid, host=System.load().hostname))
     else:
         raise ValueError("Unknown status value {!r} returned.".format(status))
 
@@ -36,11 +37,12 @@ def start_task(session, query):
 
     # Start job
     session.headers["Content-Type"] = "application/x-www-form-urlencoded"
-    url = PREVIEW_URL + "query/{script}?format=json&project={project}&sets={sets}".format(**{
+    url = "{host}/query/{script}?format=json&project={project}&sets={sets}".format(**{
         "sets": ",".join(map(str, query.get_articleset_ids())),
         "project": query.amcat_project_id,
         "query": query.amcat_query_id,
-        "script": query.get_script()
+        "script": query.get_script(),
+        "host": System.load().hostname
     })
 
     response = session.post(url, data=urlencode(query.get_parameters(), True))
@@ -51,7 +53,5 @@ def start_task(session, query):
 
 def get_session():
     session = requests.Session()
-    session.cookies.set("sessionid", settings.SESSION_ID, domain="preview.amcat.nl")
-    session.get("http://preview.amcat.nl")
-    session.headers["X-CSRFTOKEN"] = session.cookies.get("csrftoken")
+    session.headers["AUTHORIZATION"] = "Token {}".format(System.load().amcat_token)
     return session
