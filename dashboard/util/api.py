@@ -5,8 +5,8 @@ import requests
 
 from dashboard.models import System
 
-TASK_URL = "{host}/task?uuid={uuid}&format=json"
-TASKRESULT_URL = "{host}/taskresult/{uuid}?format=json"
+TASK_URL = "{host}/api/v4/task?uuid={uuid}&format=json"
+TASKRESULT_URL = "{host}/api/v4/taskresult/{uuid}?format=json"
 
 
 class STATUS:
@@ -53,5 +53,7 @@ def start_task(session, query):
 
 def get_session():
     session = requests.Session()
+    session.get(System.load().hostname)
+    session.headers["X-CSRFTOKEN"] = session.cookies.get("csrftoken")
     session.headers["AUTHORIZATION"] = "Token {}".format(System.load().amcat_token)
     return session
