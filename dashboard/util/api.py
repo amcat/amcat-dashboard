@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import json
 
 try:
@@ -41,7 +42,7 @@ def start_task(session, query):
 
     # Start job
     session.headers["Content-Type"] = "application/x-www-form-urlencoded"
-    url = "{host}/query/{script}?format=json&project={project}&sets={sets}".format(**{
+    url = "{host}/api/v4/query/{script}?format=json&project={project}&sets={sets}".format(**{
         "sets": ",".join(map(str, query.get_articleset_ids())),
         "project": query.amcat_project_id,
         "query": query.amcat_query_id,

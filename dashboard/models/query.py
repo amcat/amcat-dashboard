@@ -1,9 +1,7 @@
 from __future__ import absolute_import
 
 import json
-import requests
 
-from django.conf import settings
 from django.db import models
 
 from dashboard.models.user import EPOCH
@@ -46,15 +44,14 @@ class Query(models.Model):
 
     def update(self):
         from dashboard.models import System
-        url = "projects/{project}/querys/{query}/"
-        url = url.format(project=self.amcat_project_id, query=self.amcat_query_id)
+        from dashboard.util.api import get_session
+        url = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
+        url = url.format(
+            project=self.amcat_project_id,
+            query=self.amcat_query_id,
+            host=System.load().hostname
+        )
 
-        print(list(System.get_api().get_pages(url)))
-
-        response = requests.get(url, cookies={
-            "sessionid": settings.SESSION_ID
-        })
-
-        data = json.loads(response.content.decode('utf-8'))
+        data = json.loads(get_session().get(url).content.decode('utf-8'))
         self.amcat_name = data["name"]
         self.amcat_parameters = data["parameters"]
