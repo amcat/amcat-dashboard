@@ -3,13 +3,13 @@
   "dependencies": {
     "jquery": "~2.1.1",
     "bootstrap": "3.1.1",
-    "startbootstrap-sb-admin-2": "",
     "requirejs": "",
     "pnotify": "",
-    "amcat-query": "https://github.com/amcat/amcat-query-js.git",
+    "amcat-query": "https://github.com/amcat/amcat-query-js.git#~3.5.0",
     "bootstrap-multiselect": "",
     "jquery-cookie": "",
-    "bootstrap-switch": ""
+    "bootstrap-switch": "",
+    "startbootstrap-sb-admin-2": "https://github.com/BlackrockDigital/startbootstrap-sb-admin-2/archive/v3.3.7+1.tar.gz"
   },
   "resolutions": {
     "bootstrap": "~3.3.0"
