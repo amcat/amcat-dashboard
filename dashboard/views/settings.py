@@ -8,7 +8,6 @@ from django.views.generic import FormView
 from dashboard.models import System
 
 
-
 class SetupTokenForm(forms.ModelForm):
     hostname = forms.CharField(widget=forms.TextInput, initial=System._meta.get_field_by_name("hostname")[0].default)
 
@@ -47,6 +46,7 @@ class SetupTokenForm(forms.ModelForm):
     class Meta:
         model = System
         fields = ("hostname", "project_id")
+
 
 class SetupTokenView(FormView):
     form_class = SetupTokenForm

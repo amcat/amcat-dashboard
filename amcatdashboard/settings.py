@@ -36,7 +36,7 @@ AUTH_USER_MODEL = 'dashboard.User'
 
 LOGIN_EXEMPT_URLS = [
     '^account/.+',
-    '^dashboard/set_token$',
+    '^dashboard/token_setup$',
     '^dashboard/amcat'
 ]
 
