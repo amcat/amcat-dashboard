@@ -1,15 +1,14 @@
 from __future__ import absolute_import
 
 import json
-
 from django.db import models
-
 from dashboard.models.user import EPOCH
 
 
 class Query(models.Model):
+    system = models.ForeignKey("dashboard.System")
+
     amcat_query_id = models.IntegerField(db_index=True, unique=True)
-    amcat_project_id = models.IntegerField(db_index=True)
 
     amcat_name = models.TextField()
     amcat_parameters = models.TextField()
@@ -20,6 +19,10 @@ class Query(models.Model):
     cache_timestamp = models.DateTimeField(default=EPOCH)
     cache_mimetype = models.TextField(null=True)
     cache_uuid = models.TextField(null=True)
+
+    @property
+    def amcat_project_id(self):
+        return self.system.project_id
 
     def get_parameters(self):
         return json.loads(self.amcat_parameters)
@@ -43,15 +46,15 @@ class Query(models.Model):
         self.cache_uuid = None
 
     def update(self):
-        from dashboard.models import System
-        from dashboard.util.api import get_session
+        from dashboard.util.api import get_session  # don't move this, will result in an import cycle.
+
         url = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
         url = url.format(
-            project=self.amcat_project_id,
+            project=self.system.project_id,
             query=self.amcat_query_id,
-            host=System.load().hostname
+            host=self.system.hostname
         )
 
-        data = json.loads(get_session().get(url).content.decode('utf-8'))
+        data = json.loads(get_session(self.system).get(url).content.decode('utf-8'))
         self.amcat_name = data["name"]
         self.amcat_parameters = data["parameters"]

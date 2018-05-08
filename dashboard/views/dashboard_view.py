@@ -1,5 +1,8 @@
 import datetime
 import json
+from functools import wraps
+
+from django.views.decorators.http import etag, condition
 
 try:
     from urllib.parse import urlencode
@@ -38,7 +41,7 @@ def clear_cache(request, query_id):
     query.update()
     query.save()
 
-    start_task(get_session(), query)
+    start_task(get_session(query.system), query)
 
     return redirect(reverse("dashboard:index"))
 
@@ -55,6 +58,27 @@ def get_saved_query(request, query_id):
     }))
 
 
+def query_last_modified(request, query_id):
+    return request.dashboard__query.cache_timestamp
+
+
+def query_uuid(request, query_id):
+    q = Query.objects.only("cache_timestamp", "cache_uuid").get(pk=query_id)
+    setattr(request, 'dashboard__query', q)
+    return q.cache_uuid
+
+
+def no_cache(view):
+    @wraps(view)
+    def wrapper(*args, **kwargs):
+        response = view(*args, **kwargs)
+        response.setdefault('Cache-Control', 'no-cache')
+        return response
+    return wrapper
+
+
+@no_cache
+@condition(etag_func=query_uuid, last_modified_func=query_last_modified)
 def get_saved_query_result(request, query_id):
     """
     Returns the results of a saved query either from cache or from AmCAT server. This
@@ -70,7 +94,7 @@ def get_saved_query_result(request, query_id):
         return HttpResponse(query.cache, content_type=query.cache_mimetype)
 
     # We need to fetch it from an amcat instance
-    s = get_session()
+    s = get_session(query.system)
 
     if query.cache_uuid is None:
         # Start job
@@ -100,6 +124,7 @@ def get_saved_query_result(request, query_id):
 
     # Return cached result
     return HttpResponse(query.cache, content_type=query.cache_mimetype)
+
 
 def empty(request):
     return render(request, "dashboard/empty.html", locals())

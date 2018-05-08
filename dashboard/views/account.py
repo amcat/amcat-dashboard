@@ -55,7 +55,8 @@ class AmCATSettingsView(FormView):
         return reverse("dashboard:amcat-settings")
 
     def get_context_data(self, **kwargs):
-        return dict(super(AmCATSettingsView, self).get_context_data(**kwargs), system=System.load())
+        return dict(super(AmCATSettingsView, self).get_context_data(**kwargs),
+                    system=self.request.user.system)
 
     def get_form_kwargs(self):
         return dict(super(AmCATSettingsView, self).get_form_kwargs(), instance=self.request.user)

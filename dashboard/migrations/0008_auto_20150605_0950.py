@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
             name='Cell',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True, serialize=False)),
-                ('width', models.PositiveSmallIntegerField(max_length=12)),
+                ('width', models.PositiveSmallIntegerField()),
                 ('ordernr', models.PositiveSmallIntegerField(db_index=True)),
             ],
             options={

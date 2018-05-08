@@ -60,6 +60,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_extensions',
     'pinax_theme_bootstrap',
     'bootstrapform',
@@ -105,6 +106,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'amcatdashboard.wsgi.application'
 
 
@@ -126,11 +128,15 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'nl-nl'
+
+gettext_noop = lambda s: s
+
+LANGUAGES = (('en', gettext_noop('English')), ('nl', gettext_noop('Dutch')))
 
 TIME_ZONE = 'UTC'
 
-USE_I18N = False
+USE_I18N = True
 
 USE_L10N = True
 

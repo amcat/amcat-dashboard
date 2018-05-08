@@ -18,6 +18,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(_('email address'), blank=False, unique=True)
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+    system = models.ForeignKey('dashboard.System', null=True, on_delete=models.SET_NULL)
 
     objects = UserManager()
 

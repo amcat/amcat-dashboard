@@ -1,0 +1,45 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% load bootstrap %}
+{% block dashboard-body %}
+<h2>{% trans "Select System" %}</h2>
+
+<div class="col-lg-4">
+<div class="row">
+<form id="system-form" method="post" action="{% url 'dashboard:systems' %}">
+    {% csrf_token %}
+
+    {{ form|bootstrap}}
+</form>
+</div>
+
+{% if view.request.user.is_superuser %}
+<div class="row">
+<div class="list-group">
+    {% for system in objects_list %}
+        <div class="list-group-item">
+            <h4>{{ system.project_id }}: {% if system.project_name %}{{ system.project_name }}{% else %}(unknown project){% endif %}</h4>
+            <p>
+                <a href="{{ system.hostname }}">{{ system.hostname }}</a>
+                {% with system.ping as ping_result %}
+                {% if ping_result.0 %}
+                    <span class="label label-success"><span class="fa fa-link"></span> Connected as user '{{ ping_result.0.username }}'</span>
+                {% else %}
+                    <span class="label label-danger" title="{{ ping_result.1 }}">
+                        <span class="fa fa-unlink"></span> Error: {{ ping_result.1|truncatechars:30}}</span>
+                {% endif %}
+                {% endwith %}
+            </p>
+            <div class="btn-group btn-group-sm">
+                <a href="{% url 'dashboard:system-settings' system.id %}"
+                   class="btn btn-sm btn-default">{% trans "Manage System" %}</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+</div>
+{% endif %}
+</div>
+
+
+{% endblock %}

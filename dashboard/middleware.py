@@ -48,7 +48,7 @@ class APITokenNeededMiddleware:
 
         if request.user.is_authenticated():
             try:
-                system = System.load()
+                system = System.objects.get(user=request.user)
             except System.DoesNotExist:
                 token = None
             else:

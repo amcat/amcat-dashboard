@@ -1,13 +1,13 @@
 {% extends "dashboard/base.html" %}
 {% load bootstrap %}
-
+{% load i18n %}
 {% block dashboard-body %}
     <h1>System settings</h1>
     <div class="row">
         <div class="col-lg-4">
             <div class="alert alert-warning">Changing the project ID while already having
             synchronised queries is not supported. It might work, it might not :-).</div>
-            <form method="POST" action="{% url "dashboard:system-settings" %}">
+            <form method="POST" action="{% url "dashboard:system-settings" view.request.user.system_id %}">
                 {% csrf_token %}
                 {{ form|bootstrap }}
                 <button class="btn btn-primary" type="submit">Save</button>

@@ -2,17 +2,20 @@
     requirejs([
         "jquery",
         "query/renderers"
-    ], function($, renderers){
+    ], function ($, renderers) {
         var container = $("#{{ container }}");
 
         $.ajax({
             url: "{% url 'dashboard:get-saved-query' query.id %}"
-        }).done(function(query){
-            $.ajax({
-                url: "{% url 'dashboard:get-saved-query-result' query.id %}"
-            }).done(function(result){
-                renderers[query.output_type](query.amcat_parameters, container.find(".query-container"), result);
+        }).done(function (query) {
+            let response = fetch("{% url 'dashboard:get-saved-query-result' query.id %}", {
+                credentials: "same-origin",
+                cache: "no-cache"
             });
+            response.then(response => query.output_type.indexOf('json') >= 0 ? response.json() : response.text())
+                .then(result => {
+                    renderers[query.output_type](query.amcat_parameters, container.find(".query-container"), result);
+                });
 
             container.find(".query-name").text(query.amcat_name);
         });

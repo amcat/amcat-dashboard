@@ -44,12 +44,14 @@ class Page(models.Model):
         app_label = "dashboard"
         ordering = ["ordernr"]
 
+
 class Row(models.Model):
     ordernr = models.PositiveSmallIntegerField(db_index=True)
 
     class Meta:
         app_label = "dashboard"
         ordering = ["ordernr"]
+
 
 class Cell(models.Model):
     """A cell represents a 'tile' holding a query on the dashboard."""
@@ -60,7 +62,7 @@ class Cell(models.Model):
     # efficient as we can fetch a single page with one query.
     row = models.ForeignKey(Row, related_name="cells")
 
-    width = models.PositiveSmallIntegerField(max_length=12)
+    width = models.PositiveSmallIntegerField()
     ordernr = models.PositiveSmallIntegerField(db_index=True)
 
     class Meta:

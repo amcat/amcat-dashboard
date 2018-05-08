@@ -1,6 +1,5 @@
 {% extends "account/login_base.html" %}
 
-{% load url from future %}
 {% load bootstrap %}
 
 {% block panel-header-title %}Token setup{% endblock %}
@@ -22,4 +21,34 @@
 
         <input type="submit" class="btn btn-primary" value="Get token">
     </form>
+
+    <script type="text/javascript">
+        let tokenBtn = $('#amcat_token-request-token');
+        let tokenInput = $('#id_amcat_token');
+        tokenInput.on('input', e => {
+            let hasToken = tokenInput.val();
+            if(hasToken) userInputs.val('');
+            $('input[type=submit][value=Get\\ token]').val('Save');
+        });
+        tokenInput.trigger('input');
+
+        let return_uri = hostname => `${location.origin}${location.pathname}?amcat_token=%25s&hostname=${hostname}`;
+        tokenBtn.click(() => {
+            let origin;
+            try {
+                let url = new URL($('#id_hostname').removeClass('error').val());
+                origin = url.origin;
+                if(!url.protocol.match(/^https?:/))
+                    throw "Invalid Protocol";
+
+            }
+            catch(e) {
+                $('#id_hostname').closest('.form-group').addClass('has-error');
+                return;
+            }
+            let url = `${origin}/request_token?return=${encodeURIComponent(return_uri(origin))}`;
+            console.log(url);
+            location.replace(url);
+        });
+    </script>
 {% endblock %}

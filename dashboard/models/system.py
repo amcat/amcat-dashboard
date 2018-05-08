@@ -6,6 +6,8 @@ from django.db import models
 from amcatclient import AmcatAPI
 from dashboard.models import Query
 
+import logging
+
 
 class System(models.Model):
     hostname = models.TextField(default="http://preview.amcat.nl")
@@ -30,7 +32,15 @@ class System(models.Model):
             query.save()
 
     def save(self, *args, **kwargs):
-        self.__class__.objects.exclude(id=self.id).delete()
+        if self.project_name is None:
+            try:
+                api = self.get_api()
+                response = api.request('projects/{}/'.format(self.project_id))
+                self.project_name = response['name']
+            except Exception as e:
+                logging.error(e)
+                pass
+
         super(System, self).save(*args, **kwargs)
 
     def set_token(self, username, password):
@@ -48,8 +58,19 @@ class System(models.Model):
         assert self.amcat_token, "No username and password supplied, but no token was set too."
         return AmcatAPI(host=self.hostname, token=self.amcat_token)
 
+    def ping(self):
+        try:
+            return self.get_api().request('users/me/'), None
+        except Exception as e:
+            return None, e
+
     @classmethod
     def load(cls):
         return cls.objects.get()
 
 
+    def __str__(self):
+        project_name = "{{}}: {}".format(self.project_name) if self.project_name is not None else "Project {}"
+        project_name = project_name.format(self.project_id)
+        return "{}, {}".format(project_name, self.hostname)
+    
