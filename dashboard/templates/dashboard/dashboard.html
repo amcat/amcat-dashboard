@@ -1,11 +1,10 @@
 {% extends "dashboard/base.html" %}
 
 {% block dashboard-body %}
-    <p><br/></p>
     {% for row, cells in rows.items %}
         <div class="row">
             {% for cell in cells %}
-                {% include "dashboard/query_panel.html" with panel_size=cell.width panel_id=cell.id query_id=cell.query_id %}
+                {% include "dashboard/query_panel.html" with panel_size=cell.width panel_id=cell.id query=cell.query %}
             {% endfor %}
         </div>
     {% endfor %}

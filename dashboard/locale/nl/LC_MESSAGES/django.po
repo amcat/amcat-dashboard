@@ -1,0 +1,239 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-05-16 19:42+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: dashboard/models/user.py:15
+msgid "active"
+msgstr "actief"
+
+#: dashboard/models/user.py:16
+msgid ""
+"Designates whether this user should be treated as active. Unselect this "
+"instead of deleting accounts."
+msgstr ""
+"Geeft aan of een gebruiker als actief beschouwd moet worden. Gebruik dit in "
+"plaats van het uitschakelen van accounts"
+
+#: dashboard/models/user.py:19
+msgid "email address"
+msgstr "e-mailadres"
+
+#: dashboard/models/user.py:20
+msgid "date joined"
+msgstr "Aanmeldingsdatum"
+
+#: dashboard/templates/dashboard/query_panel.html:8
+msgid "Actions"
+msgstr "Acties"
+
+#: dashboard/templates/dashboard/query_panel.html:14
+msgid "Refresh"
+msgstr "Herladen"
+
+#: dashboard/templates/dashboard/setup_token_form.html:9
+msgid ""
+"\n"
+"            Dashboard needs to gain access to an AmCAT instance, to fetch "
+"saved\n"
+"            queries. Although\n"
+"            you need to enter your credentials below, this dashboard will "
+"never\n"
+"            store your credentials directly. Instead, it requests an "
+"authentication\n"
+"            token and uses that to access AmCAT in the future.\n"
+"            "
+msgstr ""
+
+#: dashboard/templates/dashboard/system_list.html:6
+msgid "Select Project"
+msgstr "Selecteer Project"
+
+#: dashboard/templates/dashboard/system_list.html:9
+msgid "This is your first visit, so some setup is needed."
+msgstr "Dit is uw eerste bezoek, "
+
+#: dashboard/templates/dashboard/system_list.html:11
+msgid ""
+"Multiple AmCAT dashboard instances are available. Please choose one below."
+msgstr "Meerdere AmCAT dashboards zijn beschikbaar. Kies er een hierbeneden."
+
+#: dashboard/templates/dashboard/system_list_item.html:10
+msgid "Connected as user:"
+msgstr "Verbonden als:"
+
+#: dashboard/templates/dashboard/system_list_item.html:12
+msgid "Connected"
+msgstr "Verbonden"
+
+#: dashboard/templates/dashboard/system_list_item.html:18
+#: dashboard/templates/dashboard/system_list_item.html:22
+msgid "Error"
+msgstr "Foutmelding"
+
+#: dashboard/templates/dashboard/system_list_item.html:21
+msgid ""
+"Something went wrong. Contact an administrator if this problem persists."
+msgstr "Er is iets misgegaan. Neem contact op met een beheerder als dit probleem blijft bestaan."
+
+#: dashboard/templates/dashboard/system_list_item.html:28
+msgid "Currently active"
+msgstr "Actief project"
+
+#: dashboard/templates/dashboard/system_list_item.html:31
+msgid "Use this system"
+msgstr "Gebruik dit project"
+
+#: dashboard/templates/dashboard/system_list_item.html:34
+#, fuzzy
+#| msgid "Settings"
+msgid "Settings..."
+msgstr "Instellingen..."
+
+#: dashboard/templates/dashboard/top_menu.html:7
+msgid "Edit"
+msgstr "Bewerken"
+
+#: dashboard/templates/dashboard/top_menu.html:12
+msgid "Menu"
+msgstr "Menu"
+
+#: dashboard/templates/dashboard/top_menu.html:18
+msgid "Page"
+msgstr "Pagina"
+
+#: dashboard/templates/dashboard/top_menu.html:30
+msgid "User"
+msgstr "Gebruiker"
+
+#: dashboard/templates/dashboard/top_menu.html:34
+msgid "Projects"
+msgstr "Projecten"
+
+#: dashboard/templates/dashboard/top_menu.html:37
+#, fuzzy
+#| msgid "Settings"
+msgid "AmCAT Settings"
+msgstr "Instellingen"
+
+#: dashboard/templates/dashboard/top_menu.html:39
+msgid "User profile"
+msgstr "Gebruikersprofiel"
+
+#: dashboard/templates/dashboard/top_menu.html:40
+msgid "Report error"
+msgstr ""
+
+#: dashboard/templates/dashboard/top_menu.html:42
+msgid "Logout"
+msgstr "Uitloggen"
+
+#: dashboard/views/settings.py:19
+msgid "Request token"
+msgstr ""
+
+#: dashboard/views/settings.py:34
+msgid ""
+"Click the button to request a token, or instead, enter username and password:"
+msgstr ""
+
+#: dashboard/views/settings.py:42
+msgid "The server is setup for one system only, no other projects may be created."
+msgstr ""
+
+#: dashboard/views/settings.py:50
+msgid ""
+"Invalid credentials: either request a token or enter a username or password."
+msgstr ""
+
+#: dashboard/views/settings.py:58
+msgid ""
+"Could not authenticate using given username and password. The credentials "
+"might be wrong, or the AmCAT server is not responding."
+msgstr ""
+
+#: dashboard/views/settings.py:89
+#, python-format
+msgid ""
+"%(user)s is not a superuser. You need to be a superuser to access this page."
+msgstr "%(user)s is geen beheerder. U heeft beheerdersrechten nodig om deze pagina te bezoeken."
+
+#: dashboard/views/settings.py:167
+msgid "System does not exist"
+msgstr ""
+
+#: dashboard/views/settings.py:172
+msgid "Form saved."
+msgstr ""
+
+#~ msgid "systems"
+#~ msgstr "systemen"
+
+#~ msgid "Account"
+#~ msgstr "Account"
+
+#~ msgid "Change password"
+#~ msgstr "Verander wachtwoord"
+
+#~ msgid "Delete account"
+#~ msgstr "Verwijder account"
+
+#~ msgid ""
+#~ "A user on %(site_name)s has created an account using this email address.\n"
+#~ "\n"
+#~ "To confirm this email address, go to %(activate_url)s\n"
+#~ "\n"
+#~ "If you did not sign up for this site, you can ignore this message.\n"
+#~ msgstr ""
+#~ "Een gebruiker op %(site_name)s heeft een account aangemaakt met dit e-"
+#~ "mailadres.\n"
+#~ "\n"
+#~ "Om dit e-mailadres te bevestigen, ga naar %(activate_url)s \n"
+#~ "\n"
+#~ "Als u zich niet heeft aangemeld voor deze site, kunt u dit bericht "
+#~ "negeren.\n"
+
+#~ msgid "Confirm email address for %(site_name)s"
+#~ msgstr "Bevestig e-mailadres voor %(site_name)s"
+
+#~ msgid ""
+#~ "This is the email notification to confirm your password has been changed "
+#~ "on %(now)s."
+#~ msgstr ""
+#~ "Dit is een e-mailbevestiging dat uw wachtwoord is gewijzigd op %(now)s."
+
+#~ msgid "Change password email notification"
+#~ msgstr "Bevestigingsbericht wachtwoordwijziging"
+
+#~ msgid ""
+#~ "You're receiving this email because you or someone else has requested a "
+#~ "password for your user account at %(site_name)s.\n"
+#~ "It can be safely ignored if you did not request a password reset. Click "
+#~ "the link below to reset your password.\n"
+#~ "\n"
+#~ "%(password_reset_url)s\n"
+#~ msgstr ""
+#~ "U ontvangt dit bericht omdat u of iemand anders een wachtwoordverandering "
+#~ "heeft aangevraagd voor uw gebruikersaccount op %(site_name)s.\n"
+#~ "Als deze aanvraag niet door u verstuurd is kan dit bericht genegeerd "
+#~ "worden. \n"
+#~ "Om uw wachtwoord opnieuw in te stellen, volg de volgende link.\n"
+#~ "\n"
+#~ " %(password_reset_url)s\n"
+
+#~ msgid "[%(site_name)s] Password reset"
+#~ msgstr "[%(site_name)s] Wachtwoord opnieuw instellen"

@@ -1,12 +1,20 @@
 from __future__ import absolute_import
 
+from amcatclient.amcatclient import Unauthorized, APIError
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
+from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.utils.translation import gettext as _
 from amcatclient import AmcatAPI
 from dashboard.models import Query
 
 import logging
+
+
+def is_json_object(value):
+    if not isinstance(value, dict):
+        raise ValidationError("Must be a JSON object.")
 
 
 class System(models.Model):
@@ -26,9 +34,9 @@ class System(models.Model):
             except Query.DoesNotExist:
                 query = Query(amcat_query_id=amcat_query_id)
 
+            query.system = self
             query.amcat_name = api_query["name"]
             query.amcat_parameters = api_query["parameters"]
-            query.amcat_project_id = api_query["project"]
             query.save()
 
     def save(self, *args, **kwargs):
@@ -61,7 +69,23 @@ class System(models.Model):
     def ping(self):
         try:
             return self.get_api().request('users/me/'), None
+        except Unauthorized:
+            return None, "401: Unauthorized (did your token expire?)"
+        except APIError as api_err:
+            err = api_err
+            if api_err.http_status == 404:
+                try:
+                    response = self.get_api().request('')
+                    return response, None
+                except APIError as api_err:
+                    err = api_err
+
+            return None, "%(status_code)s: %(description)s" % {
+                "status_code": err.http_status,
+                "description": err.description if err.description else err.response
+            }
         except Exception as e:
+            logging.warning("Unexpected API error: {}".format(e))
             return None, e
 
     @classmethod

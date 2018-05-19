@@ -1,0 +1,7 @@
+
+msgid "count"
+msgstr "aantal"
+
+msgid "articles"
+msgstr "artikelen"
+

@@ -26,14 +26,17 @@ class BaseDashboardView(TemplateView):
     template_name = "dashboard/dashboard.html"
 
     def get_context_data(self, **kwargs):
-        pages = Page.objects.all().only("id", "name", "icon")
+        pages = Page.objects.filter(system=self.request.user.system).only("id", "name", "icon")
         return dict(super(BaseDashboardView, self).get_context_data(**kwargs), pages=pages)
+
 
 class DashboardPageView(BaseDashboardView):
     def get_context_data(self, **kwargs):
         page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
         rows = page.get_cells(select_related=("row", "query"))
-        return dict(super(DashboardPageView, self).get_context_data(**kwargs), page=page, rows=rows)
+        return dict(super(DashboardPageView, self).get_context_data(**kwargs),
+                    page=page, rows=rows)
+
 
 def clear_cache(request, query_id):
     query = Query.objects.get(id=query_id)
@@ -44,6 +47,7 @@ def clear_cache(request, query_id):
     start_task(get_session(query.system), query)
 
     return redirect(reverse("dashboard:index"))
+
 
 def get_saved_query(request, query_id):
     query = Query.objects.get(id=query_id)
@@ -105,7 +109,7 @@ def get_saved_query_result(request, query_id):
             "project": query.amcat_project_id,
             "query": query.amcat_query_id,
             "script": query.get_script(),
-            "host": System.load().hostname
+            "host": query.system.hostname
         })
 
         response = s.post(url, data=urlencode(query.get_parameters(), True))
@@ -129,11 +133,12 @@ def get_saved_query_result(request, query_id):
 def empty(request):
     return render(request, "dashboard/empty.html", locals())
 
+
 def index(request):
-    if not Page.objects.filter(visible=True).exists():
+    if not Page.objects.filter(system=request.user.system, visible=True).exists():
         return redirect(reverse("dashboard:empty"))
 
-    first_page = Page.objects.all().only("id")[0]
+    first_page = Page.objects.filter(system=request.user.system).only("id").first()
     url_kwargs = {"page_id": first_page.id}
     return redirect(reverse("dashboard:view-page", kwargs=url_kwargs))
 

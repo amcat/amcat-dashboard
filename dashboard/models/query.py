@@ -6,7 +6,7 @@ from dashboard.models.user import EPOCH
 
 
 class Query(models.Model):
-    system = models.ForeignKey("dashboard.System")
+    system = models.ForeignKey("dashboard.System", on_delete=models.CASCADE)
 
     amcat_query_id = models.IntegerField(db_index=True, unique=True)
 
@@ -23,6 +23,14 @@ class Query(models.Model):
     @property
     def amcat_project_id(self):
         return self.system.project_id
+
+    @property
+    def amcat_url(self):
+        return "{hostname}/projects/{project_id}/query/{query_id}".format(
+            hostname=self.system.hostname,
+            project_id=self.system.project_id,
+            query_id=self.amcat_query_id
+        )
 
     def get_parameters(self):
         return json.loads(self.amcat_parameters)
@@ -58,3 +66,7 @@ class Query(models.Model):
         data = json.loads(get_session(self.system).get(url).content.decode('utf-8'))
         self.amcat_name = data["name"]
         self.amcat_parameters = data["parameters"]
+
+
+class QueryColorScheme(models.Model):
+    colors = models.TextField()

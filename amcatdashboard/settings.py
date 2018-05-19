@@ -65,7 +65,8 @@ INSTALLED_APPS = (
     'pinax_theme_bootstrap',
     'bootstrapform',
     'account',
-    'dashboard',
+    'amcatdashboard',
+    'dashboard'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -100,8 +101,12 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'account.context_processors.account'
+                'account.context_processors.account',
+                'dashboard.context_preprocessors.menu_settings'
             ],
+            'builtins': [
+                'django.templatetags.i18n'
+            ]
         },
     },
 ]
@@ -128,11 +133,15 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
-LANGUAGE_CODE = 'nl-nl'
+LANGUAGE_CODE = 'en'
 
 gettext_noop = lambda s: s
 
 LANGUAGES = (('en', gettext_noop('English')), ('nl', gettext_noop('Dutch')))
+
+LOCALE_PATHS = (
+    'locale',
+)
 
 TIME_ZONE = 'UTC'
 
@@ -154,3 +163,5 @@ ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = True
 ACCOUNT_USER_DISPLAY = lambda user: user.email
 
 SESSION_ID = os.environ.get("DJANGO_SESSION_ID")
+
+DASHBOARD_ALLOW_MULTIPLE_SYSTEMS = True

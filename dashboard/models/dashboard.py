@@ -11,9 +11,10 @@ def get_active_queries():
     return Query.objects.get(id__in=set(query_ids))
 
 class Page(models.Model):
+    system = models.ForeignKey('dashboard.System', on_delete=models.CASCADE)
     name = models.TextField()
     icon = models.TextField(null=True)
-    ordernr = models.PositiveSmallIntegerField(db_index=True, unique=True)
+    ordernr = models.PositiveSmallIntegerField(db_index=True)
     visible = models.BooleanField(default=False)
 
     def serialise(self):
@@ -43,6 +44,7 @@ class Page(models.Model):
     class Meta:
         app_label = "dashboard"
         ordering = ["ordernr"]
+        unique_together = ('system', 'ordernr')
 
 
 class Row(models.Model):

@@ -1,7 +1,8 @@
 from amcatclient import AmcatAPI
 from django import forms
+from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseNotAllowed, Http404
 from django.shortcuts import redirect
@@ -15,16 +16,15 @@ class TokenWidget(forms.TextInput):
     """
     A TextInput with a "request token" button.
     """
+    button_text = _('Request token')
+    template_name = 'dashboard/widgets/token.html'
+    hostname_input_name = "hostname"
 
-    def render(self, name, value, attrs=None):
-        input_group = '<div class="input-group">{}</div>'
-        input = super().render(name, value, attrs)
-        button = format_html(
-            '<span class="input-group-btn">'
-            '<a id="{0}-request-token" class="btn btn-primary">{1}</a>'
-            '</span>'
-            , name, _('Request token'))
-        return format_html(input_group, input + button)
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['widget']['button_text'] = self.button_text
+        context['hostname_input_name'] = self.hostname_input_name
+        return context
 
 
 class SetupTokenForm(forms.ModelForm):
@@ -38,6 +38,9 @@ class SetupTokenForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(SetupTokenForm, self).clean()
 
+        if not settings.DASHBOARD_ALLOW_MULTIPLE_SYSTEMS and System.objects.exists():
+            raise ValidationError(_("The server is setup for one system only, no other projects may be created."))
+
         username = cleaned_data.get("amcat_username")
         password = cleaned_data.get("amcat_password")
         hostname = cleaned_data.get("hostname")
@@ -48,7 +51,7 @@ class SetupTokenForm(forms.ModelForm):
             return cleaned_data
 
         authkwargs = {"token": token} if token else {"username": username, "password": password}
-        print(authkwargs)
+
         try:
             AmcatAPI(host=hostname, **authkwargs)
         except:
@@ -77,21 +80,18 @@ class SetupTokenForm(forms.ModelForm):
         fields = ("hostname", "project_id")
 
 
-class SetupTokenView(FormView):
+class SystemAddView(FormView):
     form_class = SetupTokenForm
     template_name = "dashboard/setup_token.html"
 
-    def get_form(self, **kwargs):
-        form_class = self.get_form_class()
-
-        try:
-            return form_class(instance=System.load(), **self.get_form_kwargs())
-        except System.DoesNotExist:
-            return form_class(**self.get_form_kwargs())
-
     def form_valid(self, form):
-        form.save()
-        return super(SetupTokenView, self).form_valid(form)
+        if not self.request.user.is_superuser:
+            raise SuspiciousOperation(_("%(user)s is not a superuser. You need to be a superuser to access this page.") %
+                                      {"user": self.request.user.name})
+        system = form.save()
+        self.request.user.system = system
+        self.request.user.save()
+        return super(SystemAddView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse("dashboard:index")
@@ -111,6 +111,7 @@ class SystemSelectForm(forms.ModelForm):
         model = User
         fields = ("system",)
 
+
 class SystemListView(FormView):
     form_class = SystemSelectForm
     template_name = "dashboard/system_list.html"
@@ -121,10 +122,28 @@ class SystemListView(FormView):
 
     def get_context_data(self, **kwargs):
         kwargs = super().get_context_data(**kwargs)
-        return {"objects_list": System.objects.all(), **kwargs}
+        return {
+            "systems_pings": [(system, system.ping()) for system in System.objects.all()],
+            **kwargs
+        }
+
+    def form_valid(self, form):
+        self.request.user.system = form.cleaned_data['system']
+        self.request.user.save()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("dashboard:system-list")
 
 
 class SystemSettingsForm(forms.ModelForm):
+    hostname = forms.CharField()
+    amcat_token = forms.CharField(widget=TokenWidget)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
     class Meta:
         model = System
         exclude = ("project_name",)
@@ -150,8 +169,8 @@ class SystemSettingsView(FormView):
 
     def form_valid(self, form):
         form.save()
-        messages.add_message(self.request, messages.SUCCESS, "Form saved.")
+        messages.add_message(self.request, messages.SUCCESS, _("Form saved."))
         return super(SystemSettingsView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("dashboard:system-settings")
+        return reverse("dashboard:system-list")

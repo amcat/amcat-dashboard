@@ -15,6 +15,7 @@ requirejs.config({
         "bootstrap-datepicker": "bootstrap-datepicker/dist/js/bootstrap-datepicker",
         "bootstrap-switch": "bootstrap-switch/dist/js/bootstrap-switch",
         "moment": "moment/moment",
+        "moment-locale": "moment/locale",
         "renderjson": "renderjson/renderjson",
         "datatables": "datatables/media/js/jquery.dataTables",
         "datatables.tabletools": "datatables/extensions/TableTools/js/dataTables.tableTools",

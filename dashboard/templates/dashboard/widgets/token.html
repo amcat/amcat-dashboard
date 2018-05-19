@@ -1,0 +1,31 @@
+
+<div class="input-group">
+    {% include "django/forms/widgets/text.html" %}
+    <span class="input-group-btn">
+    <a id="btn-{{ widget.attrs.id }}-request-token" class="btn btn-primary">{{ widget.button_text }}</a>
+    </span>
+</div>
+
+<script>
+    let tokenBtn = $('#btn-{{ widget.attrs.id }}-request-token');
+    let hostnameInput = $("#id_{{ hostname_input_name }}");
+
+        console.log(tokenBtn);
+    let return_uri = hostname => `${location.origin}${location.pathname}?amcat_token=%25s&hostname=${hostname}`;
+    tokenBtn.click(() => {
+        let origin;
+        try {
+            let url = new URL(hostnameInput.val());
+            origin = url.origin;
+            if (!url.protocol.match(/^https?:/))
+                throw "Invalid Protocol";
+
+        }
+        catch (e) {
+            hostnameInput.closest('.form-group').addClass('has-error');
+            return;
+        }
+        let url = `${origin}/request_token?return=${encodeURIComponent(return_uri(origin))}`;
+        location.replace(url);
+    });
+</script>

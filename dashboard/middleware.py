@@ -14,8 +14,9 @@ except ImportError:
 
 EXEMPT_URLS = [re.compile(expr) for expr in getattr(settings, "LOGIN_EXEMPT_URLS", ())]
 
-def in_exempt_urls(path_info):
-    return any(m.match(path_info.lstrip('/')) for m in EXEMPT_URLS)
+
+def in_exempt_urls(path_info, exempt_urls=tuple(EXEMPT_URLS)):
+    return any(m.match(path_info.lstrip('/')) for m in exempt_urls)
 
 
 class LoginRequiredMiddleware:
@@ -31,32 +32,43 @@ class LoginRequiredMiddleware:
     loaded. You'll get an error if they aren't.
     """
     def process_request(self, request):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             if not in_exempt_urls(request.path_info):
                 redirect_url = "{}?{}".format(reverse("account_login"), urlencode({"next": request.path_info}))
                 return HttpResponseRedirect(redirect_url)
 
 
 class APITokenNeededMiddleware:
+    exempt_urls = (
+        re.compile(reverse("dashboard:token-setup").lstrip('/')),
+        re.compile(reverse("dashboard:system-list").lstrip('/')),
+        *EXEMPT_URLS
+    )
+
+
     def process_request(self, request):
-        if in_exempt_urls(request.path_info):
+        if in_exempt_urls(request.path_info, self.exempt_urls):
             # Do nothing when on login / register page
             return None
 
-        if request.path_info == reverse("dashboard:token-setup"):
+        if not request.user.is_authenticated:
             return None
 
-        if request.user.is_authenticated():
+        has_token = System.objects.exclude(amcat_token=None).exists()
+
+        if not has_token:
+            # no systems exist, a superuser must set one up
+            return redirect(reverse("dashboard:token-setup"))
+
+        if request.user.system is None:
             try:
-                system = System.objects.get(user=request.user)
-            except System.DoesNotExist:
-                token = None
+                request.user.system = System.objects.get()
+            except System.MultipleObjectsReturned:
+                # multiple systems exist, let the user choose
+                return redirect(reverse("dashboard:system-list"))
             else:
-                token = system.amcat_token
+                request.user.save()
 
-            if not request.user.is_superuser:
-                return None
+        return None
 
-            if not token:
-                return redirect(reverse("dashboard:token-setup"))
 

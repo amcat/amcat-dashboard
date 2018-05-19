@@ -7,7 +7,11 @@
                         <a href="{% url 'dashboard:view-page' page.id %}">
                             <i class="fa {{ page.icon }} fa-fw"></i> {{ page.name }}
                             {% if request.user.is_superuser %}
-                                <i style="color:black;" class="pull-right fa fa-fw {% if not page.visible %}fa-eye-slash{% endif %}"></i>
+                                {% if not page.visible %}
+                                    <small style="color:black;" class="pull-right">
+                                        <i style="color:black;" class="fa fa-fw fa-eye-slash"></i> hidden
+                                    </small>
+                                {% endif %}
                             {% endif %}
                         </a>
                     </li>

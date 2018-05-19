@@ -59,6 +59,7 @@ class ApiSession(requests.Session):
         })
 
         response = self.post(url, data=urlencode(query.get_parameters(), True))
+        response.raise_for_status()
         uuid = json.loads(response.content.decode("utf-8"))["uuid"]
 
         return uuid

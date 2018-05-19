@@ -4,18 +4,18 @@
     {% if request.user.is_superuser %}
         <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-edit fa-fw"></i> Edit <i class="fa fa-caret-down"></i>
+                <i class="fa fa-edit fa-fw"></i> {% trans "Edit"  %} <i class="fa fa-caret-down"></i>
             </a>
             <ul class="dropdown-menu dropdown-user">
                 <li>
                     <a href="{% url 'dashboard:edit-menu' %}">
-                        Menu
+                        {% trans "Menu" %}
                     </a>
                 </li>
                 {% if page_id %}
                     <li>
                         <a href="{% url 'dashboard:edit-page' page_id %}">
-                            Page
+                            {% trans "Page" %}
                         </a>
                     </li>
                 {% endif %}
@@ -27,15 +27,19 @@
     <!-- Account dropdown -->
     <li class="dropdown">
         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-            <i class="fa fa-user fa-fw"></i> User <i class="fa fa-caret-down"></i>
+            <i class="fa fa-user fa-fw"></i> {{ user }} <i class="fa fa-caret-down"></i>
         </a>
         <ul class="dropdown-menu dropdown-user">
-            <li><a href="{% url 'dashboard:system-settings' %}"><i class="glyphicon glyphicon-globe"></i> Global settings</a></li>
-            <li><a href="{% url 'dashboard:amcat-settings' %}"><i class="fa fa-plug fa-fw"></i> AmCAT token</a></li>
-            <li><a href="{% url 'account_settings' %}"><i class="fa fa-user fa-fw"></i> User profile</a></li>
-            <li><a href="https://github.com/amcat/amcat-dashboard/issues/new"><i class="fa fa-bug fa-fw"></i> Report error</a></li>
+            {% if menu_show_switch_item %}
+            <li><a href="{% url 'dashboard:system-list' %}"><i class="fa fa-list"></i> {% trans "Projects" %}</a></li>
+            {% endif %}
+            {% if user.is_superuser %}
+            <li><a href="{% url 'dashboard:amcat-settings' %}"><i class="fa fa-plug fa-fw"></i> {% trans "AmCAT Settings" %}</a></li>
+            {% endif %}
+            <li><a href="{% url 'account_settings' %}"><i class="fa fa-user fa-fw"></i> {% trans "User profile" %}</a></li>
+            <li><a href="https://github.com/amcat/amcat-dashboard/issues/new"><i class="fa fa-bug fa-fw"></i> {% trans "Report error" %}</a></li>
             <li class="divider"></li>
-            <li><a href="{% url 'account_logout' %}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+            <li><a href="{% url 'account_logout' %}"><i class="fa fa-sign-out fa-fw"></i> {% trans "Logout" %}</a>
             </li>
         </ul>
     </li>

@@ -10,10 +10,17 @@
                     </button>
                     <ul class="dropdown-menu pull-right" role="menu">
                         <li>
-                            <a href="{% url 'dashboard:clear-cache' query_id %}">
+                            <a href="{% url 'dashboard:clear-cache' query.id %}">
                                 <i class="fa fa-refresh fa-fw"></i> {% trans "Refresh" %}
                             </a>
                         </li>
+                        {% if user.is_superuser %}
+                        <li>
+                            <a href="{{ query.amcat_url }}" target="_blank">
+                                <span class="fa fa-external-link fa-fw"></span> Edit on AmCAT
+                            </a>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>

@@ -26,8 +26,9 @@ def serialise_queries(queries):
     return map(serialise_query, queries)
 
 def synchronise_queries(request):
-    System.load().synchronise_queries()
-    queries = list(serialise_queries(Query.objects.order_by("amcat_name")))
+    system = request.user.system
+    system.synchronise_queries()
+    queries = list(serialise_queries(Query.objects.filter(system=system).order_by("amcat_name")))
     return HttpResponse(json.dumps(queries), content_type="application/json")
 
 
@@ -66,15 +67,18 @@ def save_rows(request, page_id):
 
 @transaction.atomic
 def save_menu(request):
+    system = request.user.system
+    pages_qs = Page.objects.filter(system=system)
     pages = json.loads(request.body.decode("utf-8"))
     existing_pages, new_pages = split(itemgetter("id"), pages)
 
     # We must use delete() on a single Page objects, as it deletes associated rows/cells
     existing_pages_ids = list(map(itemgetter("id"), existing_pages))
-    for page in Page.objects.exclude(id__in=existing_pages_ids):
+    for page in pages_qs.exclude(id__in=existing_pages_ids):
         Page.objects.only("id").get(id=page["id"]).delete()
 
-    for page, page_obj in zip(existing_pages, Page.objects.filter(id__in=existing_pages_ids)):
+    for page, page_obj in zip(existing_pages, Page.objects.filter(system=system, id__in=existing_pages_ids)):
+        page_obj.system = system
         page_obj.name = page["name"]
         page_obj.visible = page["visible"]
         page_obj.icon = page["icon"]
@@ -89,7 +93,8 @@ def save_menu(request):
 
 
 def menu(request):
-    pages = Page.objects.all()
+    system = request.user.system
+    pages = Page.objects.filter(system=system)
     pages = json.dumps([{
         "id": page.id,
         "icon": page.icon,
@@ -100,6 +105,7 @@ def menu(request):
     return render(request, "dashboard/edit_menu.html", locals())
 
 def page(request, page_id):
+    system = request.user.system
     page = Page.objects.get(id=page_id)
     rows = page.get_cells(select_related=("row",))
 
@@ -115,15 +121,17 @@ def page(request, page_id):
 
     page_json = json.dumps(page_json)
 
-    queries = Query.objects.only("amcat_name", "id").order_by("amcat_name")
-    pages = Page.objects.all()
+    queries = Query.objects.filter(system=system).only("amcat_name", "id").order_by("amcat_name")
+    pages = Page.objects.filter(system=system)
 
     return render(request, "dashboard/edit_page.html", locals())
 
 def index(request):
-    if not Page.objects.exists():
-        page = Page.objects.create(name="Default", visible=False, ordernr=0)
+    system = request.user.system
+    pages = Page.objects.filter(system=system)
+    if not pages.exists():
+        page = Page.objects.create(name="Default", visible=False, ordernr=0, system=system)
     else:
-        page = Page.objects.all()[0]
+        page = pages.first()
 
     return redirect(reverse("dashboard:edit-page", kwargs={"page_id": page.id}))
