@@ -15,7 +15,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 
-from dashboard.models import Query, Page, System
+from dashboard.models import Query, Page, System, HighchartsTheme
 from dashboard.util.api import poll, start_task, get_session
 
 class MenuViewMixin(object):
@@ -34,8 +34,9 @@ class DashboardPageView(BaseDashboardView):
     def get_context_data(self, **kwargs):
         page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
         rows = page.get_cells(select_related=("row", "query"))
+        themes = HighchartsTheme.objects.filter(cells__row__in=rows).distinct()
         return dict(super(DashboardPageView, self).get_context_data(**kwargs),
-                    page=page, rows=rows)
+                    page=page, rows=rows, themes=themes)
 
 
 def clear_cache(request, query_id):

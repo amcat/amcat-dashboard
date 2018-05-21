@@ -1,0 +1,36 @@
+{% extends 'dashboard/base.html' %}
+{% load bootstrap %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" type="text/css"
+          href="{% static 'components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css' %}">
+{% endblock %}
+
+{% block dashboard-body %}
+
+<div class="col-lg-6">
+    <form method="post" id="theme-form">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+    </form>
+    <div id="color-picker">
+
+    </div>
+    <h3>Choose colors:</h3>
+    <p><button form="theme-form" type="submit" class="btn btn-primary">Save</button></p>
+</div>
+<div class="col-lg-4">
+<div id="theme-demo-container">
+</div>
+</div>
+<style id="theme-demo-style">
+    #theme-demo-container {
+        display: none;
+    }
+</style>
+<script>
+require(['dashboard/theme_editor']);
+</script>
+
+{% endblock %}

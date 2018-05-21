@@ -1,5 +1,6 @@
 from django.conf.urls import url
 
+import dashboard.views.highcharts_theme
 from dashboard.views import dashboard_edit
 from dashboard.views import dashboard_view
 from dashboard.views import settings
@@ -19,6 +20,11 @@ urlpatterns = [
     url("^import_query$", dashboard_edit.import_query, name="import-query"),
     url("^systems$", settings.SystemListView.as_view(), name="system-list"),
     url("^system_settings/(?P<system_id>[0-9]+)?$", settings.SystemSettingsView.as_view(), name="system-settings"),
+    url("^systems/(?P<system_id>[0-9]+)/themes$", settings.SystemThemeListView.as_view(), name="system-theme-list"),
+    url("^systems/(?P<system_id>[0-9]+)/themes/add$", dashboard.views.highcharts_theme.SystemThemeCreateView.as_view(), name="system-theme-add"),
+    url("^systems/(?P<system_id>[0-9]+)/themes/(?P<theme_id>[0-9]+)/edit$", dashboard.views.highcharts_theme.SystemThemeEditView.as_view(), name="system-theme-edit"),
+    url("^systems/(?P<system_id>[0-9]+)/themes/(?P<theme_id>[0-9]+)/delete", dashboard.views.highcharts_theme.SystemThemeDeleteView.as_view(), name="system-theme-delete"),
+    url("^theme/(?P<tag>[a-zA-Z0-9]+).css$", dashboard.views.highcharts_theme.get_theme, name="theme-css"),
     url("^token_setup$", settings.SystemAddView.as_view(), name="token-setup"),
     url("^synchronise_queries$", dashboard_edit.synchronise_queries, name="synchronise-queries"),
     url("^save_rows/(?P<page_id>[0-9]+)$", dashboard_edit.save_rows, name="save-rows"),

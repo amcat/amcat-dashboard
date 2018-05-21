@@ -30,6 +30,7 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "default")
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 STATIC_ROOT = os.path.join(BASE_DIR, "srv")
+MEDIA_ROOT = os.path.join(BASE_DIR, "srv/media")
 
 # Application definition
 AUTH_USER_MODEL = 'dashboard.User'
@@ -156,6 +157,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 
 # django-user-accounts
 ACCOUNT_EMAIL_UNIQUE = True

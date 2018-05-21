@@ -1,10 +1,12 @@
 from __future__ import absolute_import
-import itertools
+
+from collections import OrderedDict
+
+from django.db import models
+from django.db import transaction
 
 from dashboard.models.query import Query
-from collections import OrderedDict
-from django.db import transaction
-from django.db import models
+
 
 def get_active_queries():
     query_ids = Cell.objects.values_list("query__id", flat=True)
@@ -60,6 +62,8 @@ class Cell(models.Model):
     query = models.ForeignKey(Query, related_name="cells")
     page = models.ForeignKey(Page, related_name="cells")
 
+    theme = models.ForeignKey('dashboard.HighchartsTheme', related_name="cells", on_delete=models.SET_NULL, null=True)
+
     # You may expect to find Page.rows().cells(), but storing it this way is more
     # efficient as we can fetch a single page with one query.
     row = models.ForeignKey(Row, related_name="cells")
@@ -71,3 +75,5 @@ class Cell(models.Model):
         app_label = "dashboard"
         ordering = ["row__ordernr", "ordernr"]
         unique_together = (("page", "row", "ordernr"),)
+
+

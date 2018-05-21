@@ -8,8 +8,7 @@ from django.http import HttpResponseNotAllowed, Http404
 from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 from django.views.generic import FormView, ListView
-from dashboard.models import System, User
-from django.utils.html import format_html
+from dashboard.models import System, User, HighchartsTheme
 
 
 class TokenWidget(forms.TextInput):
@@ -174,3 +173,22 @@ class SystemSettingsView(FormView):
 
     def get_success_url(self):
         return reverse("dashboard:system-list")
+
+
+class SystemMixin:
+    @property
+    def system(self):
+        try:
+            return System.objects.get(pk=self.kwargs['system_id'])
+        except System.DoesNotExist:
+            raise Http404
+
+
+class SystemThemeListView(SystemMixin, ListView):
+    model = HighchartsTheme
+    template_name = 'dashboard/theme_list.html'
+
+    def get_queryset(self):
+        return self.model.objects.filter(system=self.system)
+
+

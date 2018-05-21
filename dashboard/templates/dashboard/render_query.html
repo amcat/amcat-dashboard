@@ -1,9 +1,10 @@
+{% load static %}
 <script>
     requirejs([
         "jquery",
         "query/renderers"
     ], function ($, renderers) {
-        var container = $("#{{ container }}");
+        const container = $("#{{ container }}");
 
         $.ajax({
             url: "{% url 'dashboard:get-saved-query' query.id %}"
@@ -14,7 +15,7 @@
             });
             response.then(response => query.output_type.indexOf('json') >= 0 ? response.json() : response.text())
                 .then(result => {
-                    renderers[query.output_type](query.amcat_parameters, container.find(".query-container"), result);
+                    renderers[query.output_type](query.amcat_parameters, container.find('.query-container'), result);
                 });
 
             container.find(".query-name").text(query.amcat_name);

@@ -21,6 +21,7 @@
                     <div class="synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
                     <!--<div class="preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>-->
                     <input data-label-text="Hints" class="hints" type="checkbox" checked />
+                    <a href="{% url "dashboard:system-theme-list" system.id %}" class="btn btn-default">Edit themes...</a>
                 </div>
             </div>
         </div>
@@ -45,6 +46,14 @@
                             <option value="">-- choose query --</option>
                             {% for query in queries %}
                                 <option value="{{ query.id }}">{{ query.amcat_name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <select class="theme"
+                        title="Applies a custom theme to the chart, if applicable.">
+                            <option value="">no theme</option>
+                            {% for theme in system.highchartstheme_set.all %}
+                                <option value="{{ theme.id }}">{{ theme.name }}</option>
                             {% endfor %}
                         </select>
 

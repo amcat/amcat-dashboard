@@ -10,7 +10,6 @@
     let tokenBtn = $('#btn-{{ widget.attrs.id }}-request-token');
     let hostnameInput = $("#id_{{ hostname_input_name }}");
 
-        console.log(tokenBtn);
     let return_uri = hostname => `${location.origin}${location.pathname}?amcat_token=%25s&hostname=${hostname}`;
     tokenBtn.click(() => {
         let origin;

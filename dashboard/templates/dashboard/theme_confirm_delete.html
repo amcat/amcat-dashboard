@@ -1,0 +1,11 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard-body %}
+    <h2>Delete theme "{{ object.name }}"</h2>
+    <p>Are you sure you want to delete theme "{{ object.name }}"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-danger" value="Delete">
+        <a class="btn btn-default" href="{% url "dashboard:system-theme-list" view.system.id %}">Cancel</a>
+    </form>
+{% endblock %}

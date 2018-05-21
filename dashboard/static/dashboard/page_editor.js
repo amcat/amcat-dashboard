@@ -45,7 +45,8 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
         var serialiseCell = function(cell){
             return {
                 width: colToNum($(cell).attr("class")),
-                query_id: $(cell).find(".saved-query").val()
+                query_id: $(cell).find(".saved-query").val(),
+                theme_id: $(cell).find("select.theme").val()
             };
         };
 
@@ -53,19 +54,23 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             return [$.map($(row).find(".col"), serialiseCell)];
         };
 
-        var _newCol = function(width, queryId){
+        var _newCol = function(width, queryId, themeId){
             var newCol = $colTemplate.clone().show();
-            var select = newCol.find(".saved-query");
+            var themeSelect = newCol.find(".theme");
+            var querySelect = newCol.find(".saved-query");
 
             newCol.removeClass(bootstrapColums.join(" "));
             newCol.addClass(numToCol(width));
-            select.addClass("multiselect-orig").multiselect({
+            $([themeSelect, querySelect]).addClass("multiselect-orig").multiselect({
                 buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle"
             });
 
             // Set default value for query
             if (queryId !== undefined){
-                select.val(queryId).multiselect("rebuild")
+                querySelect.val(queryId).multiselect("rebuild");
+            }
+            if(themeId !== undefined && themeId !== null){
+                themeSelect.val(themeId).multiselect("rebuild");
             }
 
             return newCol;
@@ -116,10 +121,18 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
                 headers: {
                     "X-CSRFTOKEN": $.cookie("csrftoken")
                 }
-            }).done(function(){
+            }).done(function () {
                 $save.removeClass("disabled").find("i").removeClass("fa-spin");
+                $save.addClass("btn-success").find("i").addClass("glyphicon-ok").removeClass('glyphicon-floppy-disk');
+
+                setTimeout(() => $save
+                    .removeClass("btn-success")
+                    .find("i")
+                    .removeClass("glyphicon-ok")
+                    .addClass('glyphicon-floppy-disk'), 1000);
+
                 new PNotify({text: "Saving OK", type: "success", delay: 200})
-            }).fail(function(){
+            }).fail(function () {
                 $save.removeClass("disabled").find("i").removeClass("fa-spin");
                 new PNotify({text: "Saving failed", type: "error"})
             })
@@ -177,7 +190,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             var rows = $.map(pageData.rows, function(row){
                 return $("<div class='query-row row'>").append(
                     $.map(row, function(col){
-                        var newCol = _newCol(col.width, col.query_id);
+                        var newCol = _newCol(col.width, col.query_id, col.theme_id);
                         initQueryButtons(newCol);
                         return newCol;
                     })

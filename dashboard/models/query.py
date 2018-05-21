@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import json
+
 from django.db import models
 from dashboard.models.user import EPOCH
 
@@ -68,5 +69,3 @@ class Query(models.Model):
         self.amcat_parameters = data["parameters"]
 
 
-class QueryColorScheme(models.Model):
-    colors = models.TextField()

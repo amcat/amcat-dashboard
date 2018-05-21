@@ -1,25 +1,18 @@
 from __future__ import absolute_import
 
-from amcatclient.amcatclient import Unauthorized, APIError
-from django.conf import settings
-from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.utils.translation import gettext as _
-from amcatclient import AmcatAPI
-from dashboard.models import Query
-
 import logging
 
+from amcatclient import AmcatAPI
+from amcatclient.amcatclient import Unauthorized, APIError
+from django.db import models
+from django.utils.translation import gettext as _
 
-def is_json_object(value):
-    if not isinstance(value, dict):
-        raise ValidationError("Must be a JSON object.")
+from dashboard.models import Query
 
 
 class System(models.Model):
     hostname = models.TextField(default="http://preview.amcat.nl")
-    project_id = models.PositiveIntegerField(help_text="AmCAT project this dashboard is linked to", null=True)
+    project_id = models.PositiveIntegerField(help_text=_("AmCAT project this dashboard is linked to"), null=True)
     project_name = models.TextField(null=True)
     amcat_token = models.TextField(null=True)
 

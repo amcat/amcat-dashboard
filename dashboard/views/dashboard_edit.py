@@ -6,7 +6,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 import time
-from dashboard.models import Page, System, Query, Row, Cell
+from dashboard.models import Page, System, Query, Row, Cell, HighchartsTheme
 from dashboard.util.django import bulk_insert_returning_ids
 from dashboard.util.itertools import split
 
@@ -53,13 +53,17 @@ def save_rows(request, page_id):
     new_rows = bulk_insert_returning_ids(new_rows)
 
     queries = Query.objects.only("id").in_bulk([q["query_id"] for q in chain(*rows)])
-
+    themes = HighchartsTheme.objects.only("id").in_bulk([t["theme_id"] for t in chain(*rows) if t["theme_id"]])
     cells = []
     for row, cols in zip(new_rows, rows):
         for i, col in zip(count(), cols):
             query = queries[int(col["query_id"])]
+            if col['theme_id']:
+                theme = themes[int(col['theme_id'])]
+            else:
+                theme = None
             width = col["width"]
-            cells.append(Cell(width=width, query=query, page=page, row=row, ordernr=i))
+            cells.append(Cell(width=width, query=query, page=page, row=row, ordernr=i, theme=theme))
 
     Cell.objects.bulk_create(cells)
 
@@ -113,7 +117,8 @@ def page(request, page_id):
     page_json.update({
         "rows": [[{
             "width": cell.width,
-            "query_id": cell.query_id
+            "query_id": cell.query_id,
+            "theme_id": cell.theme_id
         }
         for cell in cells]
         for row, cells in rows.items()]
