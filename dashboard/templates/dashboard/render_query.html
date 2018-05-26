@@ -18,13 +18,13 @@
                     renderers[query.output_type](query.amcat_parameters, container.find('.query-container'), result);
                 })
                 .then(() => {
+                    // apply theme args if a theme is selected.
                     if(themeArgs === null){
                         return;
                     }
                     container.find('[data-highcharts-chart]').each((i, el) => {
                         el = $(el);
                         const chart = el.highcharts();
-                        console.log(chart);
                         if (chart instanceof Highcharts.Chart) {
                             chart.update(Highcharts.merge(chart.options, themeArgs));
                         }

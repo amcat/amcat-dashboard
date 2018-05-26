@@ -1,12 +1,5 @@
-import os
-from binascii import unhexlify
-
 from django import forms
-from django.http import JsonResponse, HttpResponse, Http404
 from django.urls import reverse
-from django.views import View
-from django.views.decorators.cache import cache_page
-from django.views.decorators.http import etag
 from django.views.generic import CreateView, UpdateView, DeleteView
 
 from dashboard.models import HighchartsTheme, System
@@ -30,25 +23,13 @@ class SystemThemeMixin:
 
 class SystemThemeCreateView(SystemMixin, SystemThemeMixin, CreateView):
     template_name = 'dashboard/theme_form.html'
-    theme_default = None
 
     def get_success_url(self):
         return reverse('dashboard:system-theme-list', args=(self.system.id,))
 
-    def _try_get_default(self):
-        if self.theme_default is not None:
-            return self.theme_default
-
-        try:
-            path = os.path.dirname(__file__)
-            self.theme_default = open('{}/data/theme_default.scss'.format(path), mode="r").read()
-            return self.theme_default
-        except FileNotFoundError:
-            return ""
-
     def get_initial(self):
         initial = super().get_initial()
-        return dict(initial, theme=self._try_get_default())
+        return dict(initial)
 
 
 class SystemThemeEditView(SystemMixin, SystemThemeMixin, UpdateView):
