@@ -11,6 +11,6 @@ urlpatterns = [
     url(r"^account/", include("account.urls")),
     url(r"^dashboard/", include("dashboard.urls", namespace="dashboard")),
 
-    url(r"^jsi18n/$", JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    url(r"^jsi18n/$", cache_page(86400)(JavaScriptCatalog.as_view()), name='javascript-catalog'),
 
 ]

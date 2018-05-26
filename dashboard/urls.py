@@ -24,7 +24,6 @@ urlpatterns = [
     url("^systems/(?P<system_id>[0-9]+)/themes/add$", dashboard.views.highcharts_theme.SystemThemeCreateView.as_view(), name="system-theme-add"),
     url("^systems/(?P<system_id>[0-9]+)/themes/(?P<theme_id>[0-9]+)/edit$", dashboard.views.highcharts_theme.SystemThemeEditView.as_view(), name="system-theme-edit"),
     url("^systems/(?P<system_id>[0-9]+)/themes/(?P<theme_id>[0-9]+)/delete", dashboard.views.highcharts_theme.SystemThemeDeleteView.as_view(), name="system-theme-delete"),
-    url("^theme/(?P<tag>[a-zA-Z0-9]+).css$", dashboard.views.highcharts_theme.get_theme, name="theme-css"),
     url("^token_setup$", settings.SystemAddView.as_view(), name="token-setup"),
     url("^synchronise_queries$", dashboard_edit.synchronise_queries, name="synchronise-queries"),
     url("^save_rows/(?P<page_id>[0-9]+)$", dashboard_edit.save_rows, name="save-rows"),

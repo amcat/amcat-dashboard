@@ -51,19 +51,21 @@
 
                         <select class="theme"
                         title="Applies a custom theme to the chart, if applicable.">
-                            <option value="">no theme</option>
+                            <option value="">No theme</option>
+                            <optgroup label="Themes">
                             {% for theme in system.highchartstheme_set.all %}
                                 <option value="{{ theme.id }}">{{ theme.name }}</option>
                             {% endfor %}
+                            </optgroup>
                         </select>
 
                         <div class="btn-group">
-                            <div class="add-left btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-left"></i></div>
+                            <div class="add-left btn btn-xs btn-default" title="Add chart on left side"><i class="glyphicon glyphicon-arrow-left"></i></div>
                             <div class="hint btn btn-xs btn-default disabled">Add</div>
-                            <div class="add-right btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-right"></i></div>
+                            <div class="add-right btn btn-xs btn-default" title="Add chart on right side"><i class="glyphicon glyphicon-arrow-right"></i></div>
                         </div>
 
-                        <div class="delete btn btn-xs btn-warning"><i class="glyphicon glyphicon-trash"></i></div>
+                        <div class="delete btn btn-xs btn-warning" title="delete"><i class="glyphicon glyphicon-trash"></i></div>
 
                         <!--
                         <div class="pull-right btn-group">

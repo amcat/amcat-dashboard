@@ -1,18 +1,20 @@
-from itertools import chain, count
 import json
+from itertools import chain, count
 from operator import itemgetter
+
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-import time
-from dashboard.models import Page, System, Query, Row, Cell, HighchartsTheme
+
+from dashboard.models import Page, Query, Row, Cell, HighchartsTheme
 from dashboard.util.django import bulk_insert_returning_ids
 from dashboard.util.itertools import split
 
 
 def import_query(request):
     pass
+
 
 def serialise_query(query):
     return {
@@ -22,8 +24,10 @@ def serialise_query(query):
         "amcat_parameters": query.amcat_parameters
     }
 
+
 def serialise_queries(queries):
     return map(serialise_query, queries)
+
 
 def synchronise_queries(request):
     system = request.user.system
@@ -33,6 +37,7 @@ def synchronise_queries(request):
 
 
 OK_CREATED = HttpResponse("OK", status=201)
+
 
 @transaction.atomic
 def save_rows(request, page_id):
@@ -68,6 +73,7 @@ def save_rows(request, page_id):
     Cell.objects.bulk_create(cells)
 
     return OK_CREATED
+
 
 @transaction.atomic
 def save_menu(request):
@@ -108,6 +114,7 @@ def menu(request):
     editing = True
     return render(request, "dashboard/edit_menu.html", locals())
 
+
 def page(request, page_id):
     system = request.user.system
     page = Page.objects.get(id=page_id)
@@ -120,8 +127,8 @@ def page(request, page_id):
             "query_id": cell.query_id,
             "theme_id": cell.theme_id
         }
-        for cell in cells]
-        for row, cells in rows.items()]
+            for cell in cells]
+            for row, cells in rows.items()]
     })
 
     page_json = json.dumps(page_json)
@@ -130,6 +137,7 @@ def page(request, page_id):
     pages = Page.objects.filter(system=system)
 
     return render(request, "dashboard/edit_page.html", locals())
+
 
 def index(request):
     system = request.user.system

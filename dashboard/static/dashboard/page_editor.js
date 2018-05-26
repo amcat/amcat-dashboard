@@ -62,7 +62,8 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             newCol.removeClass(bootstrapColums.join(" "));
             newCol.addClass(numToCol(width));
             $([themeSelect, querySelect]).addClass("multiselect-orig").multiselect({
-                buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle"
+                buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle",
+                buttonTitle: (options, select) => select[0].title
             });
 
             // Set default value for query

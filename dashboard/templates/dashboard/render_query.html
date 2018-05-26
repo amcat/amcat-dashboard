@@ -5,7 +5,7 @@
         "query/renderers"
     ], function ($, renderers) {
         const container = $("#{{ container }}");
-
+        const themeArgs = JSON.parse("{{ theme_args|escapejs|default:"null" }}");
         $.ajax({
             url: "{% url 'dashboard:get-saved-query' query.id %}"
         }).done(function (query) {
@@ -16,9 +16,25 @@
             response.then(response => query.output_type.indexOf('json') >= 0 ? response.json() : response.text())
                 .then(result => {
                     renderers[query.output_type](query.amcat_parameters, container.find('.query-container'), result);
-                });
-
+                })
+                .then(() => {
+                    if(themeArgs === null){
+                        return;
+                    }
+                    container.find('[data-highcharts-chart]').each((i, el) => {
+                        el = $(el);
+                        const chart = el.highcharts();
+                        console.log(chart);
+                        if (chart instanceof Highcharts.Chart) {
+                            chart.update(Highcharts.merge(chart.options, themeArgs));
+                        }
+                    });
+                }
+            );
             container.find(".query-name").text(query.amcat_name);
         });
+    },
+    function(err){
+        $("#{{ container }}").text(err)
     });
 </script>

@@ -1,21 +1,17 @@
 {% extends "dashboard/base.html" %}
 
-{% block head %}
-    {% include "dashboard/themes.html" with themes=themes %}
-{% endblock %}
-
 {% block dashboard-body %}
     {% for row, cells in rows.items %}
         <div class="row">
             {% for cell in cells %}
-                {% include "dashboard/query_panel.html" with panel_size=cell.width panel_id=cell.id query=cell.query theme_class_name=cell.theme.namespace %}
+                {% include "dashboard/query_panel.html" with panel_size=cell.width panel_id=cell.id query=cell.query  %}
             {% endfor %}
         </div>
     {% endfor %}
 
     {% for row, cells in rows.items %}
         {% for cell in cells %}
-            {% include "dashboard/render_query.html" with query=cell.query container=cell.id %}
+            {% include "dashboard/render_query.html" with query=cell.query container=cell.id theme_args=cell.theme.theme_args%}
         {% endfor %}
     {% endfor %}
 

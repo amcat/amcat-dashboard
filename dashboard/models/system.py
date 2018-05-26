@@ -60,6 +60,12 @@ class System(models.Model):
         return AmcatAPI(host=self.hostname, token=self.amcat_token)
 
     def ping(self):
+        """
+        Get a quick status update from the server. Returns the authorized user if successful. If not,
+        it returns None and an error message.
+
+        @return: a tuple (user | None, error | None)
+        """
         try:
             return self.get_api().request('users/me/'), None
         except Unauthorized:

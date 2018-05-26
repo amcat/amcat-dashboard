@@ -1,7 +1,0 @@
-
-{% load static %}
-
-{% for theme in themes %}
-    <link rel="stylesheet" href="{% url "dashboard:theme-css" theme.tag %}" />
-{% endfor %}
-<link rel="stylesheet" href="{% static "dashboard/highcharts-default.css" %}" />

@@ -19,6 +19,13 @@
                         </a>
                     </li>
                 {% endif %}
+                {% if user.system_id %}
+                    <li>
+                        <a href="{% url 'dashboard:system-theme-list' user.system_id %}">
+                            {% trans "Themes" %}
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
         </li>
     {% endif %}

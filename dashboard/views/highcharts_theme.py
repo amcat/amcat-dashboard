@@ -1,25 +1,16 @@
 import os
+from binascii import unhexlify
 
 from django import forms
-from django.contrib.staticfiles.storage import staticfiles_storage
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.urls import reverse
 from django.views import View
 from django.views.decorators.cache import cache_page
-from django.views.decorators.http import etag, require_http_methods
-from django.views.generic import CreateView, UpdateView, DeleteView, TemplateView
-from django.views.generic.base import TemplateResponseMixin
+from django.views.decorators.http import etag
+from django.views.generic import CreateView, UpdateView, DeleteView
 
 from dashboard.models import HighchartsTheme, System
-from dashboard.models.highchartstheme import compile_theme
 from dashboard.views.settings import SystemMixin
-
-
-@etag(lambda request, *args, **kwargs: kwargs.get('tag'))
-@cache_page(86400)  # use caching to prevent compiling on each GET
-def get_theme(request, *args, **kwargs):
-    theme = HighchartsTheme.objects.get(tag=kwargs['tag'])
-    return HttpResponse(theme.theme_css(), content_type='text/css')
 
 
 class SystemThemeMixin:
@@ -60,12 +51,6 @@ class SystemThemeCreateView(SystemMixin, SystemThemeMixin, CreateView):
         return dict(initial, theme=self._try_get_default())
 
 
-class SystemThemeEditPreviewView(View):
-    def post(self, request, *args, **kwargs):
-        css = compile_theme(request.POST['scss'])
-        return JsonResponse({"css": css})
-
-
 class SystemThemeEditView(SystemMixin, SystemThemeMixin, UpdateView):
     template_name = 'dashboard/theme_form.html'
     pk_url_kwarg = 'theme_id'
@@ -81,4 +66,3 @@ class SystemThemeDeleteView(SystemMixin, DeleteView):
 
     def get_success_url(self):
         return reverse('dashboard:system-theme-list', args=(self.system.id,))
-

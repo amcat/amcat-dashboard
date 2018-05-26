@@ -5,4 +5,3 @@ pinax_theme_bootstrap
 django-forms-bootstrap
 psycopg2
 requests
-pyScss~=1.3.5

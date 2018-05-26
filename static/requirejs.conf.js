@@ -5,7 +5,7 @@ requirejs.config({
         "jquery": "jquery/dist/jquery",
         "papaparse": "papaparse/papaparse",
         "highlight": "highlight/build/highlight.pack",
-        "highcharts.core": "highcharts/js/highcharts",
+        "highcharts.core": "highcharts/highcharts",
         "highcharts.data": "highcharts/modules/data",
         "highcharts.exporting": "highcharts/modules/exporting",
         "highcharts.heatmap": "highcharts/modules/heatmap",

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-16 19:42+0000\n"
+"POT-Creation-Date: 2018-05-26 18:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: dashboard/models/system.py:15
+msgid "AmCAT project this dashboard is linked to"
+msgstr ""
 
 #: dashboard/models/user.py:15
 msgid "active"
@@ -88,7 +92,9 @@ msgstr "Foutmelding"
 #: dashboard/templates/dashboard/system_list_item.html:21
 msgid ""
 "Something went wrong. Contact an administrator if this problem persists."
-msgstr "Er is iets misgegaan. Neem contact op met een beheerder als dit probleem blijft bestaan."
+msgstr ""
+"Er is iets misgegaan. Neem contact op met een beheerder als dit probleem "
+"blijft bestaan."
 
 #: dashboard/templates/dashboard/system_list_item.html:28
 msgid "Currently active"
@@ -104,6 +110,11 @@ msgstr "Gebruik dit project"
 msgid "Settings..."
 msgstr "Instellingen..."
 
+#: dashboard/templates/dashboard/theme_list.html:5
+#: dashboard/templates/dashboard/top_menu.html:25
+msgid "Themes"
+msgstr "Thema's"
+
 #: dashboard/templates/dashboard/top_menu.html:7
 msgid "Edit"
 msgstr "Bewerken"
@@ -116,69 +127,71 @@ msgstr "Menu"
 msgid "Page"
 msgstr "Pagina"
 
-#: dashboard/templates/dashboard/top_menu.html:30
-msgid "User"
-msgstr "Gebruiker"
-
-#: dashboard/templates/dashboard/top_menu.html:34
+#: dashboard/templates/dashboard/top_menu.html:41
 msgid "Projects"
 msgstr "Projecten"
 
-#: dashboard/templates/dashboard/top_menu.html:37
+#: dashboard/templates/dashboard/top_menu.html:44
 #, fuzzy
 #| msgid "Settings"
 msgid "AmCAT Settings"
 msgstr "Instellingen"
 
-#: dashboard/templates/dashboard/top_menu.html:39
+#: dashboard/templates/dashboard/top_menu.html:46
 msgid "User profile"
 msgstr "Gebruikersprofiel"
 
-#: dashboard/templates/dashboard/top_menu.html:40
+#: dashboard/templates/dashboard/top_menu.html:47
 msgid "Report error"
-msgstr ""
+msgstr "Probleem melden"
 
-#: dashboard/templates/dashboard/top_menu.html:42
+#: dashboard/templates/dashboard/top_menu.html:49
 msgid "Logout"
 msgstr "Uitloggen"
 
-#: dashboard/views/settings.py:19
+#: dashboard/views/settings.py:18
 msgid "Request token"
 msgstr ""
 
-#: dashboard/views/settings.py:34
+#: dashboard/views/settings.py:33
 msgid ""
 "Click the button to request a token, or instead, enter username and password:"
 msgstr ""
 
-#: dashboard/views/settings.py:42
-msgid "The server is setup for one system only, no other projects may be created."
+#: dashboard/views/settings.py:41
+msgid ""
+"The server is setup for one system only, no other projects may be created."
 msgstr ""
 
-#: dashboard/views/settings.py:50
+#: dashboard/views/settings.py:49
 msgid ""
 "Invalid credentials: either request a token or enter a username or password."
 msgstr ""
 
-#: dashboard/views/settings.py:58
+#: dashboard/views/settings.py:57
 msgid ""
 "Could not authenticate using given username and password. The credentials "
 "might be wrong, or the AmCAT server is not responding."
 msgstr ""
 
-#: dashboard/views/settings.py:89
+#: dashboard/views/settings.py:88
 #, python-format
 msgid ""
 "%(user)s is not a superuser. You need to be a superuser to access this page."
-msgstr "%(user)s is geen beheerder. U heeft beheerdersrechten nodig om deze pagina te bezoeken."
+msgstr ""
+"%(user)s is geen beheerder. U heeft beheerdersrechten nodig om deze pagina "
+"te bezoeken."
 
-#: dashboard/views/settings.py:167
+#: dashboard/views/settings.py:166
 msgid "System does not exist"
 msgstr ""
 
-#: dashboard/views/settings.py:172
+#: dashboard/views/settings.py:171
 msgid "Form saved."
-msgstr ""
+msgstr "Opgeslagen."
+
+#~ msgid "User"
+#~ msgstr "Gebruiker"
 
 #~ msgid "systems"
 #~ msgstr "systemen"

@@ -1,8 +1,5 @@
 {% extends 'dashboard/base.html' %}
 
-{% block head %}
-    {% include "dashboard/themes.html" with themes=object_list %}
-{% endblock %}
 {% block dashboard-body %}
 
 <h2>{% trans "Themes" %}</h2>
@@ -13,7 +10,7 @@
     {% for theme in object_list %}
         <div class="list-group-item">
             <div class="demo-container {{ theme.namespace }}"
-                 data-title="{{ theme.name }}"></div>
+                 data-title="{{ theme.name }}" data-theme="{{ theme.theme_args }}"></div>
             <div class="btn-group">
                 <a class="btn btn-default" href="{% url "dashboard:system-theme-edit" theme.system_id theme.id %}">Edit</a>
                 <a class="btn btn-default" href="{% url "dashboard:system-theme-delete" theme.system_id theme.id%}">
@@ -32,8 +29,9 @@
 require(['dashboard/highcharts_demo'], function(highchartsDemo){
 
     for(let container of document.querySelectorAll('.demo-container')){
-        const title = container.getAttribute('data-title');
-        const titleOpts = {title: {text: `Theme "${title}"`}};
+        const name = container.getAttribute('data-title');
+        const args = JSON.parse(container.getAttribute('data-theme'));
+        const titleOpts = {title: {text: `Theme "${name}"`}};
         const sizeOpts = {
             chart: {
                 width: 500,
@@ -41,7 +39,8 @@ require(['dashboard/highcharts_demo'], function(highchartsDemo){
             }
         };
 
-        highchartsDemo(container, titleOpts, sizeOpts);
+        const demoChart = highchartsDemo(container, titleOpts, sizeOpts);
+        demoChart.update(Highcharts.merge(demoChart.options, args));
     }
 });
 </script>
