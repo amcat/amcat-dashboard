@@ -34,7 +34,14 @@ class Query(models.Model):
         )
 
     def get_parameters(self):
-        return json.loads(self.amcat_parameters)
+        parameters = json.loads(self.amcat_parameters)
+        try:
+            filters = json.loads(parameters['filters'])
+        except (KeyError, json.JSONDecodeError):
+            filters = {}
+        filters.update(self.system.get_global_filters())
+        return dict(parameters, filters=json.dumps(filters))
+
 
     def get_articleset_ids(self):
         return list(map(int, self.get_parameters()["articlesets"]))

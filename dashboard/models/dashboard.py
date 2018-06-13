@@ -1,11 +1,25 @@
 from __future__ import absolute_import
 
-from collections import OrderedDict
+import re
+from collections import OrderedDict, defaultdict
 
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db import transaction
 
 from dashboard.models.query import Query
+
+
+class Filter(models.Model):
+    field_re = "[a-z0-9]+(_[a-z]+)?"
+
+    system = models.ForeignKey('dashboard.System', on_delete=models.CASCADE)
+    field = models.CharField(validators=[RegexValidator(field_re, flags=re.IGNORECASE)], max_length=100)
+    value = models.CharField(max_length=200)
+
+    class Meta:
+        app_label = "dashboard"
+        ordering = ("field", "value")
 
 
 def get_active_queries():

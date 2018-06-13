@@ -25,6 +25,11 @@
                             {% trans "Themes" %}
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'dashboard:edit-filters' user.system_id %}">
+                            {% trans "Filters" %}
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
         </li>

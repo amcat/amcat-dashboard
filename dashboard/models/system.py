@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import logging
+from collections import defaultdict
 
 from amcatclient import AmcatAPI
 from amcatclient.amcatclient import Unauthorized, APIError
@@ -43,6 +44,13 @@ class System(models.Model):
                 pass
 
         super(System, self).save(*args, **kwargs)
+
+    def get_global_filters(self):
+        filterdict = defaultdict(list)
+        for filter in self.filter_set.all():
+            filterdict[filter.field].append(filter.value)
+        return filterdict
+
 
     def set_token(self, username, password):
         self.amcat_token = self.get_api(username, password).token

@@ -1,14 +1,20 @@
+from collections.__init__ import OrderedDict
+
 from amcatclient import AmcatAPI
 from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError, SuspiciousOperation
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.forms import ModelForm, formset_factory, modelformset_factory, BaseModelFormSet
 from django.http import HttpResponseNotAllowed, Http404
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import FormView, ListView
 from dashboard.models import System, User, HighchartsTheme
+from dashboard.models.dashboard import Filter
 
 
 class TokenWidget(forms.TextInput):
@@ -192,3 +198,34 @@ class SystemThemeListView(SystemMixin, ListView):
         return self.model.objects.filter(system=self.system)
 
 
+class BaseFilterFormSet(BaseModelFormSet):
+    def __init__(self, *args, system, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.system = system
+
+    def save_new(self, form, commit=True):
+        form.instance.system = self.system
+        super().save_new(form, commit=commit)
+
+
+FilterFormSet = modelformset_factory(Filter, exclude=("system",), extra=2, max_num=1000, can_delete=True,
+                                     formset=BaseFilterFormSet)
+
+
+class FiltersEditView(SystemMixin, FormView):
+    form_class = FilterFormSet
+    template_name = "dashboard/edit_filters.html"
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['queryset'] = Filter.objects.filter(system=self.system)
+        kwargs['system'] = self.system
+        return kwargs
+
+    def form_valid(self, formset):
+        formset.save()
+        return super().form_valid(formset)
+
+
+    def get_success_url(self):
+        return reverse('dashboard:edit-filters', args=[self.kwargs['system_id']])

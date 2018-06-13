@@ -1,0 +1,52 @@
+{% extends "dashboard/base.html" %}
+{% load bootstrap %}
+
+{% block dashboard-body %}
+    <h1>{% trans "Global filters" %}</h1>
+    <p> These filters apply to every query in this dashboard.</p>
+    <form method="post" class="panel panel-default" id="filter-edit-form">
+        {% csrf_token %}
+        {{ form.management_form }}
+        <div class="panel-body">
+            <div class="form-parts form-inline">
+            {% for formpart in form %}
+                <div class="filter-edit-form-part">
+                {{ formpart|bootstrap_inline }}
+                </div>
+            {% endfor %}
+            </div>
+            <p></p>
+            <p><input type="submit" class="btn btn-primary"></p>
+        </div>
+    </form>
+
+    <script>
+        {
+            const form = document.getElementById('filter-edit-form');
+            const firstPart = document.querySelector('.filter-edit-form-part');
+            const wrapper = firstPart.parentElement;
+
+
+            form.addEventListener('input', (e) => {
+                const el = e.target;
+                const match = el.name.match(/^form-(\d+)-/);
+                if (match === null) {
+                    return;
+                }
+                const idx = +match[1];
+                const totalFormsField = form['form-TOTAL_FORMS'];
+                const currentN = +totalFormsField.value;
+                console.log(idx, currentN);
+                if(idx === currentN - 1){
+                    totalFormsField.value = currentN + 1;
+                    let newEl = document.createElement('div');
+                    newEl.classList.add('filter-edit-form-part');
+                    newEl.innerHTML = firstPart.innerHTML.replace(/form-0-/g, `form-${currentN}-`);
+                    newEl.querySelectorAll('input').forEach(input => input.value = "");
+                    wrapper.appendChild(newEl);
+                }
+            });
+
+        }
+    </script>
+{% endblock %}
