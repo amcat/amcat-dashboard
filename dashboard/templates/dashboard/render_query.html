@@ -1,40 +1,57 @@
-{% load static %}
 <script>
     requirejs([
-        "jquery",
-        "query/renderers"
-    ], function ($, renderers) {
-        const container = $("#{{ container }}");
-        const themeArgs = JSON.parse("{{ theme_args|escapejs|default:"null" }}");
-        $.ajax({
-            url: "{% url 'dashboard:get-saved-query' query.id %}"
-        }).done(function (query) {
-            let response = fetch("{% url 'dashboard:get-saved-query-result' query.id %}", {
-                credentials: "same-origin",
-                cache: "no-cache"
-            });
-            response.then(response => query.output_type.indexOf('json') >= 0 ? response.json() : response.text())
-                .then(result => {
-                    renderers[query.output_type](query.amcat_parameters, container.find('.query-container'), result);
-                })
-                .then(() => {
-                    // apply theme args if a theme is selected.
-                    if(themeArgs === null){
-                        return;
-                    }
-                    container.find('[data-highcharts-chart]').each((i, el) => {
-                        el = $(el);
-                        const chart = el.highcharts();
-                        if (chart instanceof Highcharts.Chart) {
-                            chart.update(Highcharts.merge(chart.options, themeArgs));
-                        }
-                    });
+            "jquery",
+            "query/renderers"
+        ], function ($, renderers) {
+            const container = $("#{{ container }}");
+            const themeArgs = container;
+            console.log(themeArgs);
+            const savedQueryUrl = "{% url 'dashboard:get-saved-query' query.id %}";
+
+
+            async function fetchQueryResult(query) {
+                const response = await fetch(query.result_url, {
+                    credentials: "same-origin",
+                    cache: "no-cache"
+                });
+
+                let result;
+
+                if (query.output_type.indexOf('json') >= 0) {
+                    result = await response.json();
                 }
-            );
-            container.find(".query-name").text(query.amcat_name);
+                else {
+                    result = await response.text();
+                }
+
+                return result;
+            }
+
+            async function onQueryFetched(query) {
+                const result = await fetchQueryResult(query);
+
+                renderers[query.output_type](query.amcat_parameters, container.find('.query-container'), result);
+
+                // apply theme args if a theme is selected.
+                if (themeArgs === null) {
+                    return;
+                }
+                container.find('[data-highcharts-chart]').each((i, el) => {
+                    el = $(el);
+                    const chart = el.highcharts();
+                    if (chart instanceof Highcharts.Chart) {
+                        chart.update(Highcharts.merge(chart.options, themeArgs));
+                    }
+                });
+            }
+
+            $.ajax({url: savedQueryUrl})
+                .done(function (query) {
+                    onQueryFetched(query).catch(e => console.error(e));
+                    container.find(".query-name").text(query.amcat_name);
+                });
+        },
+        function (err) {
+            $("#{{ container }}").text(err)
         });
-    },
-    function(err){
-        $("#{{ container }}").text(err)
-    });
 </script>

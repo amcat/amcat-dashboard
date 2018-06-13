@@ -11,7 +11,7 @@ from dashboard.models import Query
 
 
 class System(models.Model):
-    hostname = models.TextField(default="http://preview.amcat.nl")
+    hostname = models.TextField(default="")
     project_id = models.PositiveIntegerField(help_text=_("AmCAT project this dashboard is linked to"), null=True)
     project_name = models.TextField(null=True)
     amcat_token = models.TextField(null=True)

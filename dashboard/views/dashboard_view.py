@@ -33,10 +33,20 @@ class BaseDashboardView(TemplateView):
 class DashboardPageView(BaseDashboardView):
     def get_context_data(self, **kwargs):
         page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
+        system = page.system
+
+        # this is set as a JS global
+        system_info = json.dumps({
+            "id": system.id,
+            "hostname": system.hostname,
+            "project_id": system.project_id,
+            "project_name": system.project_name
+        })
+
         rows = page.get_cells(select_related=("row", "query"))
         themes = HighchartsTheme.objects.filter(cells__row__in=rows).distinct()
         return dict(super(DashboardPageView, self).get_context_data(**kwargs),
-                    page=page, rows=rows, themes=themes)
+                    page=page, rows=rows, themes=themes, system_info=system_info)
 
 
 def clear_cache(request, query_id):
@@ -57,9 +67,12 @@ def get_saved_query(request, query_id):
         "amcat_query_id": query.amcat_query_id,
         "amcat_name": query.amcat_name,
         "amcat_parameters": query.get_parameters(),
+        "amcat_url": query.amcat_url,
+        "clear_cache_url": reverse('dashboard:clear-cache', args=[query_id]),
         "script": query.get_script(),
         "output_type": query.get_output_type(),
-        "articleset_ids": query.get_articleset_ids()
+        "articleset_ids": query.get_articleset_ids(),
+        "result_url": reverse('dashboard:get-saved-query-result', args=[query.id])
     }))
 
 

@@ -72,3 +72,21 @@ class APITokenNeededMiddleware:
         return None
 
 
+
+
+class MethodOverrideMiddleware(object):
+    allowed_http_methods = ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH']
+    http_header = "HTTP_X_HTTP_METHOD_OVERRIDE"
+
+    # https://pypi.python.org/pypi/django-method-override/0.1.0
+    def process_view(self, request, callback, callback_args, callback_kwargs):
+        if request.method != 'POST':
+            return
+        method = self._get_method_override(request)
+        if method in self.allowed_http_methods:
+            setattr(request, method, request.POST.copy())
+            request.method = method
+
+    def _get_method_override(self, request):
+        method = request.META.get(self.http_header)
+        return method and method.upper()

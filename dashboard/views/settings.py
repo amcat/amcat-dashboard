@@ -27,7 +27,7 @@ class TokenWidget(forms.TextInput):
 
 
 class SetupTokenForm(forms.ModelForm):
-    hostname = forms.CharField(widget=forms.TextInput, initial=System._meta.get_field("hostname").default)
+    hostname = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "http://"}))
 
     amcat_token = forms.CharField(required=False,
                                   help_text=_("Click the button to request a token, or instead, enter username and password:"), widget=TokenWidget)

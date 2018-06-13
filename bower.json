@@ -6,12 +6,16 @@
     "requirejs": "",
     "pnotify": "",
     "amcat-query": "https://github.com/amcat/amcat-query-js.git#~3.5.2",
+    "datatables": "https://github.com/amcat/amcat-datatables.git#1.10.7",
+    "amcat-common": "https://github.com/amcat/amcat-common-js.git",
     "bootstrap-multiselect": "",
     "jquery-cookie": "",
     "bootstrap-switch": "",
     "startbootstrap-sb-admin-2": "https://github.com/BlackrockDigital/startbootstrap-sb-admin-2/archive/v3.3.7+1.tar.gz"
   },
   "resolutions": {
-    "bootstrap": "~3.3.0"
+    "bootstrap": "~3.3.0",
+    "jquery": "~2.1.1",
+    "font-awesome": "~4.6.3"
   }
 }

@@ -1,31 +1,9 @@
 {% load i18n %}
 <div class="col-lg-{{ panel_size }}">
-    <div id="{{ panel_id }}" class="panel panel-default">
-        <div class="panel-heading">
-            <div class="pull-right">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                        {% trans "Actions" %}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>
-                            <a href="{% url 'dashboard:clear-cache' query.id %}">
-                                <i class="fa fa-refresh fa-fw"></i> {% trans "Refresh" %}
-                            </a>
-                        </li>
-                        {% if user.is_superuser %}
-                        <li>
-                            <a href="{{ query.amcat_url }}" target="_blank">
-                                <span class="fa fa-external-link fa-fw"></span> Edit on AmCAT
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </div>
-            </div>
-            <i class="query-icon fa fa-bar-chart-o fa-fw"></i> <span class="query-name"></span>
-        </div>
-        <div class="query-container panel-body {{ theme_class_name|default:"highcharts-default" }}"></div>
+    <div id="{{ panel_id }}" class="panel panel-default query-container"
+             {% if theme_args %}
+                data-theme="{{ theme_args|escape }}"
+             {% endif %}
+             data-saved-query-src="{% url 'dashboard:get-saved-query' query.id %}">
     </div>
 </div>

@@ -1,5 +1,8 @@
 from __future__ import absolute_import
+
+import functools
 import json
+from typing import Iterable, FrozenSet
 
 try:
     from urllib.parse import urlencode
@@ -75,3 +78,21 @@ def start_task(session, *args, **kwargs):
 
 def get_session(system):
     return ApiSession(system=system)
+
+
+def search(system_: System, cols_=None, page_size_=None, page_=None, method_='get', **filters):
+    api = system_.get_api()
+    path = 'search'
+
+    params = dict(filters, project=system_.project_id, format='json')
+
+    # set or override params with functional fields.
+    if cols_ is not None:
+        params['cols'] = cols_
+    if page_size_ is not None:
+        params['page_size'] = page_size_
+    if page_ is not None:
+        params['page'] = page_
+
+    r = api.request(path, method=method_, expected_status=200, use_xpost=True, **params)
+    return r

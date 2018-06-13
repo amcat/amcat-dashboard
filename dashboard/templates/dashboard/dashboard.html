@@ -4,15 +4,18 @@
     {% for row, cells in rows.items %}
         <div class="row">
             {% for cell in cells %}
-                {% include "dashboard/query_panel.html" with panel_size=cell.width panel_id=cell.id query=cell.query  %}
+                {% include "dashboard/query_panel.html" with panel_size=cell.width panel_id=cell.id query=cell.query theme_args=cell.theme.theme_args %}
             {% endfor %}
         </div>
     {% endfor %}
 
-    {% for row, cells in rows.items %}
-        {% for cell in cells %}
-            {% include "dashboard/render_query.html" with query=cell.query container=cell.id theme_args=cell.theme.theme_args%}
-        {% endfor %}
-    {% endfor %}
+    <script>
+        const DASHBOARD_SYSTEM = JSON.parse('{{ system_info|escapejs }}');
 
+        require(["dashboard/query"], function (query) {
+            const {renderQueries} = query;
+            renderQueries($('.query-container'));
+        });
+    </script>
+    {% include "dashboard/articlelist_dialog.html" %}
 {% endblock %}

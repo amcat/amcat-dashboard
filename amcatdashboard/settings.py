@@ -82,7 +82,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
     'account.middleware.LocaleMiddleware',
     'account.middleware.TimezoneMiddleware',
-    'dashboard.middleware.APITokenNeededMiddleware'
+    'dashboard.middleware.APITokenNeededMiddleware',
+    'dashboard.middleware.MethodOverrideMiddleware'
 )
 
 STATICFILES_DIRS = (

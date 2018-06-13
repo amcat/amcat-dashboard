@@ -11,13 +11,17 @@
 
     <title>AmCAT Dashboard - {% block title %}Main{% endblock %}</title>
 
+    <link href="{% static 'components/datatables/media/css/jquery.dataTables.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'components/amcat-common/css/dataTables.bootstrap.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'components/bootstrap/dist/css/bootstrap.css' %}" rel="stylesheet">
     <link href="{% static 'components/metisMenu/dist/metisMenu.css' %}" rel="stylesheet">
     <link href="{% static 'components/startbootstrap-sb-admin-2/dist/css/sb-admin-2.css' %}" rel="stylesheet">
     <link href="{% static 'components/font-awesome/css/font-awesome.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'components/pnotify/dist/pnotify.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'components/amcat-common/css/tables.css' %}" rel="stylesheet" type="text/css">
 
     <script>
+        csrftoken = "{{ csrf_token }}";
         languageCode = "{% get_current_language as language_code %}{{ language_code }}";
     </script>
     <script src="{% url "javascript-catalog" %}"></script>
@@ -32,6 +36,6 @@
     {% block body %}{% endblock %}
 </body>
 
-<script async src="{% static 'components/metisMenu/dist/metisMenu.js' %}"></script>
+<script src="{% static 'components/metisMenu/dist/metisMenu.js' %}"></script>
 <script async src="{% static 'components/startbootstrap-sb-admin-2/dist/js/sb-admin-2.js' %}"></script>
 </html>

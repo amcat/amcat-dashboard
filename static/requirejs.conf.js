@@ -21,7 +21,12 @@ requirejs.config({
         "datatables.tabletools": "datatables/extensions/TableTools/js/dataTables.tableTools",
         "jshashset": "jshashtable/hashset",
         "jshashtable": "jshashtable/hashtable",
-        "query/utils/articlemodal": "amcat-query/query/utils/mock",
+
+        // load alternative articlemodal
+        "query/utils/articlemodal": "../dashboard/articlemodal.dashboard",
+        "query/utils/articlemodal.amcat": "amcat-query/query/utils/articlemodal",
+
+        "amcat": "amcat-common/js",
         "jquery.cookie": "jquery-cookie/jquery.cookie",
         "metis-menu": "metisMenu/dist/metisMenu",
         "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2",
