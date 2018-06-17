@@ -19,7 +19,7 @@
 ***************************************************************************/
 define([
     "jquery", "query/utils/elasticfilters", "query/valuerenderers", "bootstrap",
-    "amcat-common/js/amcat.datatables"],
+    "amcat-common/amcat.datatables"],
     function($, elastic_filters, value_renderers){
     var defaults = {
         "modal": "#articlelist-dialog",

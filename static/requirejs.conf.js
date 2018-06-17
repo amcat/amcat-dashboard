@@ -26,7 +26,7 @@ requirejs.config({
         "query/utils/articlemodal": "../dashboard/articlemodal.dashboard",
         "query/utils/articlemodal.amcat": "amcat-query/query/utils/articlemodal",
 
-        "amcat": "amcat-common/js",
+        "amcat-common": "amcat-common/js",
         "jquery.cookie": "jquery-cookie/jquery.cookie",
         "metis-menu": "metisMenu/dist/metisMenu",
         "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2",
@@ -83,7 +83,7 @@ requirejs.config({
         "datatables.tabletools":{
             deps: ["datatables"]
         },
-        "datatables.bootstrap":{
+        "amcat-common/dataTables.bootstrap":{
             deps: ["datatables", "bootstrap", "jquery", "datatables.tabletools"]
         },
         "datatables.plugins":{
