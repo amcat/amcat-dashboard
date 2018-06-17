@@ -44,7 +44,7 @@ class SearchView(SystemMixin, View):
                 message = "Invalid request"
             else:
                 status = 503  # Service Unavailable
-                message = "An error occurred while retrieving the resource."
+                message = "An error occurred while retrieving the resource from the amcat instance."
 
             return JsonResponse({
                 "message": message,

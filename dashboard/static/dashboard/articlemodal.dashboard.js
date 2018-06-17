@@ -61,14 +61,24 @@ define([
                 table.DataTable().destroy();
             }
 
+            const container = $modal.find(".articlelist").html("");
+
             amcat.datatables.create_rest_table(
-                $modal.find(".articlelist").html(""),
+                container,
                 options.search_api_url + "?" + $.param(getSearchFilters(data, filters), true),
                 {
                     "setup_callback": function(tbl){
                         tbl.fnSetRowlink(options.article_url_format, "new");
                     },
-                    datatables_options: {iDisplayLength: 10,  aaSorting: []}
+                    datatables_options: {iDisplayLength: 10,  aaSorting: []},
+
+                    onFetchedInitialError(jqXHR, statusText, errorThrown){
+                        console.error(JSON.parse(jqXHR.responseText));
+                        container.html("").append(
+                            $(`<p class="text-danger">Error fetching articles: ${errorThrown}.</p>`),
+                            $(`<p class="text-danger">Reason: ${JSON.parse(jqXHR.responseText).message}</p>`)
+                        )
+                    }
                 }
             )
         }
