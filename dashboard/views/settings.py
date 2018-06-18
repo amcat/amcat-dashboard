@@ -55,11 +55,12 @@ class SetupTokenForm(forms.ModelForm):
             raise ValidationError(_("Invalid credentials: either request a token or enter a username or password."))
             return cleaned_data
 
-        authkwargs = {"token": token} if token else {"username": username, "password": password}
+        authkwargs = {"token": token} if token else {"user": username, "password": password}
 
         try:
             AmcatAPI(host=hostname, **authkwargs)
-        except:
+        except Exception as e:
+            print(e)
             raise ValidationError(_("Could not authenticate using given username and password. The credentials might be wrong, or the AmCAT server is not responding."))
 
         return cleaned_data
@@ -225,7 +226,6 @@ class FiltersEditView(SystemMixin, FormView):
     def form_valid(self, formset):
         formset.save()
         return super().form_valid(formset)
-
 
     def get_success_url(self):
         return reverse('dashboard:edit-filters', args=[self.kwargs['system_id']])

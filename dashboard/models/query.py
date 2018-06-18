@@ -1,9 +1,24 @@
 from __future__ import absolute_import
 
+import datetime
 import json
 
 from django.db import models
 from dashboard.models.user import EPOCH
+
+
+def cron_to_set(cron_item):
+    if cron_item == "*":
+        return range(100)
+
+    if "," in cron_item:
+        return map(int, cron_item.split(","))
+
+    if "/" in cron_item:
+        _, stepsize = cron_item.split("/")
+        return range(0, 100, int(stepsize))
+
+    raise ValueError("Invalid cron item: {}".format(cron_item))
 
 
 class Query(models.Model):
@@ -20,6 +35,30 @@ class Query(models.Model):
     cache_timestamp = models.DateTimeField(default=EPOCH)
     cache_mimetype = models.TextField(null=True)
     cache_uuid = models.TextField(null=True)
+
+    refresh_interval = models.TextField(null=True)
+
+    @staticmethod
+    def get_scheduled():
+        return Query.objects.filter(refresh_interval__isnull=False)
+
+    @classmethod
+    def get_scheduled_for(cls, timestamp):
+        for query in cls.get_scheduled().only("refresh_interval"):
+            if query.is_scheduled(timestamp):
+                yield query
+
+    def is_scheduled(self, timestamp: datetime.datetime):
+        if not self.refresh_interval:
+            return False
+
+        m, h, dom, mon, dow = map(cron_to_set, self.refresh_interval.split())
+
+        return (timestamp.minute in m and
+                timestamp.hour in h and
+                timestamp.day in dom and
+                timestamp.month in mon and
+                timestamp.weekday() in dow)
 
     @property
     def amcat_project_id(self):
@@ -42,7 +81,6 @@ class Query(models.Model):
         filters.update(self.system.get_global_filters())
         return dict(parameters, filters=json.dumps(filters))
 
-
     def get_articleset_ids(self):
         return list(map(int, self.get_parameters()["articlesets"]))
 
@@ -54,6 +92,9 @@ class Query(models.Model):
 
     def get_output_type(self):
         return self.get_parameters()["output_type"]
+
+    def refresh_cache(self):
+        pass
 
     def clear_cache(self):
         self.cache = None

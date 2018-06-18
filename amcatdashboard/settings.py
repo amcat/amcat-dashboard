@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import hashlib
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,8 +25,10 @@ DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
 if "DJANGO_SECRET_KEY" not in os.environ and not DEBUG:
     raise ValueError("You must supply DJANGO_SECRET_KEY as environment variable.")
 
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "default")
+CRON_SECRET = hashlib.sha256((SECRET_KEY + "6132600e-47a5-49e6-a3ff-4af22b02cd71").encode()).hexdigest()
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 

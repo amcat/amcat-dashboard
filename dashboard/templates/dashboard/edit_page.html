@@ -49,6 +49,18 @@
                             {% endfor %}
                         </select>
 
+                        <select class="refresh-interval" title="Refreshes query results with specified interval">
+                            <option value="">No auto-refresh</option>
+                            <optgroup label="Every..">
+                                <option value="*/5 * * * *">5 minutes</option>
+                                <option value="*/15 * * * *">15 minutes</option>
+                                <option value="0 * * * *">1 hour</option>
+                                <option value="0 */2 * * *">2 hours</option>
+                                <option value="0 */8 * * *">8 hours</option>
+                                <option value="0 0 * * *">Night</option>
+                            </optgroup>
+                        </select>
+
                         <select class="theme"
                         title="Applies a custom theme to the chart, if applicable.">
                             <option value="">No theme</option>

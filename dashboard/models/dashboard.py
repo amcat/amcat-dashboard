@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 
 import re
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 
 from django.core.validators import RegexValidator
 from django.db import models

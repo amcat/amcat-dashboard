@@ -46,7 +46,8 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             return {
                 width: colToNum($(cell).attr("class")),
                 query_id: $(cell).find(".saved-query").val(),
-                theme_id: $(cell).find("select.theme").val()
+                theme_id: $(cell).find("select.theme").val(),
+                refresh_interval: $(cell).find("select.refresh-interval").val()
             };
         };
 
@@ -54,19 +55,23 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             return [$.map($(row).find(".col"), serialiseCell)];
         };
 
-        var _newCol = function(width, queryId, themeId){
+        var _newCol = function(width, queryId, themeId, refreshInterval){
             var newCol = $colTemplate.clone().show();
             var themeSelect = newCol.find(".theme");
             var querySelect = newCol.find(".saved-query");
+            var refreshSelect = newCol.find(".refresh-interval");
 
             newCol.removeClass(bootstrapColums.join(" "));
             newCol.addClass(numToCol(width));
-            $([themeSelect, querySelect]).addClass("multiselect-orig").multiselect({
+            $([themeSelect, querySelect, refreshSelect]).addClass("multiselect-orig").multiselect({
                 buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle",
                 buttonTitle: (options, select) => select[0].title
             });
 
             // Set default value for query
+            if (refreshInterval !== undefined){
+                refreshSelect.val(refreshInterval).multiselect("rebuild");
+            }
             if (queryId !== undefined){
                 querySelect.val(queryId).multiselect("rebuild");
             }
@@ -191,7 +196,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             var rows = $.map(pageData.rows, function(row){
                 return $("<div class='query-row row'>").append(
                     $.map(row, function(col){
-                        var newCol = _newCol(col.width, col.query_id, col.theme_id);
+                        var newCol = _newCol(col.width, col.query_id, col.theme_id, col.refresh_interval);
                         initQueryButtons(newCol);
                         return newCol;
                     })

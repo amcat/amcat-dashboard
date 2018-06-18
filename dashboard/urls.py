@@ -2,7 +2,7 @@ from django.conf.urls import url
 
 import dashboard.views.highcharts_theme
 import dashboard.views.settings
-from dashboard.views import dashboard_edit, amcat_api
+from dashboard.views import dashboard_edit, amcat_api, cron
 from dashboard.views import dashboard_view
 from dashboard.views import settings
 
@@ -34,4 +34,5 @@ urlpatterns = [
     url("^page/(?P<page_slug>\w+)$", dashboard_view.DashboardPageView.as_view(), name="view-page"),
     url("^menu/$", dashboard_edit.menu, name="edit-menu"),
     url("^save_menu/$", dashboard_edit.save_menu, name="save-menu"),
+    url("^cron-trigger/(?P<secret>\w+)$", cron.trigger, name="cron-trigger"),
 ]

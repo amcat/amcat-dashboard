@@ -1,13 +1,9 @@
 import json
 
 from amcatclient import APIError
-from django import forms
-from django.contrib.postgres.forms import JSONField, ValidationError
-from django.http import HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.views import View
-from django.views.generic import FormView
 
-from dashboard.models import System
 from dashboard.util.api import search
 from dashboard.views.settings import SystemMixin
 

@@ -3,5 +3,6 @@ django-user-accounts~=2.0.0
 django-extensions
 pinax_theme_bootstrap
 django-forms-bootstrap
-psycopg2
+psycopg2-binary
 requests
+amcatclient

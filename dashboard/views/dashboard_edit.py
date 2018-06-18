@@ -57,7 +57,7 @@ def save_rows(request, page_id):
     new_rows = [Row(ordernr=n) for n in range(len(rows))]
     new_rows = bulk_insert_returning_ids(new_rows)
 
-    queries = Query.objects.only("id").in_bulk([q["query_id"] for q in chain(*rows)])
+    queries = Query.objects.only("id", "refresh_interval").in_bulk([q["query_id"] for q in chain(*rows)])
     themes = HighchartsTheme.objects.only("id").in_bulk([t["theme_id"] for t in chain(*rows) if t["theme_id"]])
     cells = []
     for row, cols in zip(new_rows, rows):
@@ -68,7 +68,21 @@ def save_rows(request, page_id):
             else:
                 theme = None
             width = col["width"]
-            cells.append(Cell(width=width, query=query, page=page, row=row, ordernr=i, theme=theme))
+
+            if query.refresh_interval != col['refresh_interval']:
+                query.refresh_interval = col['refresh_interval']
+                query.save()
+
+            cells.append(
+                Cell(
+                    width=width,
+                    query=query,
+                    page=page,
+                    row=row,
+                    ordernr=i,
+                    theme=theme
+                )
+            )
 
     Cell.objects.bulk_create(cells)
 
@@ -118,14 +132,16 @@ def menu(request):
 def page(request, page_id):
     system = request.user.system
     page = Page.objects.get(id=page_id)
-    rows = page.get_cells(select_related=("row",))
+    # TODO: we only need refresh_interval info from query
+    rows = page.get_cells(select_related=("row", "query"))
 
     page_json = page.serialise()
     page_json.update({
         "rows": [[{
             "width": cell.width,
             "query_id": cell.query_id,
-            "theme_id": cell.theme_id
+            "theme_id": cell.theme_id,
+            "refresh_interval": cell.query.refresh_interval
         }
             for cell in cells]
             for row, cells in rows.items()]
