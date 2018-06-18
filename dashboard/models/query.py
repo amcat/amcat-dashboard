@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import datetime
 import json
+from urllib.parse import urlencode
 
 from django.db import models
 from dashboard.models.user import EPOCH
@@ -93,8 +94,45 @@ class Query(models.Model):
     def get_output_type(self):
         return self.get_parameters()["output_type"]
 
+    def poll(self):
+        from dashboard.util.api import get_session, poll  # don't move this, will result in an import cycle.
+
+        if self.cache_uuid is None:
+            raise ValueError("Can't wait when uuid=None")
+
+        result = poll(get_session(self.system), self.cache_uuid)
+
+        # Cache results
+        self.cache = result.content.decode('utf-8')
+        self.cache_timestamp = datetime.datetime.now()
+        self.cache_mimetype = result.headers.get("Content-Type")
+
     def refresh_cache(self):
-        pass
+        from dashboard.util.api import get_session  # don't move this, will result in an import cycle.
+
+        # We need to fetch it from an amcat instance
+        s = get_session(self.system)
+
+        # Start job
+        s.headers["Content-Type"] = "application/x-www-form-urlencoded"
+        url = "{host}/api/v4/query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}".format(**{
+            "sets": ",".join(map(str, self.get_articleset_ids())),
+            "jobs": ",".join(map(str, self.get_codingjob_ids())),
+            "project": self.amcat_project_id,
+            "query": self.amcat_query_id,
+            "script": self.get_script(),
+            "host": self.system.hostname
+        })
+
+        self.clear_cache()
+
+        response = s.post(url, data=urlencode(self.get_parameters(), True))
+        uuid = json.loads(response.content.decode("utf-8"))["uuid"]
+        self.cache_uuid = uuid
+        self.save()
+
+        # We need to wait for the result..
+        self.poll()
 
     def clear_cache(self):
         self.cache = None

@@ -1,8 +1,7 @@
-import datetime
 import json
 from functools import wraps
 
-from django.views.decorators.http import etag, condition
+from django.views.decorators.http import condition
 
 try:
     from urllib.parse import urlencode
@@ -15,8 +14,8 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 
-from dashboard.models import Query, Page, System, HighchartsTheme
-from dashboard.util.api import poll, start_task, get_session
+from dashboard.models import Query, Page, HighchartsTheme
+from dashboard.util.api import start_task, get_session
 
 class MenuViewMixin(object):
     pass
@@ -112,33 +111,13 @@ def get_saved_query_result(request, query_id):
         return HttpResponse(query.cache, content_type=query.cache_mimetype)
 
     # We need to fetch it from an amcat instance
-    s = get_session(query.system)
-
     if query.cache_uuid is None:
-        # Start job
-        s.headers["Content-Type"] = "application/x-www-form-urlencoded"
-        url = "{host}/api/v4/query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}".format(**{
-            "sets": ",".join(map(str, query.get_articleset_ids())),
-            "jobs": ",".join(map(str, query.get_codingjob_ids())),
-            "project": query.amcat_project_id,
-            "query": query.amcat_query_id,
-            "script": query.get_script(),
-            "host": query.system.hostname
-        })
-
-        response = s.post(url, data=urlencode(query.get_parameters(), True))
-        uuid = json.loads(response.content.decode("utf-8"))["uuid"]
-        query.cache_uuid = uuid
+        # Nothing in cache, start querying
+        query.refresh_cache()
         query.save()
-
-    # We need to wait for the result..
-    result = poll(s, query.cache_uuid)
-
-    # Cache results
-    query.cache = result.content.decode('utf-8')
-    query.cache_timestamp = datetime.datetime.now()
-    query.cache_mimetype = result.headers.get("Content-Type")
-    query.save()
+    else:
+        # Already waiting for request, wait for it..
+        query.poll()
 
     # Return cached result
     return HttpResponse(query.cache, content_type=query.cache_mimetype)

@@ -41,7 +41,8 @@ AUTH_USER_MODEL = 'dashboard.User'
 LOGIN_EXEMPT_URLS = [
     '^account/.+',
     '^dashboard/token_setup$',
-    '^dashboard/amcat'
+    '^dashboard/amcat',
+    '^dashboard/cron-trigger/\w+$'
 ]
 
 MIGRATION_MODULES = {
