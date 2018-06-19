@@ -28,7 +28,7 @@ if "DJANGO_SECRET_KEY" not in os.environ and not DEBUG:
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "default")
-CRON_SECRET = hashlib.sha256((SECRET_KEY + "6132600e-47a5-49e6-a3ff-4af22b02cd71").encode()).hexdigest()
+CRON_SECRET = hashlib.sha256((SECRET_KEY + "6132600e-47a5-49e6-a3ff-4af22b02cd71").encode()).hexdigest()[:20]
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 

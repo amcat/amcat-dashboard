@@ -5,12 +5,7 @@ from django.conf import settings
 from django.shortcuts import redirect
 from dashboard.models import System, Page
 
-try:
-    # Python 3.X
-    from urllib.parse import urlencode
-except ImportError:
-    # Python 2.7
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 EXEMPT_URLS = [re.compile(expr) for expr in getattr(settings, "LOGIN_EXEMPT_URLS", ())]
 
@@ -44,7 +39,6 @@ class APITokenNeededMiddleware:
         re.compile(reverse("dashboard:system-list").lstrip('/')),
         *EXEMPT_URLS
     )
-
 
     def process_request(self, request):
         if in_exempt_urls(request.path_info, self.exempt_urls):

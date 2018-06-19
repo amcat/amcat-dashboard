@@ -18,6 +18,7 @@ urlpatterns = [
     url("^empty$", dashboard_view.empty, name="empty"),
     url("^edit$", dashboard_edit.index, name="edit-index"),
     url("^edit/(?P<page_id>[0-9]+)$", dashboard_edit.page, name="edit-page"),
+    url("^queries/(?P<system_id>[0-9]+)$", dashboard_view.queries, name="view-queries"),
     url("^import_query$", dashboard_edit.import_query, name="import-query"),
     url("^systems$", settings.SystemListView.as_view(), name="system-list"),
     url("^system_settings/(?P<system_id>[0-9]+)?$", settings.SystemSettingsView.as_view(), name="system-settings"),

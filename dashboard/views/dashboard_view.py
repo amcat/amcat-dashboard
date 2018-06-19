@@ -9,6 +9,7 @@ except ImportError:
     from urllib import urlencode
 
 from django.core.urlresolvers import reverse
+from django.conf import settings
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
@@ -16,6 +17,8 @@ from django.views.generic import TemplateView
 
 from dashboard.models import Query, Page, HighchartsTheme
 from dashboard.util.api import start_task, get_session
+
+from dashboard.models.user import EPOCH
 
 class MenuViewMixin(object):
     pass
@@ -135,3 +138,10 @@ def index(request):
     url_kwargs = {"page_id": first_page.id}
     return redirect(reverse("dashboard:view-page", kwargs=url_kwargs))
 
+
+def queries(request, system_id):
+    cron_secret = settings.CRON_SECRET
+    server_port = request.META["SERVER_PORT"]
+    epoch = EPOCH
+    all_queries = Query.objects.filter(system__id=system_id).order_by("amcat_query_id").defer("cache", "amcat_parameters")
+    return render(request, "dashboard/queries.html", locals())

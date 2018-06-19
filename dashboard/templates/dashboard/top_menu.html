@@ -30,6 +30,11 @@
                             {% trans "Filters" %}
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'dashboard:view-queries' user.system_id %}">
+                            {% trans "Queries" %}
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
         </li>
