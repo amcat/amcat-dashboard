@@ -6,6 +6,7 @@ from urllib.parse import urlencode
 
 from django.db import models
 from dashboard.models.user import EPOCH
+from dashboard.util.api import get_session, poll
 
 
 def cron_to_set(cron_item):
@@ -95,8 +96,6 @@ class Query(models.Model):
         return self.get_parameters()["output_type"]
 
     def poll(self):
-        from dashboard.util.api import get_session, poll  # don't move this, will result in an import cycle.
-
         if self.cache_uuid is None:
             raise ValueError("Can't wait when uuid=None")
 
@@ -108,8 +107,6 @@ class Query(models.Model):
         self.cache_mimetype = result.headers.get("Content-Type")
 
     def refresh_cache(self):
-        from dashboard.util.api import get_session  # don't move this, will result in an import cycle.
-
         # We need to fetch it from an amcat instance
         s = get_session(self.system)
 
@@ -141,8 +138,6 @@ class Query(models.Model):
         self.cache_uuid = None
 
     def update(self):
-        from dashboard.util.api import get_session  # don't move this, will result in an import cycle.
-
         url = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
         url = url.format(
             project=self.system.project_id,

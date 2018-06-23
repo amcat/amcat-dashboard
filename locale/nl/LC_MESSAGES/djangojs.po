@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-16 19:41+0000\n"
+"POT-Creation-Date: 2018-06-22 21:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,41 +26,45 @@ msgstr "Aantal artikelen"
 msgid "Average"
 msgstr "Gemiddelde"
 
-#: static/components/amcat-query/query/utils/i18n.js:43
+#: static/components/amcat-query/query/utils/i18n.js:48
 msgid "Loading..."
-msgstr ""
+msgstr "Laden..."
 
-#: static/components/amcat-query/query/utils/i18n.js:44
+#: static/components/amcat-query/query/utils/i18n.js:49
 msgid "Reset zoom"
 msgstr "Herstel zoom"
 
-#: static/components/amcat-query/query/utils/i18n.js:45
+#: static/components/amcat-query/query/utils/i18n.js:50
 msgid "Reset zoom level 1:1"
 msgstr "Herstel zoom naar 1:1"
 
-#: static/components/amcat-query/query/utils/i18n.js:46
+#: static/components/amcat-query/query/utils/i18n.js:51
 msgid "Print chart"
 msgstr "Print grafiek"
 
-#: static/components/amcat-query/query/utils/i18n.js:47
+#: static/components/amcat-query/query/utils/i18n.js:52
 msgid "Download PNG image"
 msgstr "Download PNG afbeelding"
 
-#: static/components/amcat-query/query/utils/i18n.js:48
+#: static/components/amcat-query/query/utils/i18n.js:53
 msgid "Download JPEG image"
 msgstr "Download JPEG afbeelding"
 
-#: static/components/amcat-query/query/utils/i18n.js:49
+#: static/components/amcat-query/query/utils/i18n.js:54
 msgid "Download PDF document"
 msgstr "Download PDF document"
 
-#: static/components/amcat-query/query/utils/i18n.js:50
+#: static/components/amcat-query/query/utils/i18n.js:55
 msgid "Download SVG vector image"
 msgstr "Download SVG vectorafbeelding"
 
-#: static/components/amcat-query/query/utils/i18n.js:51
+#: static/components/amcat-query/query/utils/i18n.js:56
 msgid "Chart context menu"
 msgstr "Grafiek context menu"
+
+#: static/components/amcat-query/query/utils/i18n.js:60
+msgid "Week from %A, %b %e, %Y"
+msgstr "Week vanaf %A %e %b %Y"
 
 #: static/components/amcat-query/query/valuerenderers.js:81
 msgid "Total"

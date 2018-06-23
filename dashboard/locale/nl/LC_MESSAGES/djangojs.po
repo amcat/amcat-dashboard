@@ -1,7 +1,17 @@
+#: dashboard/static/dashboard/query.js:10
+msgid "Actions"
+msgstr "Acties"
 
-msgid "count"
-msgstr "aantal"
+#: dashboard/static/dashboard/query.js:11
+msgid "View on AmCAT"
+msgstr "Toon op AmCAT"
 
-msgid "articles"
-msgstr "artikelen"
+#: dashboard/static/dashboard/query.js:12
+msgid "Refresh"
+msgstr "Hernieuwen"
 
+#~ msgid "count"
+#~ msgstr "aantal"
+
+#~ msgid "articles"
+#~ msgstr "artikelen"

@@ -2,7 +2,10 @@ from __future__ import absolute_import
 
 import functools
 import json
-from typing import Iterable, FrozenSet
+from typing import Iterable, FrozenSet, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from dashboard.models.system import System
 
 try:
     from urllib.parse import urlencode
@@ -11,7 +14,6 @@ except ImportError:
 
 import requests
 
-from dashboard.models.system import System
 
 TASK_URL = "{host}/api/v4/task?uuid={uuid}&format=json"
 TASKRESULT_URL = "{host}/api/v4/taskresult/{uuid}?format=json"
@@ -25,7 +27,7 @@ class STATUS:
 
 
 class ApiSession(requests.Session):
-    def __init__(self, *, system: System):
+    def __init__(self, *, system: 'System'):
         super().__init__()
         self.system = system
         token = system.get_api().token  # refreshes token as side effect
@@ -68,19 +70,19 @@ class ApiSession(requests.Session):
         return uuid
 
 
-def poll(session, *args, **kwargs):
+def poll(session: ApiSession, *args, **kwargs):
     return session.poll(*args, **kwargs)
 
 
-def start_task(session, *args, **kwargs):
+def start_task(session: ApiSession, *args, **kwargs):
     return session.start_task(*args, **kwargs)
 
 
-def get_session(system):
+def get_session(system: 'System'):
     return ApiSession(system=system)
 
 
-def search(system_: System, cols_=None, page_size_=None, page_=None, method_='get', **filters):
+def search(system_: 'System', cols_=None, page_size_=None, page_=None, method_='get', **filters):
     api = system_.get_api()
     path = 'search'
 
