@@ -22,7 +22,10 @@ define([
             </button>
             <ul class="dropdown-menu pull-right" role="menu">
                 <li>
-                    <a href="${query.clear_cache_url}">
+                    <form class="hidden" method="post" action="${query.clear_cache_url}" id="clear-cache-${query.id}">
+                        ${CSRF_TOKEN_INPUT}
+                    </form>
+                    <a data-submit="#clear-cache-${query.id}">
                         <i class="fa fa-refresh fa-fw"></i> ${STRINGS.refresh}
                     </a>
                 </li>
@@ -35,11 +38,14 @@ define([
             </ul>
         </div>
     </div>
-    <i class="query-icon fa fa-bar-chart-o fa-fw"></i> <span class="query-name">${query.name}</span>
+    <i class="query-icon fa fa-bar-chart-o fa-fw"></i> <span class="query-name"></span>
 </div>
 <div class="query-canvas panel-body"></div>
 `;
 
+    function sleep(milliseconds) {
+        return new Promise((resolve) => setTimeout(() => resolve(), milliseconds))
+    }
 
     function get(url) {
         return fetch(url, {
@@ -56,6 +62,7 @@ define([
         constructor(container) {
             this.container = $(container);
             this.themeArgs = this.container.data('theme');
+            this.customizeArgs = this.container.data('customize');
             this.url = this.container.data('saved-query-src');
         }
 
@@ -65,15 +72,15 @@ define([
             renderers[query.output_type](query.amcat_parameters, this.container.find('.query-canvas'), result);
 
             // apply theme args if a theme is selected.
-            if (this.themeArgs === null) {
-                return;
-            }
+
             console.log(this);
             this.container.find('[data-highcharts-chart]').each((i, el) => {
                 el = $(el);
                 const chart = el.highcharts();
                 if (chart instanceof Highcharts.Chart) {
-                    chart.update(Highcharts.merge(chart.options, this.themeArgs));
+                    const newOptions = Highcharts.merge(chart.options, this.customizeArgs, this.themeArgs);
+                    console.debug("Update chart with options: ", newOptions);
+                    chart.update(newOptions);
                 }
             });
         }
@@ -81,13 +88,30 @@ define([
         async render() {
             const query = await getJSON(this.url);
             this.container.html(template(query));
+            this.bindEvents(this.container);
             await this.onQueryFetched(query);
             this.container.find(".query-name").text(query.amcat_name);
         }
 
+        bindEvents(container) {
+            container.find('[data-submit]').each((i, el) => {
+                el = $(el);
+                const tgt = container.find(el.data('submit'));
+                el.click(() => tgt.submit());
+            })
+        }
+
         static async fetchQueryResult(query) {
             const response = await get(query.result_url);
-            return query.output_type.indexOf('json') >= 0 ? await response.json() : await response.text();
+            if(query.output_type.indexOf('json') >= 0){
+                const data = await response.json();
+                if(data.status === "pending"){
+                    await sleep(500);
+                    return await this.fetchQueryResult(query);
+                }
+                return data;
+            }
+            return await response.text();
         }
     }
 

@@ -4,6 +4,7 @@
              {% if theme_args %}
                 data-theme="{{ theme_args|escape }}"
              {% endif %}
+             data-customize="{{ customize_args|escape }}"
              data-saved-query-src="{% url 'dashboard:get-saved-query' query.id %}">
     </div>
 </div>

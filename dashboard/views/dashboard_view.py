@@ -1,7 +1,10 @@
 import json
 from functools import wraps
 
-from django.views.decorators.http import condition
+from django.db import transaction
+from django.views.decorators.http import condition, require_http_methods
+
+from dashboard.util.shortcuts import redirect_referrer
 
 try:
     from urllib.parse import urlencode
@@ -11,7 +14,7 @@ except ImportError:
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 
@@ -51,20 +54,24 @@ class DashboardPageView(BaseDashboardView):
                     page=page, rows=rows, themes=themes, system_info=system_info)
 
 
+# HTTP GET *must* be nullipotent: browsers might poll GET urls for preview or bookmark purposes.
+@require_http_methods(['POST'])
 def clear_cache(request, query_id):
-    query = Query.objects.get(id=query_id)
-    query.clear_cache()
-    query.update()
-    query.save()
+    with transaction.atomic():
+        query = Query.objects.select_for_update().get(id=query_id)
+        query.clear_cache()
+        query.update()
+        query.save()
 
     start_task(get_session(query.system), query)
 
-    return redirect(reverse("dashboard:index"))
+    return redirect_referrer(request, same_origin=True)
 
 
 def get_saved_query(request, query_id):
     query = Query.objects.get(id=query_id)
     return HttpResponse(content_type="application/json", content=json.dumps({
+        "id": query.id,
         "amcat_project_id": query.amcat_project_id,
         "amcat_query_id": query.amcat_query_id,
         "amcat_name": query.amcat_name,
@@ -115,12 +122,19 @@ def get_saved_query_result(request, query_id):
 
     # We need to fetch it from an amcat instance
     if query.cache_uuid is None:
-        # Nothing in cache, start querying
-        query.refresh_cache()
-        query.save()
-    else:
-        # Already waiting for request, wait for it..
-        query.poll()
+        # Nothing in cache, start querying.
+        # using a transaction to prevent multiple updates for the same query.
+        with transaction.atomic():
+            mut_query = Query.objects.select_for_update().get(pk=query.pk)
+            # We weren't in a transaction before. Better check again
+            if mut_query.cache_uuid is None:
+                mut_query.refresh_cache()
+                mut_query.save()
+                query = mut_query
+
+            else:
+                # Another request already initiated a refresh, tell the client to try again later..
+                return JsonResponse({"status": "pending"})
 
     # Return cached result
     return HttpResponse(query.cache, content_type=query.cache_mimetype)
