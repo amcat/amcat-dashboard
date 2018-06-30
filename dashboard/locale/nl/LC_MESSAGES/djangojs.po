@@ -8,7 +8,7 @@ msgstr "Toon op AmCAT"
 
 #: dashboard/static/dashboard/query.js:12
 msgid "Refresh"
-msgstr "Hernieuwen"
+msgstr "Verversen"
 
 #~ msgid "count"
 #~ msgstr "aantal"

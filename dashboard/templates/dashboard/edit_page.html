@@ -71,6 +71,20 @@
                             </optgroup>
                         </select>
 
+                        <div class="dropdown btn-group">
+                        <button class="btn btn-default btn-xs" data-toggle="dropdown">Customize...</button>
+                        <div class="dropdown-menu">
+                            <form class="customize" onsubmit="return false;" style="font-size: 0.8em; padding: 1em;">
+                                {% for k, v in customizations %}
+                                    <p>
+                                        <label for="id_{{k}}">{{ v.label }}</label>
+                                        <input type="{{ v.form_type }}" id="id_{{ k }}" name="{{ k }}" placeholder="{{ v.placeholder }}">
+                                    </p>
+                                {% endfor %}
+                            </form>
+                        </div>
+                        </div>
+
                         <div class="btn-group">
                             <div class="add-left btn btn-xs btn-default" title="Add chart on left side"><i class="glyphicon glyphicon-arrow-left"></i></div>
                             <div class="hint btn btn-xs btn-default disabled">Add</div>

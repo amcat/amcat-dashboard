@@ -6,3 +6,18 @@
 .dataTables_scrollBody thead{
     visibility: collapse;
 }
+
+.label.dropdown-toggle, .label-button {
+    cursor: pointer;
+}
+
+.label.filter {
+    margin: 1em 0.2em ;
+}
+
+.label [contenteditable] {
+    font-size: 1.2em;
+    padding: 0.2em;
+    background-color: #fefefe;
+    color: #333;
+}

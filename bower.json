@@ -2,7 +2,7 @@
   "name": "amcat-dashboard",
   "dependencies": {
     "jquery": "~2.1.1",
-    "bootstrap": "~3.1.1",
+    "bootstrap": "~3.3.1",
     "requirejs": "",
     "pnotify": "",
     "amcat-query": "https://github.com/amcat/amcat-query-js.git#~3.5.2",
@@ -14,6 +14,7 @@
     "startbootstrap-sb-admin-2": "https://github.com/BlackrockDigital/startbootstrap-sb-admin-2/archive/v3.3.7+1.tar.gz"
   },
   "resolutions": {
+    "datatables": "~1.10.7",
     "bootstrap": "~3.3.0",
     "jquery": "~2.1.1",
     "font-awesome": "~4.6.3"

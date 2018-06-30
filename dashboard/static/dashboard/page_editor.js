@@ -43,11 +43,24 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
         };
 
         var serialiseCell = function(cell){
+            const customize = {};
+            for(let formfield of $(cell).find('form.customize')[0].elements){
+                if(formfield.name.length > 0 && formfield.value.length > 0){
+                    let value = formfield.value;
+                    if(formfield.type === "checkbox") {
+                        value = formfield.checked;
+                    }
+                    customize[formfield.name] = value;
+                }
+            }
+
+            console.log(customize);
             return {
                 width: colToNum($(cell).attr("class")),
                 query_id: $(cell).find(".saved-query").val(),
                 theme_id: $(cell).find("select.theme").val(),
-                refresh_interval: $(cell).find("select.refresh-interval").val()
+                refresh_interval: $(cell).find("select.refresh-interval").val(),
+                customize: customize
             };
         };
 
@@ -55,7 +68,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             return [$.map($(row).find(".col"), serialiseCell)];
         };
 
-        var _newCol = function(width, queryId, themeId, refreshInterval){
+        var _newCol = function(width, queryId, themeId, refreshInterval, customize){
             var newCol = $colTemplate.clone().show();
             var themeSelect = newCol.find(".theme");
             var querySelect = newCol.find(".saved-query");
@@ -77,6 +90,21 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             }
             if(themeId !== undefined && themeId !== null){
                 themeSelect.val(themeId).multiselect("rebuild");
+            }
+
+            const form = newCol.find('form.customize');
+
+            for(let el of form[0].elements){
+                console.log(el.name, customize, typeof customize);
+                if(!customize.hasOwnProperty(el.name)){
+                    continue;
+                }
+                if(el.type === "checkbox"){
+                    el.checked = customize[el.name];
+                }
+                else{
+                    el.value = customize[el.name];
+                }
             }
 
             return newCol;
@@ -196,7 +224,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             var rows = $.map(pageData.rows, function(row){
                 return $("<div class='query-row row'>").append(
                     $.map(row, function(col){
-                        var newCol = _newCol(col.width, col.query_id, col.theme_id, col.refresh_interval);
+                        var newCol = _newCol(col.width, col.query_id, col.theme_id, col.refresh_interval, col.customize);
                         initQueryButtons(newCol);
                         return newCol;
                     })

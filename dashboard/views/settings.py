@@ -208,6 +208,12 @@ class BaseFilterFormSet(BaseModelFormSet):
         form.instance.system = self.system
         super().save_new(form, commit=commit)
 
+    def _construct_form(self, *args, **kwargs):
+        form = super()._construct_form(*args, **kwargs)
+        form.fields['field'].widget.attrs['placeholder'] = 'field'
+        form.fields['value'].widget.attrs['placeholder'] = 'value'
+        return form
+
 
 FilterFormSet = modelformset_factory(Filter, exclude=("system",), extra=2, max_num=1000, can_delete=True,
                                      formset=BaseFilterFormSet)

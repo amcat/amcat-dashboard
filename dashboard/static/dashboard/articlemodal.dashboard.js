@@ -121,7 +121,9 @@ define([
                 delete filters["term"];
             }
 
-            return $.extend({}, new_filters, filters);
+            let global_filters = data.filters ? JSON.parse(data.filters) : {};
+
+            return $.extend({}, new_filters, filters, global_filters);
         }
 
         return {

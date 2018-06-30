@@ -73,13 +73,12 @@ define([
 
             // apply theme args if a theme is selected.
 
-            console.log(this);
             this.container.find('[data-highcharts-chart]').each((i, el) => {
                 el = $(el);
                 const chart = el.highcharts();
                 if (chart instanceof Highcharts.Chart) {
-                    const newOptions = Highcharts.merge(chart.options, this.customizeArgs, this.themeArgs);
-                    console.debug("Update chart with options: ", newOptions);
+                    const newOptions = Highcharts.merge({}, chart.options, this.themeArgs, this.customizeArgs);
+                    console.log(newOptions);
                     chart.update(newOptions);
                 }
             });

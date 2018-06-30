@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import functools
 import json
+from time import sleep
 from typing import Iterable, FrozenSet, TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -37,8 +38,13 @@ class ApiSession(requests.Session):
 
     def poll(self, uuid, timeout=0.2, max_timeout=2):
         response = self.get(TASK_URL.format(uuid=uuid, host=self.system.hostname))
-        task = json.loads(response.content.decode("utf-8"))
-        status = task["results"][0]["status"]
+
+        if response.status_code in (503, 429):  # rate limited
+            sleep(1)
+            return self.poll(uuid, timeout=min(timeout * 2, max_timeout))
+        else:
+            task = json.loads(response.content.decode("utf-8"))
+            status = task["results"][0]["status"]
 
         if status in (STATUS.INPROGRESS, STATUS.PENDING):
             return self.poll(uuid, timeout=min(timeout * 2, max_timeout))

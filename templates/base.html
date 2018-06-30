@@ -21,7 +21,7 @@
     <link href="{% static 'components/amcat-common/css/tables.css' %}" rel="stylesheet" type="text/css">
 
     <script>
-        csrftoken = "{{ csrf_token }}";
+        CSRF_TOKEN_INPUT = `{% csrf_token %}`;
         languageCode = "{% get_current_language as language_code %}{{ language_code }}";
     </script>
     <script src="{% url "javascript-catalog" %}"></script>

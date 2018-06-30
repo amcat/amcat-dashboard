@@ -2,10 +2,14 @@ from __future__ import absolute_import
 
 import datetime
 import json
+from _sha512 import sha512
+from collections import defaultdict
 from urllib.parse import urlencode
 
 from django.db import models
+
 from dashboard.models.user import EPOCH
+from dashboard.util import itertools
 from dashboard.util.api import get_session, poll
 
 
@@ -30,13 +34,6 @@ class Query(models.Model):
 
     amcat_name = models.TextField()
     amcat_parameters = models.TextField()
-
-    # To prevent bombarding the AmCAT servers with request, we cache results. These
-    # caches might be refreshed by a cronjob or manually
-    cache = models.TextField(null=True)
-    cache_timestamp = models.DateTimeField(default=EPOCH)
-    cache_mimetype = models.TextField(null=True)
-    cache_uuid = models.TextField(null=True)
 
     refresh_interval = models.TextField(null=True)
 
@@ -83,6 +80,16 @@ class Query(models.Model):
         filters.update(self.system.get_global_filters())
         return dict(parameters, filters=json.dumps(filters))
 
+    def get_url_kwargs(self):
+        return {
+            "sets": ",".join(map(str, self.get_articleset_ids())),
+            "jobs": ",".join(map(str, self.get_codingjob_ids())),
+            "project": self.amcat_project_id,
+            "query": self.amcat_query_id,
+            "script": self.get_script(),
+            "host": self.system.hostname
+        }
+
     def get_articleset_ids(self):
         return list(map(int, self.get_parameters()["articlesets"]))
 
@@ -107,35 +114,15 @@ class Query(models.Model):
         self.cache_mimetype = result.headers.get("Content-Type")
 
     def refresh_cache(self):
-        # We need to fetch it from an amcat instance
-        s = get_session(self.system)
-
-        # Start job
-        s.headers["Content-Type"] = "application/x-www-form-urlencoded"
-        url = "{host}/api/v4/query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}".format(**{
-            "sets": ",".join(map(str, self.get_articleset_ids())),
-            "jobs": ",".join(map(str, self.get_codingjob_ids())),
-            "project": self.amcat_project_id,
-            "query": self.amcat_query_id,
-            "script": self.get_script(),
-            "host": self.system.hostname
-        })
-
-        self.clear_cache()
-
-        response = s.post(url, data=urlencode(self.get_parameters(), True))
-        uuid = json.loads(response.content.decode("utf-8"))["uuid"]
-        self.cache_uuid = uuid
-        self.save()
-
-        # We need to wait for the result..
-        self.poll()
+        for cache in QueryCache.objects.filter(query=self):
+            cache.refresh_cache()
 
     def clear_cache(self):
-        self.cache = None
-        self.cache_timestamp = EPOCH
-        self.cache_mimetype = None
-        self.cache_uuid = None
+        QueryCache.objects.filter(query=self).update(
+            cache_uuid=None,
+            cache_tag=None,
+            cache=None,
+        )
 
     def update(self):
         url = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
@@ -150,3 +137,94 @@ class Query(models.Model):
         self.amcat_parameters = data["parameters"]
 
 
+class QueryCache(models.Model):
+    query = models.ForeignKey(Query, on_delete=models.CASCADE)
+    page = models.ForeignKey('dashboard.Page', on_delete=models.CASCADE)
+
+    cache = models.TextField(null=True)
+    cache_tag = models.TextField(null=True, max_length=36)
+    cache_timestamp = models.DateTimeField(default=EPOCH)
+    cache_mimetype = models.TextField(null=True)
+    cache_uuid = models.TextField(null=True)
+
+    refresh_interval = models.TextField(null=True)
+
+    @property
+    def system(self):
+        return self.query.system
+
+    def get_filters(self):
+        query_filters = json.loads(self.query.get_parameters()['filters'])
+        global_filters = self.query.system.get_global_filters()
+
+        page_filters = self.page.filters
+
+        filtersets = (query_filters, global_filters, page_filters)
+        filters = defaultdict(set)
+        for field, values in (item for fs in filtersets for item in fs.items()):
+            filters[field] |= set(values)
+
+        filters = {k: sorted(v) for k, v in filters.items()}  # sorted is important here to ensure consistent cache tags
+
+        return filters
+
+    def get_parameters(self):
+        query_params = self.query.get_parameters()
+        query_params['filters'] = json.dumps(self.get_filters(), ensure_ascii=True, sort_keys=True)
+        return query_params
+
+    def get_query_tag(self):
+        """ Creates a unique tag for these parameters."""
+        url = self.Urls.task.format(**self.query.get_url_kwargs())
+        query_params = self.get_parameters()
+        key = json.dumps((self.query_id, url, query_params), ensure_ascii=True, sort_keys=True).encode('ascii')
+        return sha512(key).hexdigest()[:36]
+
+    def is_valid(self):
+        return self.cache_uuid and self.cache and self.cache_tag == self.get_query_tag()
+
+    def poll(self):
+        if self.cache_uuid is None:
+            raise ValueError("Can't wait when uuid=None")
+
+        result = poll(get_session(self.query.system), self.cache_uuid)
+
+        # Cache results
+        self.cache_tag = self.get_query_tag()
+        self.cache = result.content.decode('utf-8')
+        self.cache_timestamp = datetime.datetime.now()
+        self.cache_mimetype = result.headers.get("Content-Type")
+
+    def refresh_cache(self):
+        # We need to fetch it from an amcat instance
+        s = get_session(self.system)
+
+        # Start job
+        s.headers["Content-Type"] = "application/x-www-form-urlencoded"
+        url = self.Urls.task.format(**self.query.get_url_kwargs())
+        query_params = self.get_parameters()
+
+        data = urlencode(query_params, True)
+
+        response = s.post(url, data=data)
+        uuid = json.loads(response.content.decode("utf-8"))["uuid"]
+        self.cache_uuid = uuid
+        self.save()
+
+        # We need to wait for the result..
+        self.poll()
+
+    def clear_cache(self):
+        self.cache = None
+        self.cache_timestamp = EPOCH
+        self.cache_mimetype = None
+        self.cache_uuid = None
+
+    class Urls:
+        task = "{host}/api/v4/query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}"
+        query = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
+
+    class Meta:
+        app_label = "dashboard"
+        db_table = "query_cache"
+        unique_together = ("query", "page")

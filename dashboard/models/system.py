@@ -5,6 +5,7 @@ from collections import defaultdict
 
 from amcatclient import AmcatAPI
 from amcatclient.amcatclient import Unauthorized, APIError
+from django.core.cache import caches
 from django.db import models
 from django.utils.translation import gettext as _
 

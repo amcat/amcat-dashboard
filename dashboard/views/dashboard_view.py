@@ -1,9 +1,11 @@
 import json
 from functools import wraps
+from uuid import uuid4
 
 from django.db import transaction
 from django.views.decorators.http import condition, require_http_methods
 
+from dashboard.models.query import QueryCache
 from dashboard.util.shortcuts import redirect_referrer
 
 try:
@@ -14,9 +16,9 @@ except ImportError:
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, FormView, UpdateView
 
 from dashboard.models import Query, Page, HighchartsTheme
 from dashboard.util.api import start_task, get_session
@@ -68,7 +70,7 @@ def clear_cache(request, query_id):
     return redirect_referrer(request, same_origin=True)
 
 
-def get_saved_query(request, query_id):
+def get_saved_query(request, query_id, page_id):
     query = Query.objects.get(id=query_id)
     return HttpResponse(content_type="application/json", content=json.dumps({
         "id": query.id,
@@ -81,63 +83,73 @@ def get_saved_query(request, query_id):
         "script": query.get_script(),
         "output_type": query.get_output_type(),
         "articleset_ids": query.get_articleset_ids(),
-        "result_url": reverse('dashboard:get-saved-query-result', args=[query.id])
+        "result_url": reverse('dashboard:get-saved-query-result', args=[page_id, query.id])
     }))
 
 
-def query_last_modified(request, query_id):
-    return request.dashboard__query.cache_timestamp
+def query_last_modified(request, query_id, page_id):
+    q = getattr(request, 'dashboard__query', None)
+    if q is None:
+        return None
+    return q.cache_timestamp
 
 
-def query_uuid(request, query_id):
-    q = Query.objects.only("cache_timestamp", "cache_uuid").get(pk=query_id)
-    setattr(request, 'dashboard__query', q)
-    return q.cache_uuid
+def query_tag(request, query_id, page_id):
+    try:
+        q = QueryCache.objects.only('cache_timestamp').get(query_id=query_id, page_id=page_id)
+        setattr(request, 'dashboard__query', q)
+        return q.get_query_tag()
+    except QueryCache.DoesNotExist:
+        return None
 
 
 def no_cache(view):
     @wraps(view)
     def wrapper(*args, **kwargs):
         response = view(*args, **kwargs)
-        response.setdefault('Cache-Control', 'no-cache')
+        response.setdefault('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
         return response
     return wrapper
 
 
 @no_cache
-@condition(etag_func=query_uuid, last_modified_func=query_last_modified)
-def get_saved_query_result(request, query_id):
+@condition(etag_func=query_tag, last_modified_func=query_last_modified)
+def get_saved_query_result(request, query_id, page_id):
     """
     Returns the results of a saved query either from cache or from AmCAT server. This
     code is not thread-safe.
     """
+
     try:
-        query = Query.objects.get(id=query_id)
-    except Query.DoesNotExist:
+        defaults = dict(query_id=query_id, page_id=page_id)
+        cache, created = QueryCache.objects.get_or_create(defaults=defaults, **defaults)
+    except QueryCache.DoesNotExist:
         raise Http404("No such object")
 
     # If we've still got one in cache, use that one
-    if query.cache is not None:
-        return HttpResponse(query.cache, content_type=query.cache_mimetype)
+    if cache.is_valid():
+        return HttpResponse(cache.cache, content_type=cache.cache_mimetype)
 
     # We need to fetch it from an amcat instance
-    if query.cache_uuid is None:
+    if not cache.is_valid():
         # Nothing in cache, start querying.
         # using a transaction to prevent multiple updates for the same query.
         with transaction.atomic():
-            mut_query = Query.objects.select_for_update().get(pk=query.pk)
+            mut_query = QueryCache.objects.select_for_update().get(pk=cache.pk)
             # We weren't in a transaction before. Better check again
-            if mut_query.cache_uuid is None:
+            if not cache.is_valid():
+                mut_query.clear_cache()
                 mut_query.refresh_cache()
                 mut_query.save()
-                query = mut_query
+                cache = mut_query
 
             else:
                 # Another request already initiated a refresh, tell the client to try again later..
-                return JsonResponse({"status": "pending"})
+                r = JsonResponse({"status": "pending"})
+                r['Etag'] = ""
 
     # Return cached result
-    return HttpResponse(query.cache, content_type=query.cache_mimetype)
+    return HttpResponse(cache.cache, content_type=cache.cache_mimetype)
 
 
 def empty(request):

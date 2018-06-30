@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
 from dashboard.models import Page, Query, Row, Cell, HighchartsTheme
+from dashboard.models.dashboard import HIGHCHARTS_CUSTOM_PROPERTIES
 from dashboard.util.django import bulk_insert_returning_ids
 from dashboard.util.itertools import split
 
@@ -69,6 +70,10 @@ def save_rows(request, page_id):
                 theme = None
             width = col["width"]
 
+            customize = {k: v for k, v in col["customize"].items()
+                              if isinstance(k, str) and k
+                              if isinstance(v, (str, bool, int, float)) and v}
+
             if query.refresh_interval != col['refresh_interval']:
                 query.refresh_interval = col['refresh_interval']
                 query.save()
@@ -80,9 +85,11 @@ def save_rows(request, page_id):
                     page=page,
                     row=row,
                     ordernr=i,
-                    theme=theme
+                    theme=theme,
+                    customize=customize
                 )
             )
+            cells[-1].clean()
 
     Cell.objects.bulk_create(cells)
 
@@ -99,7 +106,7 @@ def save_menu(request):
     # We must use delete() on a single Page objects, as it deletes associated rows/cells
     existing_pages_ids = list(map(itemgetter("id"), existing_pages))
     for page in pages_qs.exclude(id__in=existing_pages_ids):
-        Page.objects.only("id").get(id=page["id"]).delete()
+        Page.objects.only("id").get(id=page.id).delete()
 
     for page, page_obj in zip(existing_pages, Page.objects.filter(system=system, id__in=existing_pages_ids)):
         page_obj.system = system
@@ -112,7 +119,7 @@ def save_menu(request):
     if not pages:
         return OK_CREATED
 
-    Page.objects.bulk_create([Page(ordernr=pages.index(page), **page) for page in new_pages])
+    Page.objects.bulk_create([Page(ordernr=pages.index(page), system=system, **page) for page in new_pages])
     return OK_CREATED
 
 
@@ -141,7 +148,8 @@ def page(request, page_id):
             "width": cell.width,
             "query_id": cell.query_id,
             "theme_id": cell.theme_id,
-            "refresh_interval": cell.query.refresh_interval
+            "refresh_interval": cell.query.refresh_interval,
+            "customize": cell.customize
         }
             for cell in cells]
             for row, cells in rows.items()]
@@ -151,7 +159,7 @@ def page(request, page_id):
 
     queries = Query.objects.filter(system=system).only("amcat_name", "id").order_by("amcat_name")
     pages = Page.objects.filter(system=system)
-
+    customizations = HIGHCHARTS_CUSTOM_PROPERTIES
     return render(request, "dashboard/edit_page.html", locals())
 
 

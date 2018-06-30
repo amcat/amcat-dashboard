@@ -26,9 +26,13 @@ class HighchartsTheme(models.Model):
 
     colors = models.TextField(validators=(colors_validator,), default=COLORS_DEFAULT)
 
+
+
     def theme_args(self):
         colors = self.colors.split(" ")[:10]
-        return json.dumps({"colors": colors})
+        return json.dumps({
+            "colors": colors
+        })
 
     class Meta:
         app_label = 'dashboard'
