@@ -47,7 +47,7 @@ class Page(models.Model):
 
     @property
     def filters(self):
-        return []
+        return {}
 
     def serialise(self):
         return dict(name=self.name, icon=self.icon, visible=self.visible)
