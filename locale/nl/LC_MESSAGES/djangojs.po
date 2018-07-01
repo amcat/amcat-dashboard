@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-07-01 12:46+0000\n"
+"POT-Creation-Date: 2018-07-01 13:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,8 +20,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: static/components/amcat-query/query/renderers.js:56
-#, fuzzy
-#| msgid "Number of articles"
 msgid "Number of {label}"
 msgstr "Aantal {label}"
 
@@ -29,11 +27,11 @@ msgstr "Aantal {label}"
 msgid "Average of {label}"
 msgstr "Gemiddelde {label}"
 
-#: static/components/amcat-query/query/renderers.js:72
+#: static/components/amcat-query/query/renderers.js:81
 msgid "Number of articles"
 msgstr "Aantal artikelen"
 
-#: static/components/amcat-query/query/renderers.js:76
+#: static/components/amcat-query/query/renderers.js:85
 msgid "Average"
 msgstr "Gemiddelde"
 
