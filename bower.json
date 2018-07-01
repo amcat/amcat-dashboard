@@ -1,7 +1,7 @@
 {
   "name": "amcat-dashboard",
   "dependencies": {
-    "jquery": "~2.1.1",
+    "jquery": "~3.3.1",
     "bootstrap": "~3.3.1",
     "requirejs": "",
     "pnotify": "",
@@ -16,7 +16,7 @@
   "resolutions": {
     "datatables": "~1.10.7",
     "bootstrap": "~3.3.0",
-    "jquery": "~2.1.1",
+    "jquery": "~3.3.1",
     "font-awesome": "~4.6.3"
   }
 }

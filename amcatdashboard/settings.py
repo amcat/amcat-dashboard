@@ -31,6 +31,7 @@ if "DJANGO_SECRET_KEY" not in os.environ and not DEBUG:
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "default")
 CRON_SECRET = hashlib.sha256((SECRET_KEY + "6132600e-47a5-49e6-a3ff-4af22b02cd71").encode()).hexdigest()[:20]
 
+
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 
 STATIC_ROOT = os.path.join(BASE_DIR, "srv")
@@ -170,6 +171,7 @@ ACCOUNT_EMAIL_UNIQUE = True
 ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = True
 ACCOUNT_USER_DISPLAY = lambda user: user.email
 
+SESSION_COOKIE_NAME = 'dashboard__sessionid'
 SESSION_ID = os.environ.get("DJANGO_SESSION_ID")
 
 DASHBOARD_ALLOW_MULTIPLE_SYSTEMS = True

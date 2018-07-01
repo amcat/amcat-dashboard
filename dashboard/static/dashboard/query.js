@@ -47,7 +47,7 @@ define([
         return new Promise((resolve) => setTimeout(() => resolve(), milliseconds))
     }
 
-    function get(url) {
+    function get(url, options) {
         return fetch(url, {
             credentials: "same-origin",
             cache: "no-cache",
