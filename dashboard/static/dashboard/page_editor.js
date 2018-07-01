@@ -92,10 +92,12 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
                 themeSelect.val(themeId).multiselect("rebuild");
             }
 
+            if(typeof customize !== "object"){
+                customize = {};
+            }
             const form = newCol.find('form.customize');
 
             for(let el of form[0].elements){
-                console.log(el.name, customize, typeof customize);
                 if(!customize.hasOwnProperty(el.name)){
                     continue;
                 }
