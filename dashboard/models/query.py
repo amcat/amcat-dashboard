@@ -102,17 +102,6 @@ class Query(models.Model):
     def get_output_type(self):
         return self.get_parameters()["output_type"]
 
-    def poll(self):
-        if self.cache_uuid is None:
-            raise ValueError("Can't wait when uuid=None")
-
-        result = poll(get_session(self.system), self.cache_uuid)
-
-        # Cache results
-        self.cache = result.content.decode('utf-8')
-        self.cache_timestamp = datetime.datetime.now()
-        self.cache_mimetype = result.headers.get("Content-Type")
-
     def refresh_cache(self):
         for cache in QueryCache.objects.filter(query=self):
             cache.refresh_cache()

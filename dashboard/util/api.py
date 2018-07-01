@@ -56,9 +56,6 @@ class ApiSession(requests.Session):
             raise ValueError("Unknown status value {!r} returned.".format(status))
 
     def start_task(self, query):
-        if query.cache_uuid is not None:
-            return query.cache_uuid
-
         # Start job
         self.headers["Content-Type"] = "application/x-www-form-urlencoded"
         url = "{host}/api/v4/query/{script}?format=json&project={project}&sets={sets}".format(**{
