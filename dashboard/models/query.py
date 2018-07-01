@@ -34,6 +34,7 @@ class Query(models.Model):
 
     amcat_name = models.TextField()
     amcat_parameters = models.TextField()
+    amcat_options = models.TextField(null=True)
 
     refresh_interval = models.TextField(null=True)
 
@@ -102,6 +103,9 @@ class Query(models.Model):
     def get_output_type(self):
         return self.get_parameters()["output_type"]
 
+    def get_options(self):
+        return json.loads(self.amcat_options) if self.amcat_options is not None else None
+
     def refresh_cache(self):
         for cache in QueryCache.objects.filter(query=self):
             cache.refresh_cache()
@@ -114,6 +118,10 @@ class Query(models.Model):
         )
 
     def update(self):
+        self._update_params()
+        self._update_options()
+
+    def _update_params(self):
         url = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
         url = url.format(
             project=self.system.project_id,
@@ -124,6 +132,21 @@ class Query(models.Model):
         data = json.loads(get_session(self.system).get(url).content.decode('utf-8'))
         self.amcat_name = data["name"]
         self.amcat_parameters = data["parameters"]
+
+    def _update_options(self):
+        url = "{host}/api/v4/query/{script}?format=json&sets={sets}&jobs={jobs}&project={project}"
+        url = url.format(**self.get_url_kwargs())
+
+        r = get_session(self.system).options(url)
+        if r.status_code >= 400:
+            self.amcat_options = None
+        else:
+            try:
+                text = r.content.decode('utf-8')
+                json.loads(text)
+            except json.JSONDecodeError:
+                return
+            self.amcat_options = text
 
 
 class QueryCache(models.Model):

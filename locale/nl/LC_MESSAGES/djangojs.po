@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#: static/components/highcharts/lib/svg2pdf.js:24
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-22 21:17+0000\n"
+"POT-Creation-Date: 2018-07-01 12:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,54 +19,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: static/components/amcat-query/query/renderers.js:56
+#, fuzzy
+#| msgid "Number of articles"
+msgid "Number of {label}"
+msgstr "Aantal {label}"
+
 #: static/components/amcat-query/query/renderers.js:57
+msgid "Average of {label}"
+msgstr "Gemiddelde {label}"
+
+#: static/components/amcat-query/query/renderers.js:72
 msgid "Number of articles"
 msgstr "Aantal artikelen"
 
-#: static/components/amcat-query/query/renderers.js:61
+#: static/components/amcat-query/query/renderers.js:76
 msgid "Average"
 msgstr "Gemiddelde"
 
-#: static/components/amcat-query/query/utils/i18n.js:48
+#: static/components/amcat-query/query/utils/i18n.js:49
 msgid "Loading..."
 msgstr "Laden..."
 
-#: static/components/amcat-query/query/utils/i18n.js:49
+#: static/components/amcat-query/query/utils/i18n.js:50
 msgid "Reset zoom"
 msgstr "Herstel zoom"
 
-#: static/components/amcat-query/query/utils/i18n.js:50
+#: static/components/amcat-query/query/utils/i18n.js:51
 msgid "Reset zoom level 1:1"
 msgstr "Herstel zoom naar 1:1"
 
-#: static/components/amcat-query/query/utils/i18n.js:51
+#: static/components/amcat-query/query/utils/i18n.js:52
 msgid "Print chart"
 msgstr "Print grafiek"
 
-#: static/components/amcat-query/query/utils/i18n.js:52
+#: static/components/amcat-query/query/utils/i18n.js:53
 msgid "Download PNG image"
 msgstr "Download PNG afbeelding"
 
-#: static/components/amcat-query/query/utils/i18n.js:53
+#: static/components/amcat-query/query/utils/i18n.js:54
 msgid "Download JPEG image"
 msgstr "Download JPEG afbeelding"
 
-#: static/components/amcat-query/query/utils/i18n.js:54
+#: static/components/amcat-query/query/utils/i18n.js:55
 msgid "Download PDF document"
 msgstr "Download PDF document"
 
-#: static/components/amcat-query/query/utils/i18n.js:55
+#: static/components/amcat-query/query/utils/i18n.js:56
 msgid "Download SVG vector image"
 msgstr "Download SVG vectorafbeelding"
 
-#: static/components/amcat-query/query/utils/i18n.js:56
+#: static/components/amcat-query/query/utils/i18n.js:57
 msgid "Chart context menu"
 msgstr "Grafiek context menu"
 
-#: static/components/amcat-query/query/utils/i18n.js:60
+#: static/components/amcat-query/query/utils/i18n.js:61
 msgid "Week from %A, %b %e, %Y"
 msgstr "Week vanaf %A %e %b %Y"
 
 #: static/components/amcat-query/query/valuerenderers.js:81
 msgid "Total"
 msgstr "Totaal"
+
+#: static/components/highcharts/lib/svg2pdf.js:24
+msgid "_"
+msgstr ""

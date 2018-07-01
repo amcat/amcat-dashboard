@@ -58,6 +58,10 @@ define([
         return get(url).then(r => r.json());
     }
 
+    function isObj(obj){
+        return obj !== null && typeof obj === "object";
+    }
+
     class QueryRenderer {
         constructor(container) {
             this.container = $(container);
@@ -68,11 +72,26 @@ define([
 
         async onQueryFetched(query) {
             const result = await QueryRenderer.fetchQueryResult(query);
-
+            this._preRender(query);
             renderers[query.output_type](query.amcat_parameters, this.container.find('.query-canvas'), result);
+            this._postRender(query);
+
+        }
+
+        _preRender(query){
+            // hacky: amcat-query relies on certain form elements being present during rendering.
+            // this temporarily adds those form elements to the DOM.
+            this.magic_div = $('<div>').hide().appendTo(document.body);
+            if (isObj(query.amcat_options) && isObj(query.amcat_options.form)) {
+                this.magic_div.append(Object.values(query.amcat_options.form));
+            }
+        }
+
+        _postRender(){
+            this.magic_div.remove();
+            this.magic_div = $(null);
 
             // apply theme args if a theme is selected.
-
             this.container.find('[data-highcharts-chart]').each((i, el) => {
                 el = $(el);
                 const chart = el.highcharts();
@@ -83,6 +102,7 @@ define([
                 }
             });
         }
+
 
         async render() {
             const query = await getJSON(this.url);

@@ -78,6 +78,7 @@ def get_saved_query(request, query_id, page_id):
         "amcat_query_id": query.amcat_query_id,
         "amcat_name": query.amcat_name,
         "amcat_parameters": query.get_parameters(),
+        "amcat_options": query.get_options(),
         "amcat_url": query.amcat_url,
         "clear_cache_url": reverse('dashboard:clear-cache', args=[query_id]),
         "script": query.get_script(),
