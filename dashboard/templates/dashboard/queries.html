@@ -22,32 +22,61 @@
     </p>
 </div>
 
-<table class="table table-condensed" style="width:auto; min-width:30%">
+<table id="query-cache-table" class="table table-condensed" style="width:auto; min-width:30%">
     <thead>
     <tr>
         <th>AmCAT ID</th>
         <th>Name</th>
         <th>Schedule</th>
-        <th>Last update</th>
+        <th>Last update (oldest version<sup>1</sup>)</th>
     </tr>
     </thead>
     <tbody>
-    {% for query in all_queries %}
-    <tr>
-        <th scope="row">{{ query.amcat_query_id }}</th>
-        <td>{{ query.amcat_name }}</td>
-        <td>{{ query.refresh_interval }}</td>
-        <td>{% if query.cache_timestamp != epoch %}<time datetime="{{ query.cache_timestamp.isoformat }}">{{ query.cache_timestamp }}</time>{% endif %}</td>
-    </tr>
+    {% for cache in caches %}
+        <tr>
+            <th scope="row">{{ cache.query.amcat_query_id }}</th>
+            <td>{{ cache.query.amcat_name }}</td>
+            <td>{{ cache.query.refresh_interval }}</td>
+            <td>
+                {% if cache.has_cache %}
+                    <time datetime="{{ cache.cache_timestamp.isoformat }}">{{ cache.cache_timestamp }}</time>
+                {% else %}
+                    Not cached
+                {% endif %}
+            </td>
+            <td>
+                <form id="form-refresh-{{ cache.query_id }}" class="hidden"
+                      action="{% url 'dashboard:clear-cache' cache.query_id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="refresh" value="refresh">
+                </form>
+                <a data-submit="form-refresh-{{ cache.query_id }}" href="#">Refresh cache</a>
+            </td>
+            <td>
+                <form id="form-clear-{{ cache.query_id }}" class="hidden"
+                      action="{% url 'dashboard:clear-cache' cache.query_id %}" method="post">
+                    {% csrf_token %}
+                </form>
+                <a data-submit="form-clear-{{ cache.query_id }}" href="#">Clear cache</a>
+            </td>
+        </tr>
     {% empty %}
-    <tr>
-        <td colspan="4">No queries found</td>
-    </tr>
+        <tr>
+            <td colspan="4">No queries found</td>
+        </tr>
     {% endfor %}
     </tbody>
 
 </table>
 
-
-
+<p>
+<sup>1</sup> The AmCAT Dashboard keeps multiple versions to accomodate for per-page filters. The timestamp shown
+    is the oldest version currently used.
+</p>
+<script defer>
+    document.getElementById('query-cache-table').addEventListener('click', e => {
+        const target = e.target.getAttribute('data-submit');
+        if(target !== null) document.getElementById(target).submit();
+    });
+</script>
 {% endblock %}

@@ -1,8 +1,10 @@
+import datetime
 import json
 from functools import wraps
 from uuid import uuid4
 
 from django.db import transaction
+from django.db.models.expressions import RawSQL
 from django.template.response import TemplateResponse
 from django.views.decorators.http import condition, require_http_methods
 from requests import HTTPError
@@ -68,7 +70,14 @@ def clear_cache(request, query_id):
         query.save()
 
     try:
-        start_task(get_session(query.system), query)
+        if request.POST.get('refresh', False):
+            for cache in query.querycache_set.all():
+                with transaction.atomic():
+                    cache = QueryCache.objects.select_for_update().get(pk=cache.id)
+                    cache.refresh_cache()
+        else:
+            start_task(get_session(query.system), query)
+
     except HTTPError as e:
         r = e.response # type HTTPResponse
         if r.status_code == 400:
@@ -187,6 +196,14 @@ def index(request):
 def queries(request, system_id):
     cron_secret = settings.CRON_SECRET
     server_port = request.META["SERVER_PORT"]
-    epoch = EPOCH
-    all_queries = Query.objects.filter(system__id=system_id).order_by("amcat_query_id").defer("cache", "amcat_parameters")
+    epoch = EPOCH + datetime.timedelta(minutes=1)
+
+    all_queries = Query.objects.filter(system__id=system_id).order_by("amcat_query_id").defer("amcat_parameters")
+
+    # Order by -has_cache, cache_timestamp to sort in order of [older cache, newer cache, no cache]
+    caches = QueryCache.objects.filter(query__system_id=system_id) \
+        .annotate(has_cache=RawSQL('cache_timestamp > %s', (epoch.isoformat(),))) \
+        .order_by('query_id', '-has_cache', 'cache_timestamp') \
+        .distinct('query_id')
+
     return render(request, "dashboard/queries.html", locals())

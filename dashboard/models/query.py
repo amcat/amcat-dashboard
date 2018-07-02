@@ -113,6 +113,7 @@ class Query(models.Model):
     def clear_cache(self):
         QueryCache.objects.filter(query=self).update(
             cache_uuid=None,
+            cache_timestamp=EPOCH,
             cache_tag=None,
             cache=None,
         )
@@ -219,12 +220,14 @@ class QueryCache(models.Model):
         data = urlencode(query_params, True)
 
         response = s.post(url, data=data)
+        response.raise_for_status()
         uuid = json.loads(response.content.decode("utf-8"))["uuid"]
         self.cache_uuid = uuid
         self.save()
 
         # We need to wait for the result..
         self.poll()
+        self.save()
 
     def clear_cache(self):
         self.cache = None
@@ -238,5 +241,4 @@ class QueryCache(models.Model):
 
     class Meta:
         app_label = "dashboard"
-        db_table = "query_cache"
         unique_together = ("query", "page")
