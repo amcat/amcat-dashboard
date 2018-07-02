@@ -22,6 +22,14 @@
     </p>
 </div>
 
+<div class="row">
+<div class="col-lg-12">
+    <button id="btn-synchronize" class="btn btn-default"><span class="fa fa-fw fa-refresh"></span>Synchronize queries</button>
+</div>
+</div>
+
+<div class="row">
+<div class="col-lg-12">
 <table id="query-cache-table" class="table table-condensed" style="width:auto; min-width:30%">
     <thead>
     <tr>
@@ -36,14 +44,14 @@
     {% for cache in caches %}
         <tr>
             <th scope="row">{{ cache.query.amcat_query_id }}</th>
-            <td>{{ cache.query.system_id }}:{{ cache.query_id }} </td>
+            <td>{{ cache.query_id }} </td>
             <td>{{ cache.query.amcat_name }}</td>
             <td>{{ cache.query.refresh_interval }}</td>
             <td>
                 {% if cache.has_cache %}
                     <time datetime="{{ cache.cache_timestamp.isoformat }}">{{ cache.cache_timestamp }}</time>
                 {% else %}
-                    Not cached
+                    Cache cleared
                 {% endif %}
             </td>
             <td>
@@ -64,7 +72,18 @@
         </tr>
     {% empty %}
         <tr>
-            <td colspan="4">No queries found</td>
+            <td colspan="4">No cached queries found</td>
+        </tr>
+    {% endfor %}
+    {% for query in uncached %}
+        <tr>
+            <th scope="row">{{ query.amcat_query_id }}</th>
+            <td>{{ query.id }} </td>
+            <td>{{ query.amcat_name }}</td>
+            <td></td>
+            <td>never (unused)</td>
+            <td></td>
+            <td></td>
         </tr>
     {% endfor %}
     </tbody>
@@ -75,10 +94,17 @@
 <sup>1</sup> The AmCAT Dashboard keeps multiple versions to accomodate for per-page filters. The timestamp shown
     is the oldest version currently used.
 </p>
+</div>
+</div>
 <script defer>
     document.getElementById('query-cache-table').addEventListener('click', e => {
         const target = e.target.getAttribute('data-submit');
         if(target !== null) document.getElementById(target).submit();
     });
+    document.getElementById('btn-synchronize').addEventListener('click', e => {
+        fetch('{% url 'dashboard:synchronise-queries' %}', {credentials: "same-origin"}).then(
+            () => document.location.reload()
+        )
+    })
 </script>
 {% endblock %}

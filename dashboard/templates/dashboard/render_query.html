@@ -5,7 +5,6 @@
         ], function ($, renderers) {
             const container = $("#{{ container }}");
             const themeArgs = container;
-            console.log(themeArgs);
             const savedQueryUrl = "{% url 'dashboard:get-saved-query' query.id %}";
 
 
@@ -40,6 +39,7 @@
                     el = $(el);
                     const chart = el.highcharts();
                     if (chart instanceof Highcharts.Chart) {
+                        console.debug("Updating chart: ", themeArgs);
                         chart.update(Highcharts.merge(chart.options, themeArgs));
                     }
                 });

@@ -204,6 +204,13 @@ def queries(request, system_id):
     caches = QueryCache.objects.filter(query__system_id=system_id) \
         .annotate(has_cache=RawSQL('cache_timestamp > %s', (epoch.isoformat(),))) \
         .order_by('query_id', '-has_cache', 'cache_timestamp') \
-        .distinct('query_id')
+        .distinct('query_id').values('pk')
+
+    caches = QueryCache.objects.filter(pk__in=caches) \
+        .annotate(has_cache=RawSQL('cache_timestamp > %s', (epoch.isoformat(),)))\
+        .order_by('query__amcat_query_id')
+
+    uncached = Query.objects.filter(system_id=system_id,querycache=None).order_by('amcat_query_id')
+
 
     return render(request, "dashboard/queries.html", locals())

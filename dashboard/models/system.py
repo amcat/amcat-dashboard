@@ -32,6 +32,7 @@ class System(models.Model):
             query.system = self
             query.amcat_name = api_query["name"]
             query.amcat_parameters = api_query["parameters"]
+            query.amcat_options = None
             query.save()
 
     def save(self, *args, **kwargs):

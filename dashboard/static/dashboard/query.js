@@ -75,7 +75,6 @@ define([
             this._preRender(query);
             renderers[query.output_type](query.amcat_parameters, this.container.find('.query-canvas'), result);
             this._postRender(query);
-
         }
 
         _preRender(query){
@@ -84,6 +83,7 @@ define([
             this.magic_div = $('<div>').hide().appendTo(document.body);
             if (isObj(query.amcat_options) && isObj(query.amcat_options.form)) {
                 this.magic_div.append(Object.values(query.amcat_options.form));
+                console.debug("Magic div:", this.magic_div)
             }
         }
 
@@ -97,7 +97,7 @@ define([
                 const chart = el.highcharts();
                 if (chart instanceof Highcharts.Chart) {
                     const newOptions = Highcharts.merge({}, chart.options, this.themeArgs, this.customizeArgs);
-                    console.log(newOptions);
+                    console.debug("Override options: ", newOptions);
                     chart.update(newOptions);
                 }
             });

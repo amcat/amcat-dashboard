@@ -104,7 +104,13 @@ class Query(models.Model):
         return self.get_parameters()["output_type"]
 
     def get_options(self):
-        return json.loads(self.amcat_options) if self.amcat_options is not None else None
+        if self.amcat_options is None:
+            self.update_options()
+            self.save()
+        try:
+            return json.loads(self.amcat_options)
+        except json.JSONDecodeError:
+            return None
 
     def refresh_cache(self):
         for cache in QueryCache.objects.filter(query=self):
@@ -119,10 +125,10 @@ class Query(models.Model):
         )
 
     def update(self):
-        self._update_params()
-        self._update_options()
+        self.update_params()
+        self.update_options()
 
-    def _update_params(self):
+    def update_params(self):
         url = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
         url = url.format(
             project=self.system.project_id,
@@ -134,7 +140,7 @@ class Query(models.Model):
         self.amcat_name = data["name"]
         self.amcat_parameters = data["parameters"]
 
-    def _update_options(self):
+    def update_options(self):
         url = "{host}/api/v4/query/{script}?format=json&sets={sets}&jobs={jobs}&project={project}"
         url = url.format(**self.get_url_kwargs())
 
@@ -151,6 +157,7 @@ class Query(models.Model):
 
     class Meta:
         unique_together = ("system", "amcat_query_id")
+
 
 class QueryCache(models.Model):
     query = models.ForeignKey(Query, on_delete=models.CASCADE)

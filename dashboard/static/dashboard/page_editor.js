@@ -54,7 +54,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
                 }
             }
 
-            console.log(customize);
+            console.debug("Customization parameters: ", customize);
             return {
                 width: colToNum($(cell).attr("class")),
                 query_id: $(cell).find(".saved-query").val(),
