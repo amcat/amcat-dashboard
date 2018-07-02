@@ -155,7 +155,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
                 data: JSON.stringify(page),
                 contentType: "application/json",
                 headers: {
-                    "X-CSRFTOKEN": $.cookie("csrftoken")
+                    "X-CSRFTOKEN": $.cookie(CSRF_COOKIE_NAME)
                 }
             }).done(function () {
                 $save.removeClass("disabled").find("i").removeClass("fa-spin");

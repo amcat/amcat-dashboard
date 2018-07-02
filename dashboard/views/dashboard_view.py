@@ -3,10 +3,12 @@ from functools import wraps
 from uuid import uuid4
 
 from django.db import transaction
+from django.template.response import TemplateResponse
 from django.views.decorators.http import condition, require_http_methods
+from requests import HTTPError
 
 from dashboard.models.query import QueryCache
-from dashboard.util.shortcuts import redirect_referrer
+from dashboard.util.shortcuts import redirect_referrer, safe_referrer
 
 try:
     from urllib.parse import urlencode
@@ -65,7 +67,23 @@ def clear_cache(request, query_id):
         query.update()
         query.save()
 
-    start_task(get_session(query.system), query)
+    try:
+        start_task(get_session(query.system), query)
+    except HTTPError as e:
+        r = e.response # type HTTPResponse
+        if r.status_code == 400:
+            try:
+                data = r.json()
+            except:
+                context = {}
+            else:
+                context = {
+                    "error_text": "Query '{}' is invalid.".format(query.amcat_name),
+                    "errors": data,
+                    "back_href": safe_referrer(request)
+                }
+            return TemplateResponse(request, 'dashboard/query_error.html', status=400, context=context)
+        raise
 
     return redirect_referrer(request, same_origin=True)
 

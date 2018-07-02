@@ -21,6 +21,7 @@
     <link href="{% static 'components/amcat-common/css/tables.css' %}" rel="stylesheet" type="text/css">
 
     <script>
+        CSRF_COOKIE_NAME = `{{ csrf_cookie_name|default:'csrftoken' }}`;
         CSRF_TOKEN_INPUT = `{% csrf_token %}`;
         languageCode = "{% get_current_language as language_code %}{{ language_code }}";
     </script>

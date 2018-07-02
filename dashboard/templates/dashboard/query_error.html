@@ -1,0 +1,13 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dashboard-body %}
+    <h3>{{ error_text }}</h3>
+    {% for k, v in errors.items %}
+        <dl>
+        <dt>{{ k }}</dt><dd>{{ v|join:',' }}</dd>
+        </dl>
+    {% endfor %}
+    {% if back_href %}
+        <a class="btn btn-primary" href="{{ back_href }}">{{ back_text|default:'Back' }}</a>
+    {% endif %}
+{% endblock %}

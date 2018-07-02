@@ -172,6 +172,9 @@ ACCOUNT_EMAIL_CONFIRMATION_REQUIRED = True
 ACCOUNT_USER_DISPLAY = lambda user: user.email
 
 SESSION_COOKIE_NAME = 'dashboard__sessionid'
+CSRF_COOKIE_NAME = 'dashboard__csrftoken'
+
 SESSION_ID = os.environ.get("DJANGO_SESSION_ID")
+
 
 DASHBOARD_ALLOW_MULTIPLE_SYSTEMS = True
