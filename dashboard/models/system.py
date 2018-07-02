@@ -25,9 +25,9 @@ class System(models.Model):
             amcat_query_id = api_query["id"]
 
             try:
-                query = Query.objects.get(amcat_query_id=amcat_query_id)
+                query = Query.objects.get(system=self, amcat_query_id=amcat_query_id)
             except Query.DoesNotExist:
-                query = Query(amcat_query_id=amcat_query_id)
+                query = Query(system=self, amcat_query_id=amcat_query_id)
 
             query.system = self
             query.amcat_name = api_query["name"]

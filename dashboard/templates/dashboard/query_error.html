@@ -7,7 +7,10 @@
         <dt>{{ k }}</dt><dd>{{ v|join:',' }}</dd>
         </dl>
     {% endfor %}
+    {% if action_href %}
+        <a class="btn btn-primary" href="{{ action_href }}">{{ action_text|default:'Take action' }}</a>
+    {% endif %}
     {% if back_href %}
-        <a class="btn btn-primary" href="{{ back_href }}">{{ back_text|default:'Back' }}</a>
+        <a class="btn btn-default" href="{{ back_href }}">{{ back_text|default:'Back' }}</a>
     {% endif %}
 {% endblock %}

@@ -89,7 +89,9 @@ def clear_cache(request, query_id):
                 context = {
                     "error_text": "Query '{}' is invalid.".format(query.amcat_name),
                     "errors": data,
-                    "back_href": safe_referrer(request)
+                    "back_href": safe_referrer(request),
+                    "action_href": query.amcat_url,
+                    "action_text": "Edit on AmCAT"
                 }
             return TemplateResponse(request, 'dashboard/query_error.html', status=400, context=context)
         raise
@@ -197,8 +199,6 @@ def queries(request, system_id):
     cron_secret = settings.CRON_SECRET
     server_port = request.META["SERVER_PORT"]
     epoch = EPOCH + datetime.timedelta(minutes=1)
-
-    all_queries = Query.objects.filter(system__id=system_id).order_by("amcat_query_id").defer("amcat_parameters")
 
     # Order by -has_cache, cache_timestamp to sort in order of [older cache, newer cache, no cache]
     caches = QueryCache.objects.filter(query__system_id=system_id) \

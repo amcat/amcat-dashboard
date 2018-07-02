@@ -30,7 +30,7 @@ def cron_to_set(cron_item):
 class Query(models.Model):
     system = models.ForeignKey("dashboard.System", on_delete=models.CASCADE)
 
-    amcat_query_id = models.IntegerField(db_index=True, unique=True)
+    amcat_query_id = models.IntegerField()
 
     amcat_name = models.TextField()
     amcat_parameters = models.TextField()
@@ -149,6 +149,8 @@ class Query(models.Model):
                 return
             self.amcat_options = text
 
+    class Meta:
+        unique_together = ("system", "amcat_query_id")
 
 class QueryCache(models.Model):
     query = models.ForeignKey(Query, on_delete=models.CASCADE)

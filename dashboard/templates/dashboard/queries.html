@@ -26,6 +26,7 @@
     <thead>
     <tr>
         <th>AmCAT ID</th>
+        <th>Internal ID</th>
         <th>Name</th>
         <th>Schedule</th>
         <th>Last update (oldest version<sup>1</sup>)</th>
@@ -35,6 +36,7 @@
     {% for cache in caches %}
         <tr>
             <th scope="row">{{ cache.query.amcat_query_id }}</th>
+            <td>{{ cache.query.system_id }}:{{ cache.query_id }} </td>
             <td>{{ cache.query.amcat_name }}</td>
             <td>{{ cache.query.refresh_interval }}</td>
             <td>
