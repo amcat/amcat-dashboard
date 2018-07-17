@@ -1,5 +1,6 @@
 from collections.__init__ import OrderedDict
 
+import requests
 from amcatclient import AmcatAPI
 from django import forms
 from django.conf import settings
@@ -8,11 +9,11 @@ from django.core.exceptions import ValidationError, SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.forms import ModelForm, formset_factory, modelformset_factory, BaseModelFormSet
-from django.http import HttpResponseNotAllowed, Http404
+from django.http import HttpResponseNotAllowed, Http404, JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext as _
-from django.views.generic import FormView, ListView
+from django.views.generic import FormView, ListView, DeleteView
 from dashboard.models import System, User, HighchartsTheme
 from dashboard.models.dashboard import Filter
 
@@ -33,12 +34,10 @@ class TokenWidget(forms.TextInput):
 
 
 class SetupTokenForm(forms.ModelForm):
-    hostname = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "http://"}))
+    hostname = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "https://"}))
 
-    amcat_token = forms.CharField(required=False,
-                                  help_text=_("Click the button to request a token, or instead, enter username and password:"), widget=TokenWidget)
-    amcat_username = forms.CharField(required=False)
-    amcat_password = forms.CharField(required=False, widget=forms.PasswordInput)
+    amcat_token = forms.CharField(required=True,
+                                  help_text=_("Click the 'Request Token' button to request a token from AmCAT"), widget=TokenWidget)
 
     def clean(self):
         cleaned_data = super(SetupTokenForm, self).clean()
@@ -46,22 +45,16 @@ class SetupTokenForm(forms.ModelForm):
         if not settings.DASHBOARD_ALLOW_MULTIPLE_SYSTEMS and System.objects.exists():
             raise ValidationError(_("The server is setup for one system only, no other projects may be created."))
 
-        username = cleaned_data.get("amcat_username")
-        password = cleaned_data.get("amcat_password")
         hostname = cleaned_data.get("hostname")
         token = cleaned_data.get("amcat_token")
 
-        if not (hostname and (bool(token) ^ bool(username and password))):
-            raise ValidationError(_("Invalid credentials: either request a token or enter a username or password."))
-            return cleaned_data
-
-        authkwargs = {"token": token} if token else {"user": username, "password": password}
+        authkwargs = {"token": token}
 
         try:
             AmcatAPI(host=hostname, **authkwargs)
         except Exception as e:
             print(e)
-            raise ValidationError(_("Could not authenticate using given username and password. The credentials might be wrong, or the AmCAT server is not responding."))
+            raise ValidationError(_("Could not authenticate using given token. The credentials might be wrong, or the AmCAT server is not responding."))
 
         return cleaned_data
 
@@ -85,6 +78,21 @@ class SetupTokenForm(forms.ModelForm):
         model = System
         fields = ("hostname", "project_id")
 
+
+class SystemMixin:
+    @property
+    def system(self):
+        try:
+            return System.objects.get(pk=self.kwargs['system_id'])
+        except System.DoesNotExist:
+            raise Http404
+
+
+class SystemDeleteView(DeleteView):
+    model = System
+    pk_url_kwarg = "system_id"
+    def get_success_url(self):
+        return reverse('dashboard:system-list')
 
 class SystemAddView(FormView):
     form_class = SetupTokenForm
@@ -155,7 +163,7 @@ class SystemSettingsForm(forms.ModelForm):
         exclude = ("project_name",)
 
 
-class SystemSettingsView(FormView):
+class SystemSettingsView(SystemMixin, FormView):
     form_class = SystemSettingsForm
     template_name = "dashboard/system.html"
 
@@ -167,11 +175,17 @@ class SystemSettingsView(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
+        kwargs = super(SystemSettingsView, self).get_form_kwargs()
+
         try:
             system = System.objects.get(id=self.kwargs.get('system_id'))
         except System.DoesNotExist:
             raise Http404(_("System does not exist"))
-        return dict(super(SystemSettingsView, self).get_form_kwargs(), instance=system)
+
+        if 'amcat_token' in self.request.GET:
+            kwargs.setdefault('initial', {})
+            kwargs['initial']['amcat_token'] = self.request.GET['amcat_token']
+        return dict(kwargs, instance=system)
 
     def form_valid(self, form):
         form.save()
@@ -179,16 +193,7 @@ class SystemSettingsView(FormView):
         return super(SystemSettingsView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse("dashboard:system-list")
-
-
-class SystemMixin:
-    @property
-    def system(self):
-        try:
-            return System.objects.get(pk=self.kwargs['system_id'])
-        except System.DoesNotExist:
-            raise Http404
+        return self.request.get_raw_uri()
 
 
 class SystemThemeListView(SystemMixin, ListView):

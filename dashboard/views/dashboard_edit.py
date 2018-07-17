@@ -7,7 +7,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
-from dashboard.models import Page, Query, Row, Cell, HighchartsTheme
+from dashboard.models import Page, Query, Row, Cell, HighchartsTheme, QueryCache
 from dashboard.models.dashboard import HIGHCHARTS_CUSTOM_PROPERTIES
 from dashboard.util.django import bulk_insert_returning_ids
 from dashboard.util.itertools import split
@@ -92,7 +92,7 @@ def save_rows(request, page_id):
             cells[-1].clean()
 
     Cell.objects.bulk_create(cells)
-
+    QueryCache.objects.filter(page_id=page_id).exclude(query__cells__page_id=page_id).delete()
     return OK_CREATED
 
 

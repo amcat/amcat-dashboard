@@ -8,32 +8,19 @@
         <div class="panel-body">
             {% blocktrans %}
             Dashboard needs to gain access to an AmCAT instance, to fetch saved
-            queries. Although
-            you need to enter your credentials below, this dashboard will never
-            store your credentials directly. Instead, it requests an authentication
-            token and uses that to access AmCAT in the future.
+            queries. Please fill in the form below to provide the dashboard with the necessary authorization.
             {% endblocktrans %}
         </div>
     </div>
 
     {{ form|bootstrap }}
 
-    <input type="submit" class="btn btn-primary" value="Get token">
+    <input type="submit" class="btn btn-primary" value="Save">
 </form>
 
 <script type="text/javascript">
     let tokenInput = $('#id_amcat_token');
-    let userInputs = $('#id_amcat_username, #id_amcat_password');
     tokenInput.on('input', e => {
-        let hasToken = tokenInput.val();
-        if (hasToken) {
-            userInputs.val('');
-            userInputs.attr('readonly', 'readonly');
-        }
-        else {
-            userInputs.removeAttr('readonly');
-        }
-        $('input[type=submit][value=Get\\ token]').val('Save');
     });
     tokenInput.trigger('input');
 

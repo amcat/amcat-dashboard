@@ -4,14 +4,29 @@
 {% block dashboard-body %}
     <h1>System settings</h1>
     <div class="row">
-        <div class="col-lg-4">
-            <div class="alert alert-warning">Changing the project ID while already having
-            synchronised queries is not supported. It might work, it might not :-).</div>
-            <form method="POST" action="{% url "dashboard:system-settings" view.request.user.system_id %}">
-                {% csrf_token %}
-                {{ form|bootstrap }}
-                <button class="btn btn-primary" type="submit">Save</button>
-            </form>
+        <div class="col-lg-12" style="max-width: 35em;">
+            <div class="panel panel-default">
+                <div class="panel-heading">Settings</div>
+                <div class="panel-body">
+
+                    <div class="alert alert-warning">Changing the project ID while already having
+                        synchronised queries is not supported. It might work, it might not :-).
+                    </div>
+                    <form method="POST" action="{% url "dashboard:system-settings" view.system.id %}">
+                        {% csrf_token %}
+                        {{ form|bootstrap }}
+                        <button class="btn btn-primary" type="submit">Save</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">Actions</div>
+                <div class="panel-body">
+                    <a class="btn btn-danger" href="{% url 'dashboard:system-delete' view.system.id %}"><span
+                            class="glyphicon glyphicon-trash"></span> {% trans "Delete permanently" %}</a>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
