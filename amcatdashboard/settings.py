@@ -110,7 +110,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'account.context_processors.account',
-                'dashboard.context_preprocessors.menu_settings'
+                'dashboard.context_preprocessors.dashboard_settings'
             ],
             'builtins': [
                 'django.templatetags.i18n'
@@ -137,6 +137,25 @@ DATABASES = {
     }
 }
 
+
+CACHES = {
+    'default': {
+        # LocMemCache doesn't share its contents with other processes.
+        # Only use default for small things that can be replicated in memory safely.
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'dashboard-cache',
+    },
+
+    # FileBasedCache isn't particularly fast, and it is recommended to a configure a different caching backend instead.
+    'query': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': 'cache/dashboard/queries',
+        'OPTIONS': {
+            'eviction_policy': 'least-recently-used'
+        }
+    },
+
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

@@ -1,5 +1,20 @@
 {% extends "dashboard/base.html" %}
 {% block dashboard-body %}
+    <div class="row">
+    <div class="col-lg-12">
+        <form id="filter-form">
+            <div class="form-group form-group-lg">
+                <div class="input-group input-group-lg">
+                    <div class="form-control form-control-wrapper">
+                        <input title="{% trans "Filter results" %}" placeholder="{% trans "Filter results" %}..." id="filter-input" class="filter-input-textbox" name="q" value="{{ query|default:"" }}">
+                        <span class="fa fa-fw fa-times" id="filter-clear" style="cursor: pointer"></span>
+                    </div>
+                    <div class="input-group-addon"><span class="fa fa-fw fa-search"></span></div>
+                </div>
+            </div>
+        </form>
+    </div>
+    </div>
     {% for row, cells in rows.items %}
         <div class="row">
             {% for cell in cells %}
@@ -11,10 +26,24 @@
     <script>
         window.DASHBOARD_SYSTEM = JSON.parse('{{ system_info|escapejs }}');
 
-        require(["dashboard/query"], function (query) {
+        require(["dashboard/query", "dashboard/filter"], function (query, filter) {
+            const filterForm = document.getElementById('filter-form');
+            const filterInput = filterForm.elements['filter-input'];
+
+            document.getElementById('filter-clear').addEventListener('click', () => {
+                filterInput.value = "";
+                filterForm.submit();
+            });
+
+            filterInput.addEventListener('input', () => filterInput.setCustomValidity(''));
+
+            filterForm.addEventListener('submit', e => {filter.validateFilter(e, filterInput)});
             const {renderQueries} = query;
-            renderQueries($('.query-container'));
+            renderQueries($('.query-container'), {filterForm});
+
         });
+
+
     </script>
     {% include "dashboard/articlelist_dialog.html" %}
 {% endblock %}

@@ -1,11 +1,16 @@
 import datetime
 import json
+import logging
 from functools import wraps
 from uuid import uuid4
 
+from django import forms
+from django.core.cache import caches
 from django.db import transaction
 from django.db.models.expressions import RawSQL
 from django.template.response import TemplateResponse
+from django.views.decorators.cache import cache_page
+from django.views.decorators.gzip import gzip_page
 from django.views.decorators.http import condition, require_http_methods
 from requests import HTTPError
 
@@ -42,6 +47,8 @@ class BaseDashboardView(TemplateView):
 
 
 class DashboardPageView(BaseDashboardView):
+    query_param = 'q'
+
     def get_context_data(self, **kwargs):
         page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
         system = page.system
@@ -54,10 +61,12 @@ class DashboardPageView(BaseDashboardView):
             "project_name": system.project_name
         })
 
+        query = self.request.GET.get(self.query_param)
+
         rows = page.get_cells(select_related=("row", "query"))
         themes = HighchartsTheme.objects.filter(cells__row__in=rows).distinct()
         return dict(super(DashboardPageView, self).get_context_data(**kwargs),
-                    page=page, rows=rows, themes=themes, system_info=system_info)
+                    page=page, rows=rows, themes=themes, system_info=system_info, query=query)
 
 
 # HTTP GET *must* be nullipotent: browsers might poll GET urls for preview or bookmark purposes.
@@ -99,6 +108,7 @@ def clear_cache(request, query_id):
     return redirect_referrer(request, same_origin=True)
 
 
+@gzip_page
 def get_saved_query(request, query_id, page_id):
     query = Query.objects.get(id=query_id)
     return HttpResponse(content_type="application/json", content=json.dumps({
@@ -117,33 +127,8 @@ def get_saved_query(request, query_id, page_id):
     }))
 
 
-def query_last_modified(request, query_id, page_id):
-    q = getattr(request, 'dashboard__query', None)
-    if q is None:
-        return None
-    return q.cache_timestamp
 
-
-def query_tag(request, query_id, page_id):
-    try:
-        q = QueryCache.objects.only('cache_timestamp').get(query_id=query_id, page_id=page_id)
-        setattr(request, 'dashboard__query', q)
-        return q.get_query_tag()
-    except QueryCache.DoesNotExist:
-        return None
-
-
-def no_cache(view):
-    @wraps(view)
-    def wrapper(*args, **kwargs):
-        response = view(*args, **kwargs)
-        response.setdefault('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
-        return response
-    return wrapper
-
-
-@no_cache
-@condition(etag_func=query_tag, last_modified_func=query_last_modified)
+@gzip_page
 def get_saved_query_result(request, query_id, page_id):
     """
     Returns the results of a saved query either from cache or from AmCAT server. This
@@ -155,6 +140,11 @@ def get_saved_query_result(request, query_id, page_id):
         cache, created = QueryCache.objects.get_or_create(defaults=defaults, **defaults)
     except QueryCache.DoesNotExist:
         raise Http404("No such object")
+
+    query_val = request.GET.get(DashboardPageView.query_param)
+
+    if query_val and query_val.strip():
+        return get_filtered_query_result(request, cache)
 
     # If we've still got one in cache, use that one
     if cache.is_valid():
@@ -180,6 +170,24 @@ def get_saved_query_result(request, query_id, page_id):
 
     # Return cached result
     return HttpResponse(cache.cache, content_type=cache.cache_mimetype)
+
+def get_filtered_query_result(request, query_cache: QueryCache):
+    query_override = request.GET[DashboardPageView.query_param]
+
+    cache_key = query_cache.get_query_tag(query_override=query_override)
+    cached = caches['query'].get(cache_key)
+
+    if not cached or cached['timestamp'].replace(tzinfo=datetime.timezone.utc) < query_cache.cache_timestamp.astimezone():
+        uuid = query_cache.start_task(query_override=query_override)
+        content, content_type = query_cache.poll(uuid, save_result=False)
+        caches['query'].set(cache_key, {
+            "content": content,
+            "content_type": content_type,
+            "timestamp": datetime.datetime.now(tz=datetime.timezone.utc)
+        })
+        return HttpResponse(content, content_type=content_type)
+    print('From cache: {}'.format(request.get_raw_uri()))
+    return HttpResponse(cached['content'], content_type=cached['content_type'])
 
 
 def empty(request):

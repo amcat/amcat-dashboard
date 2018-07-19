@@ -7,17 +7,19 @@
     visibility: collapse;
 }
 
-.label.dropdown-toggle, .label-button {
-    cursor: pointer;
+
+.filter-input-textbox {
+    margin: -4px 0;
+    height: calc(100% + 8px);
+    border: none;
+    border-radius: 3px;
+    padding: 5px;
+    width: 100%;
+    flex: 1 1 auto;
 }
 
-.label.filter {
-    margin: 1em 0.2em ;
+.form-group-lg .form-control-wrapper, .form-group .form-control-wrapper{
+    display: flex;
+    align-items: first baseline;
 }
 
-.label [contenteditable] {
-    font-size: 1.2em;
-    padding: 0.2em;
-    background-color: #fefefe;
-    color: #333;
-}

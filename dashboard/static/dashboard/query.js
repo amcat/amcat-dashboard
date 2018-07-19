@@ -63,7 +63,8 @@ define([
     }
 
     class QueryRenderer {
-        constructor(container) {
+        constructor(container, options) {
+            this.filterForm = options.filterForm;
             this.container = $(container);
             this.themeArgs = this.container.data('theme');
             this.customizeArgs = this.container.data('customize');
@@ -71,7 +72,7 @@ define([
         }
 
         async onQueryFetched(query) {
-            const result = await QueryRenderer.fetchQueryResult(query);
+            const result = await this.fetchQueryResult(query);
             this._preRender(query);
             renderers[query.output_type](query.amcat_parameters, this.container.find('.query-canvas'), result);
             this._postRender(query);
@@ -120,8 +121,14 @@ define([
             })
         }
 
-        static async fetchQueryResult(query) {
-            const response = await get(query.result_url);
+        async fetchQueryResult(query) {
+            let q = null;
+            if(this.filterForm !== undefined){
+                q = this.filterForm.elements['q'].value
+            }
+            const querystr = q ? `?q=${encodeURIComponent(q)}` : '';
+
+            const response = await get(`${query.result_url}${querystr}`);
             if(query.output_type.indexOf('json') >= 0){
                 const data = await response.json();
                 if(data.status === "pending"){
@@ -134,13 +141,13 @@ define([
         }
     }
 
-    function renderQuery(container) {
-        let renderer = new QueryRenderer(container);
+    function renderQuery(container, options) {
+        let renderer = new QueryRenderer(container, options);
         return renderer.render();
     }
 
-    function renderQueries(containers) {
-        return Promise.all($(containers).toArray().map(container => renderQuery(container)))
+    function renderQueries(containers, options) {
+        return Promise.all($(containers).toArray().map(container => renderQuery(container, options)))
     }
 
     return {

@@ -2,8 +2,10 @@ from __future__ import absolute_import
 
 import datetime
 import json
+import re
 from _sha512 import sha512
 from collections import defaultdict
+from io import StringIO
 from urllib.parse import urlencode
 
 from django.db import models
@@ -72,8 +74,32 @@ class Query(models.Model):
             query_id=self.amcat_query_id
         )
 
-    def get_parameters(self):
+    def _apply_query_override(self, query: str, query_override):
+        split_re = re.compile('[\t|#]')
+        newquery = StringIO()
+        if not query.strip():
+            return query_override
+        for q in query.splitlines():
+            if q:
+                try:
+                    prefix, query_body = split_re.split(q, 1)
+                except ValueError:
+                    prefix, query_body = None, q
+
+                if prefix:
+                    separator = q[len(prefix)]
+                    newquery.write(prefix + separator)
+
+                newquery.write("(({}) AND ({}))".format(query_body, query_override))
+            newquery.write("\n")
+        return newquery.getvalue()
+
+
+    def get_parameters(self, query_override=None):
         parameters = json.loads(self.amcat_parameters)
+        if query_override:
+            parameters['query'] = self._apply_query_override(parameters['query'], query_override)
+            print(parameters['query'])
         try:
             filters = json.loads(parameters['filters'])
         except (KeyError, json.JSONDecodeError):
@@ -160,6 +186,8 @@ class Query(models.Model):
 
 
 class QueryCache(models.Model):
+    """ A persistent cache for queries. Does not expire or get evicted. """
+
     query = models.ForeignKey(Query, on_delete=models.CASCADE)
     page = models.ForeignKey('dashboard.Page', on_delete=models.CASCADE)
 
@@ -175,13 +203,16 @@ class QueryCache(models.Model):
     def system(self):
         return self.query.system
 
-    def get_filters(self):
+    def get_filters(self, extra_filters=None):
         query_filters = json.loads(self.query.get_parameters()['filters'])
         global_filters = self.query.system.get_global_filters()
 
         page_filters = self.page.filters
 
-        filtersets = (query_filters, global_filters, page_filters)
+        if not isinstance(extra_filters, dict):
+            extra_filters = {}
+
+        filtersets = (query_filters, global_filters, page_filters, extra_filters)
         filters = defaultdict(set)
         for field, values in (item for fs in filtersets for item in fs.items()):
             filters[field] |= set(values)
@@ -190,53 +221,67 @@ class QueryCache(models.Model):
 
         return filters
 
-    def get_parameters(self):
-        query_params = self.query.get_parameters()
-        query_params['filters'] = json.dumps(self.get_filters(), ensure_ascii=True, sort_keys=True)
+    def get_parameters(self, query_override=None):
+        query_params = self.query.get_parameters(query_override=query_override)
+        query_params['filters'] = json.dumps(self.get_filters(),
+                                             ensure_ascii=True,
+                                             sort_keys=True)
         return query_params
 
-    def get_query_tag(self):
+    def get_query_tag(self, query_override=None):
         """ Creates a unique tag for these parameters."""
         url = self.Urls.task.format(**self.query.get_url_kwargs())
-        query_params = self.get_parameters()
+        query_params = self.get_parameters(query_override=query_override)
         key = json.dumps((self.query_id, url, query_params), ensure_ascii=True, sort_keys=True).encode('ascii')
         return sha512(key).hexdigest()[:36]
 
-    def is_valid(self):
-        return self.cache_uuid and self.cache and self.cache_tag == self.get_query_tag()
+    def is_valid(self, query_override=None):
+        return self.cache_uuid and self.cache and self.cache_tag == self.get_query_tag(query_override=query_override)
 
-    def poll(self):
-        if self.cache_uuid is None:
+    def poll(self, uuid=None, save_result=False):
+        """ Poll for """
+        if uuid is None:
+            uuid = self.cache_uuid
+
+        if uuid is None:
             raise ValueError("Can't wait when uuid=None")
 
-        result = poll(get_session(self.query.system), self.cache_uuid)
+        result = poll(get_session(self.query.system), uuid)
 
-        # Cache results
-        self.cache_tag = self.get_query_tag()
-        self.cache = result.content.decode('utf-8')
-        self.cache_timestamp = datetime.datetime.now()
-        self.cache_mimetype = result.headers.get("Content-Type")
+        cache = result.content.decode('utf-8')
+        mimetype = result.headers.get("Content-Type")
+        if save_result:
+            self.cache_tag = self.get_query_tag()
+            self.cache = cache
+            self.cache_timestamp = datetime.datetime.now()
+            self.cache_mimetype = mimetype
+            self.save()
 
-    def refresh_cache(self):
+        return cache, mimetype
+
+    def start_task(self, query_override=None):
         # We need to fetch it from an amcat instance
         s = get_session(self.system)
 
         # Start job
         s.headers["Content-Type"] = "application/x-www-form-urlencoded"
         url = self.Urls.task.format(**self.query.get_url_kwargs())
-        query_params = self.get_parameters()
+        query_params = self.get_parameters(query_override=query_override)
 
         data = urlencode(query_params, True)
 
         response = s.post(url, data=data)
         response.raise_for_status()
         uuid = json.loads(response.content.decode("utf-8"))["uuid"]
+        return uuid
+
+    def refresh_cache(self):
+        uuid = self.start_task()
         self.cache_uuid = uuid
         self.save()
 
         # We need to wait for the result..
-        self.poll()
-        self.save()
+        self.poll(save_result=True)
 
     def clear_cache(self):
         self.cache = None
