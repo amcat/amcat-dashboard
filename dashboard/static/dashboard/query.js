@@ -74,7 +74,8 @@ define([
         async onQueryFetched(query) {
             const result = await this.fetchQueryResult(query);
             this._preRender(query);
-            renderers[query.output_type](query.amcat_parameters, this.container.find('.query-canvas'), result);
+            const [output_type, meaning] = query.output_type.split(';');
+            renderers[output_type](query.amcat_parameters, this.container.find('.query-canvas'), result);
             this._postRender(query);
         }
 
