@@ -61,10 +61,8 @@ define([
                 table.DataTable().destroy();
             }
 
-            const container = $modal.find(".articlelist").html("");
-
             amcat.datatables.create_rest_table(
-                container,
+                $modal.find(".articlelist").html(""),
                 options.search_api_url + "?" + $.param(getSearchFilters(data, filters), true),
                 {
                     "setup_callback": function(tbl){
@@ -121,26 +119,7 @@ define([
                 delete filters["term"];
             }
 
-            const page_filter = $('#filter-input').val().trim();
-            if(page_filter) {
-                if (new_filters.q === undefined) {
-                    new_filters.q = page_filter;
-                }
-                else {
-                    let [prefix, query] = new_filters.q.split(/[\t#|]/);
-                    if (query === undefined) {
-                        new_filters.q = `((${new_filters.q}) AND (${page_filter}))`;
-                    }
-                    else {
-                        let separator = new_filters.q[prefix.length];
-                        new_filters.q = `${prefix}${separator}((${query}) AND (${page_filter}))`;
-                    }
-                }
-            }
-
-            let global_filters = data.filters ? JSON.parse(data.filters) : {};
-
-            return $.extend({}, new_filters, filters, global_filters);
+            return $.extend({}, new_filters, filters);
         }
 
         return {

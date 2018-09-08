@@ -67,6 +67,7 @@ define([
             this.filterForm = options.filterForm;
             this.container = $(container);
             this.themeArgs = this.container.data('theme');
+            this.title = this.container.data('title');
             this.customizeArgs = this.container.data('customize');
             this.url = this.container.data('saved-query-src');
         }
@@ -111,7 +112,7 @@ define([
             this.container.html(template(query));
             this.bindEvents(this.container);
             await this.onQueryFetched(query);
-            this.container.find(".query-name").text(query.amcat_name);
+            this.container.find(".query-name").text(this.title);
         }
 
         bindEvents(container) {

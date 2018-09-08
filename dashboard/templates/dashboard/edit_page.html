@@ -41,7 +41,6 @@
                             <div class="resize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
                         </div>
                         -->
-
                         <select class="saved-query">
                             <option value="">-- choose query --</option>
                             {% for query in queries %}
@@ -73,8 +72,12 @@
 
                         <div class="dropdown btn-group">
                         <button class="btn btn-default btn-xs" data-toggle="dropdown">Customize...</button>
-                        <div class="dropdown-menu">
-                            <form class="customize" onsubmit="return false;" style="font-size: 0.8em; padding: 1em;">
+                        <div class="dropdown-menu" style="font-size: 0.8em; padding: 1em;">
+                            <p>
+                                <label for="id_query-title">Title</label>
+                                <input type="text" id="id_query-title" class="query-title" placeholder="{{ v.placeholder }}">
+                            </p>
+                            <form class="customize" onsubmit="return false;" >
                                 {% for k, v in customizations %}
                                     <p>
                                         <label for="id_{{k}}">{{ v.label }}</label>

@@ -92,6 +92,7 @@ HighchartsProperty = namedtuple("HighchartsProperty", ("type", "form_type", "lab
 HIGHCHARTS_CUSTOM_PROPERTIES = (
     ("yAxis.0.title.text", HighchartsProperty(str, "text", "y-Axis label", None, "<automatic>")),
     ("yAxis.1.title.text", HighchartsProperty(str, "text", "secondary y-Axis label", None, "<automatic>")),
+    ("legend.enabled", HighchartsProperty(bool, "checkbox", "Enable legend", False, "false")),
     ("credits.enabled", HighchartsProperty(bool, "checkbox", "Credits enabled", False, "false")),
     ("credits.text", HighchartsProperty(str, "text", "Credits text", None, "e.g. Highcharts.com")),
     ("credits.href", HighchartsProperty(str, "text", "Credits url", None, "e.g. http://www.highcharts.com")),
@@ -121,6 +122,7 @@ class Cell(models.Model):
     query = models.ForeignKey(Query, related_name="cells")
     page = models.ForeignKey(Page, related_name="cells")
 
+    title = models.CharField(max_length=250, null=True)
     theme = models.ForeignKey('dashboard.HighchartsTheme', related_name="cells", on_delete=models.SET_NULL, null=True)
     customize = JSONField(validators=(highcharts_customization_dict,), default={})
 
@@ -148,6 +150,9 @@ class Cell(models.Model):
             node[path[-1]] = spec.type(v)
 
         return json.dumps(root)
+
+    def get_title(self):
+        return self.title or self.query.amcat_name
 
     class Meta:
         app_label = "dashboard"

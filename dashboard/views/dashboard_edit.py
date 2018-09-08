@@ -82,6 +82,7 @@ def save_rows(request, page_id):
                 Cell(
                     width=width,
                     query=query,
+                    title=col['title'],
                     page=page,
                     row=row,
                     ordernr=i,
@@ -148,6 +149,7 @@ def page(request, page_id):
             "width": cell.width,
             "query_id": cell.query_id,
             "theme_id": cell.theme_id,
+            "title": cell.title,
             "refresh_interval": cell.query.refresh_interval,
             "customize": cell.customize
         }
