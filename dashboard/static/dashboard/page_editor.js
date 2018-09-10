@@ -19,9 +19,9 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
 
         // Columns
         var bootstrapColums = [
-            'col-lg-1', 'col-lg-2', 'col-lg-3', 'col-lg-4',
-            'col-lg-5', 'col-lg-6', 'col-lg-7', 'col-lg-8',
-            'col-lg-9', 'col-lg-10', 'col-lg-11', 'col-lg-12'
+            'col-sm-1', 'col-sm-2', 'col-sm-3', 'col-sm-4',
+            'col-sm-5', 'col-sm-6', 'col-sm-7', 'col-sm-8',
+            'col-sm-9', 'col-sm-10', 'col-sm-11', 'col-sm-12'
         ];
 
         /**
@@ -39,7 +39,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
          * Inverse of colToNum. Given a number, yield a bootstrap column class.
          */
         var numToCol = function(num){
-            return "col-lg-" + num.toString();
+            return "col-sm-" + num.toString();
         };
 
         var serialiseCell = function(cell){

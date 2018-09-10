@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cell',
             name='customize',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default={}, validators=[dashboard.models.dashboard.highcharts_customization_dict]),
+            field=django.contrib.postgres.fields.jsonb.JSONField(default={}, validators=[dashboard.models.dashboard.highcharts_customization_dict_validator]),
         ),
     ]

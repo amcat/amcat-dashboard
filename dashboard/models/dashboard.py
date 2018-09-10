@@ -92,13 +92,13 @@ HighchartsProperty = namedtuple("HighchartsProperty", ("type", "form_type", "lab
 HIGHCHARTS_CUSTOM_PROPERTIES = (
     ("yAxis.0.title.text", HighchartsProperty(str, "text", "y-Axis label", None, "<automatic>")),
     ("yAxis.1.title.text", HighchartsProperty(str, "text", "secondary y-Axis label", None, "<automatic>")),
-    ("legend.enabled", HighchartsProperty(bool, "checkbox", "Enable legend", False, "false")),
+    ("legend.enabled", HighchartsProperty(bool, "checkbox", "Enable legend", True, "true")),
     ("credits.enabled", HighchartsProperty(bool, "checkbox", "Credits enabled", False, "false")),
     ("credits.text", HighchartsProperty(str, "text", "Credits text", None, "e.g. Highcharts.com")),
     ("credits.href", HighchartsProperty(str, "text", "Credits url", None, "e.g. http://www.highcharts.com")),
 )
 
-def highcharts_customization_dict(value):
+def highcharts_customization_dict_validator(value):
     errors = []
     custom_props = dict(HIGHCHARTS_CUSTOM_PROPERTIES)
     if not isinstance(value, dict):
@@ -124,7 +124,7 @@ class Cell(models.Model):
 
     title = models.CharField(max_length=250, null=True)
     theme = models.ForeignKey('dashboard.HighchartsTheme', related_name="cells", on_delete=models.SET_NULL, null=True)
-    customize = JSONField(validators=(highcharts_customization_dict,), default={})
+    customize = JSONField(validators=(highcharts_customization_dict_validator,), default={})
 
     # You may expect to find Page.rows().cells(), but storing it this way is more
     # efficient as we can fetch a single page with one query.
@@ -148,7 +148,6 @@ class Cell(models.Model):
             for el in path[:-1]:
                 node = node[el]
             node[path[-1]] = spec.type(v)
-
         return json.dumps(root)
 
     def get_title(self):

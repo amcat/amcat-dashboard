@@ -1,5 +1,4 @@
-define(["highcharts.core"], function(){
-    const Highcharts = window.Highcharts;
+define(["highcharts.core"], function(Highcharts){
     const bus = document.createElement('div');
     const interval = null;
 

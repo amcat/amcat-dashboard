@@ -3,6 +3,29 @@
     padding: 30px 30px;
 }
 
+.article-title {
+    margin: 0.4em 0 0.2em 0;
+}
+
+.article-meta {
+    margin: 0.2em 0 0.3em 0;
+    font-size: 0.9em;
+    color: #7f7f7f;
+}
+
+.article-snippet em, .article-title em {
+    font-style: normal;
+    background-color: lightgoldenrodyellow;
+}
+
+.query-heading {
+    display: flex;
+    align-items: baseline;
+}
+
+.query-heading > h4 {
+    flex: auto;
+}
 .dataTables_scrollBody thead{
     visibility: collapse;
 }
@@ -23,3 +46,10 @@
     align-items: first baseline;
 }
 
+:placeholder-shown + #filter-clear {
+    visibility: hidden;
+}
+
+.sidebar-placeholder {
+    display: none;
+}

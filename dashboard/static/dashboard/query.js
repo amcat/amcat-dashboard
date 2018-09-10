@@ -1,8 +1,9 @@
 define([
     "jquery",
     "query/renderers",
-    "query/utils/i18n"
-], function ($, renderers, i18n) {
+    "query/utils/i18n",
+    "highcharts.core"
+], function ($, renderers, i18n, Highcharts) {
 
     const _ = i18n.gettext;
 
@@ -13,32 +14,30 @@ define([
     };
 
     const template = query => `
-<div class="panel-heading">
-    <div class="pull-right">
-        <div class="btn-group">
-            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                ${STRINGS.actions}
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu pull-right" role="menu">
-                <li>
-                    <form class="hidden" method="post" action="${query.clear_cache_url}" id="clear-cache-${query.id}">
-                        ${CSRF_TOKEN_INPUT}
-                    </form>
-                    <a data-submit="#clear-cache-${query.id}">
-                        <i class="fa fa-refresh fa-fw"></i> ${STRINGS.refresh}
-                    </a>
-                </li>
-                <li>
-                    <a href="${query.amcat_url}" target="_blank">
-                        <span class="fa fa-external-link fa-fw"></span>
-                        ${STRINGS.viewOnAmcat}
-                    </a>
-                </li>
-            </ul>
-        </div>
+<div class="query-heading panel-heading">
+    <h4 class="query-title"><span class="query-name"></span></h4>
+    <div class="btn-group">
+        <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+            ${STRINGS.actions}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu pull-right" role="menu">
+            <li>
+                <form class="hidden" method="post" action="${query.clear_cache_url}" id="clear-cache-${query.id}">
+                    ${CSRF_TOKEN_INPUT}
+                </form>
+                <a data-submit="#clear-cache-${query.id}">
+                    <i class="fa fa-refresh fa-fw"></i> ${STRINGS.refresh}
+                </a>
+            </li>
+            <li>
+                <a href="${query.amcat_url}" target="_blank">
+                    <span class="fa fa-external-link fa-fw"></span>
+                    ${STRINGS.viewOnAmcat}
+                </a>
+            </li>
+        </ul>
     </div>
-    <i class="query-icon fa fa-bar-chart-o fa-fw"></i> <span class="query-name"></span>
 </div>
 <div class="query-canvas panel-body"></div>
 `;
@@ -94,18 +93,41 @@ define([
             this.magic_div.remove();
             this.magic_div = $(null);
 
-            // apply theme args if a theme is selected.
+            this._applyCustomization();
+            this._renderedSummaryToListing();
+        }
+        _applyCustomization(){
             this.container.find('[data-highcharts-chart]').each((i, el) => {
                 el = $(el);
                 const chart = el.highcharts();
                 if (chart instanceof Highcharts.Chart) {
                     const newOptions = Highcharts.merge({}, chart.options, this.themeArgs, this.customizeArgs);
+                    console.debug("Customize: ", this.customizeArgs);
                     console.debug("Override options: ", newOptions);
                     chart.update(newOptions);
                 }
             });
         }
 
+        _renderedSummaryToListing() {
+            let article_ul = this.container.find('ul.articles');
+            let aggregations = this.container.find('[data-highcharts-chart]');
+            if (article_ul.length === 0 || aggregations.length > 0) {
+                return; // not a summary, or a summary with aggregations.
+            }
+
+            const lis = article_ul.children();
+            const listing = $('<div class="query-listing list-group">');
+            listing.append(lis);
+            lis.addClass("list-group-item");
+            this.container.find('.query-canvas').remove();
+            this.container.append(listing);
+
+            listing.find('a').each((i,a) => {
+                const url = new URL(a.href);
+                a.href = a.href.replace(url.origin, DASHBOARD_SYSTEM.hostname);
+            });
+        }
 
         async render() {
             const query = await getJSON(this.url);

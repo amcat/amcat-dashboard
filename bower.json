@@ -11,7 +11,8 @@
     "bootstrap-multiselect": "",
     "jquery-cookie": "",
     "bootstrap-switch": "",
-    "startbootstrap-sb-admin-2": "https://github.com/BlackrockDigital/startbootstrap-sb-admin-2/archive/v3.3.7+1.tar.gz"
+    "startbootstrap-sb-admin-2": "https://github.com/BlackrockDigital/startbootstrap-sb-admin-2/archive/v3.3.7+1.tar.gz",
+    "open-sans-fontface": ""
   },
   "resolutions": {
     "datatables": "~1.10.7",

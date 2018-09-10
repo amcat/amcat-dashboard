@@ -33,6 +33,8 @@ CRON_SECRET = hashlib.sha256((SECRET_KEY + "6132600e-47a5-49e6-a3ff-4af22b02cd71
 
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
+if DEBUG:
+    ALLOWED_HOSTS += ["*"]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "srv")
 MEDIA_ROOT = os.path.join(BASE_DIR, "srv/media")
@@ -195,5 +197,7 @@ CSRF_COOKIE_NAME = 'dashboard__csrftoken'
 
 SESSION_ID = os.environ.get("DJANGO_SESSION_ID")
 
+# Comment this line to fall back to the default theme.
+GLOBAL_THEME = "material"
 
 DASHBOARD_ALLOW_MULTIPLE_SYSTEMS = True

@@ -1,11 +1,10 @@
 {% extends 'dashboard/base.html' %}
 
 {% block dashboard-body %}
-
-<h2>{% trans "Themes" %}</h2>
-
-<div class="col-lg-12">
-<div class="row">
+<div class="panel panel-default">
+<div class="panel-heading">
+<h3>{% trans "Themes" %}</h3>
+</div>
 <div class="list-group">
     {% for theme in object_list %}
         <div class="list-group-item">
@@ -21,7 +20,6 @@
     {% if user.is_superuser %}
         <a href="{% url "dashboard:system-theme-add" system_id=view.system.id %}" class="list-group-item list-group-item-action"><span class="glyphicon glyphicon-plus"></span> Add theme...</a>
     {% endif %}
-</div>
 </div>
 </div>
 
