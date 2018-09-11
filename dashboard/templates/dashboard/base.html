@@ -37,7 +37,7 @@
 
     <script>require(["jquery", "bootstrap"]);</script>
 
-    <div id="wrapper">
+    <div id="wrapper" class="{% block pageclasses %}{% endblock %}">
         {% include "dashboard/menu.html" %}
 
         <div id="page-wrapper">

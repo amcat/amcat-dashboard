@@ -1,13 +1,13 @@
- .sidebar {
+.edit-menu .sidebar {
      width: 500px;
  }
 
-input.form-control{
+.edit-menu input.form-control{
     width: initial;
     display: inline;
  }
 
- #page-wrapper{
+.edit-menu #page-wrapper{
      margin: 0 0 0 500px;
- }
+}
 
