@@ -9,7 +9,7 @@
     <meta name="description" content="AmCAT Dashboard">
     <meta name="author" content="AmCAT Team">
 
-    <title>AmCAT Dashboard - {% block title %}Main{% endblock %}</title>
+    <title>AmCAT Dashboard - {% block head_title %}{% block title %}Main{% endblock %}{% endblock head_title %}</title>
 
     <link href="{% static 'components/datatables/media/css/jquery.dataTables.min.css' %}" rel="stylesheet" type="text/css">
     <link href="{% static 'components/amcat-common/css/dataTables.bootstrap.css' %}" rel="stylesheet" type="text/css">

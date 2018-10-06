@@ -71,11 +71,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django_extensions',
-    'pinax_theme_bootstrap',
     'bootstrapform',
     'account',
     'amcatdashboard',
-    'dashboard'
+    'dashboard',
+    'pinax_theme_bootstrap',
 )
 
 MIDDLEWARE_CLASSES = (

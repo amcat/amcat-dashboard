@@ -93,6 +93,8 @@ HIGHCHARTS_CUSTOM_PROPERTIES = (
     ("yAxis.0.title.text", HighchartsProperty(str, "text", "y-Axis label", None, "<automatic>")),
     ("yAxis.1.title.text", HighchartsProperty(str, "text", "secondary y-Axis label", None, "<automatic>")),
     ("legend.enabled", HighchartsProperty(bool, "checkbox", "Enable legend", True, "true")),
+    ("series.0.name", HighchartsProperty(str, "text", "First series name", None, "<automatic>")),
+    ("series.1.name", HighchartsProperty(str, "text", "Second series name", None, "<automatic>")),
     ("credits.enabled", HighchartsProperty(bool, "checkbox", "Credits enabled", False, "false")),
     ("credits.text", HighchartsProperty(str, "text", "Credits text", None, "e.g. Highcharts.com")),
     ("credits.href", HighchartsProperty(str, "text", "Credits url", None, "e.g. http://www.highcharts.com")),

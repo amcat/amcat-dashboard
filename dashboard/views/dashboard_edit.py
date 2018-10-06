@@ -2,6 +2,7 @@ import json
 from itertools import chain, count
 from operator import itemgetter
 
+from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse
@@ -11,10 +12,6 @@ from dashboard.models import Page, Query, Row, Cell, HighchartsTheme, QueryCache
 from dashboard.models.dashboard import HIGHCHARTS_CUSTOM_PROPERTIES
 from dashboard.util.django import bulk_insert_returning_ids
 from dashboard.util.itertools import split
-
-
-def import_query(request):
-    pass
 
 
 def serialise_query(query):
@@ -40,6 +37,7 @@ def synchronise_queries(request):
 OK_CREATED = HttpResponse("OK", status=201)
 
 
+@user_passes_test(lambda u: u.is_superuser)
 @transaction.atomic
 def save_rows(request, page_id):
     page = Page.objects.get(id=page_id)
@@ -71,8 +69,8 @@ def save_rows(request, page_id):
             width = col["width"]
 
             customize = {k: v for k, v in col["customize"].items()
-                              if isinstance(k, str) and k
-                              if isinstance(v, (str, bool, int, float)) and v}
+                         if isinstance(k, str) and k
+                         if isinstance(v, (str, int, float, bool))}
 
             if query.refresh_interval != col['refresh_interval']:
                 query.refresh_interval = col['refresh_interval']
@@ -97,6 +95,7 @@ def save_rows(request, page_id):
     return OK_CREATED
 
 
+@user_passes_test(lambda u: u.is_superuser)
 @transaction.atomic
 def save_menu(request):
     system = request.user.system
@@ -124,6 +123,7 @@ def save_menu(request):
     return OK_CREATED
 
 
+@user_passes_test(lambda u: u.is_superuser)
 def menu(request):
     system = request.user.system
     pages = Page.objects.filter(system=system)
@@ -136,7 +136,7 @@ def menu(request):
     editing = True
     return render(request, "dashboard/edit_menu.html", locals())
 
-
+@user_passes_test(lambda u: u.is_superuser)
 def page(request, page_id):
     system = request.user.system
     page = Page.objects.get(id=page_id)
@@ -165,6 +165,7 @@ def page(request, page_id):
     return render(request, "dashboard/edit_page.html", locals())
 
 
+@user_passes_test(lambda u: u.is_superuser)
 def index(request):
     system = request.user.system
     pages = Page.objects.filter(system=system)
