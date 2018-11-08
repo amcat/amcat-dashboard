@@ -20,10 +20,10 @@ class System(models.Model):
 
     def synchronise_queries(self):
         url = "projects/{project}/querys/".format(project=self.project_id)
-
+        remaining_ids = set(Query.objects.filter(system=self).values_list('amcat_query_id', flat=True))
         for api_query in self.get_api().get_pages(url):
             amcat_query_id = api_query["id"]
-
+            remaining_ids -= {amcat_query_id}
             try:
                 query = Query.objects.get(system=self, amcat_query_id=amcat_query_id)
             except Query.DoesNotExist:
@@ -34,6 +34,8 @@ class System(models.Model):
             query.amcat_parameters = api_query["parameters"]
             query.amcat_options = None
             query.save()
+
+        Query.objects.filter(system=self, amcat_query_id__in=remaining_ids).delete()
 
     def save(self, *args, **kwargs):
         if self.project_name is None:
