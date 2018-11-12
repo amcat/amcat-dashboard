@@ -8,6 +8,7 @@ requirejs.config({
         "highcharts.core": "highcharts/highcharts.src",
         "highcharts.data": "highcharts/modules/data",
         "highcharts.exporting": "highcharts/modules/exporting",
+        "highcharts.drilldown": "highcharts/modules/drilldown",
         "highcharts.heatmap": "highcharts/modules/heatmap",
         "bootstrap": "bootstrap/dist/js/bootstrap",
         "bootstrap-multiselect": "bootstrap-multiselect/dist/js/bootstrap-multiselect",
