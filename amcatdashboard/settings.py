@@ -114,7 +114,7 @@ WSGI_APPLICATION = 'amcatdashboard.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dashboard',
+        'NAME': os.environ.get("DASHBOARD_DB_NAME", "dashboard"),
         'USER': os.environ.get("DASHBOARD_DB_USER", "dashboard"),
         'PASSWORD': os.environ.get("DASHBOARD_DB_PASSWORD", ""),
         'HOST': os.environ.get("DASHBOARD_DB_HOST", ""),
