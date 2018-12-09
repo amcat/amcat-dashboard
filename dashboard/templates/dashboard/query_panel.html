@@ -1,23 +1,11 @@
-<div class="col-lg-{{ panel_size }}">
-    <div id="{{ panel_id }}" class="panel panel-default">
-        <div class="panel-heading">
-            <div class="pull-right">
-                <div class="btn-group">
-                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                        Actions
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>
-                            <a href="{% url 'dashboard:clear-cache' query_id %}">
-                                <i class="fa fa-refresh fa-fw"></i> Refresh
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <i class="query-icon fa fa-bar-chart-o fa-fw"></i> <span class="query-name"></span>
-        </div>
-        <div class="query-container panel-body"></div>
+{% load i18n %}
+<div class="col-sm-{{ panel_size }}">
+    <div id="{{ panel_id }}" class="panel panel-default query-container"
+             {% if theme_args %}
+                data-theme="{{ theme_args|escape }}"
+             {% endif %}
+             data-customize="{{ customize_args|escape }}"
+             data-title="{{ cell.get_title }}"
+             data-saved-query-src="{% url 'dashboard:get-saved-query' page.id query.id %}">
     </div>
 </div>

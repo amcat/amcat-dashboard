@@ -7,8 +7,9 @@
     <link rel="stylesheet" type="text/css" href="{% static 'components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css' %}">
 {% endblock %}
 
+{% block pageclasses %} edit-page {% endblock %}
+
 {% block dashboard-body %}
-    <p><br/></p>
 
     <div id="page-data" data-page="{{ page_json }}"></div>
 
@@ -22,6 +23,7 @@
                     <div class="synchronise btn btn-default"><i class="glyphicon glyphicon-refresh"></i> Synchronise queries</div>
                     <!--<div class="preview btn btn-default"><i class="glyphicon glyphicon-eye-open"></i> Preview</div>-->
                     <input data-label-text="Hints" class="hints" type="checkbox" checked />
+                    <a href="{% url "dashboard:system-theme-list" system.id %}" class="btn btn-default">Edit themes...</a>
                 </div>
             </div>
         </div>
@@ -29,7 +31,7 @@
 
     <div id="row-template" style="display:none;">
         <div class="row">
-            <div class="col col-lg-12">
+            <div class="col col-sm-12">
                 <div class="query-stub panel panel-default">
                     <div class="panel-heading">
                         <!--<i class="query-icon fa fa-bar-chart-o fa-fw"></i>-->
@@ -41,7 +43,6 @@
                             <div class="resize-right btn btn-xs btn-default"><i class="glyphicon glyphicon-chevron-right"></i></div>
                         </div>
                         -->
-
                         <select class="saved-query">
                             <option value="">-- choose query --</option>
                             {% for query in queries %}
@@ -49,13 +50,53 @@
                             {% endfor %}
                         </select>
 
-                        <div class="btn-group">
-                            <div class="add-left btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-left"></i></div>
-                            <div class="hint btn btn-xs btn-default disabled">Add</div>
-                            <div class="add-right btn btn-xs btn-default"><i class="glyphicon glyphicon-arrow-right"></i></div>
+                        <select class="refresh-interval" title="Refreshes query results with specified interval">
+                            <option value="">No auto-refresh</option>
+                            <optgroup label="Every..">
+                                <option value="*/5 * * * *">5 minutes</option>
+                                <option value="*/15 * * * *">15 minutes</option>
+                                <option value="0 * * * *">1 hour</option>
+                                <option value="0 */2 * * *">2 hours</option>
+                                <option value="0 */8 * * *">8 hours</option>
+                                <option value="0 0 * * *">Night</option>
+                            </optgroup>
+                        </select>
+
+                        <select class="theme"
+                        title="Applies a custom theme to the chart, if applicable.">
+                            <option value="">No theme</option>
+                            <optgroup label="Themes">
+                            {% for theme in system.highchartstheme_set.all %}
+                                <option value="{{ theme.id }}">{{ theme.name }}</option>
+                            {% endfor %}
+                            </optgroup>
+                        </select>
+
+                        <div class="dropdown btn-group">
+                        <button class="btn btn-default btn-xs" data-toggle="dropdown">Customize...</button>
+                        <div class="dropdown-menu" style="font-size: 0.8em; padding: 1em;">
+                            <p>
+                                <label for="id_query-title">Title</label>
+                                <input type="text" id="id_query-title" class="query-title" placeholder="{{ v.placeholder }}">
+                            </p>
+                            <form class="customize" onsubmit="return false;" >
+                                {% for k, v in customizations %}
+                                    <p>
+                                        <label for="id_{{k}}">{{ v.label }}</label>
+                                        <input type="{{ v.form_type }}" id="id_{{ k }}" name="{{ k }}" placeholder="{{ v.placeholder }}">
+                                    </p>
+                                {% endfor %}
+                            </form>
+                        </div>
                         </div>
 
-                        <div class="delete btn btn-xs btn-warning"><i class="glyphicon glyphicon-trash"></i></div>
+                        <div class="btn-group">
+                            <div class="add-left btn btn-xs btn-default" title="Add chart on left side"><i class="glyphicon glyphicon-arrow-left"></i></div>
+                            <div class="hint btn btn-xs btn-default disabled">Add</div>
+                            <div class="add-right btn btn-xs btn-default" title="Add chart on right side"><i class="glyphicon glyphicon-arrow-right"></i></div>
+                        </div>
+
+                        <div class="delete btn btn-xs btn-warning" title="delete"><i class="glyphicon glyphicon-trash"></i></div>
 
                         <!--
                         <div class="pull-right btn-group">

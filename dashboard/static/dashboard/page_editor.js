@@ -19,9 +19,9 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
 
         // Columns
         var bootstrapColums = [
-            'col-lg-1', 'col-lg-2', 'col-lg-3', 'col-lg-4',
-            'col-lg-5', 'col-lg-6', 'col-lg-7', 'col-lg-8',
-            'col-lg-9', 'col-lg-10', 'col-lg-11', 'col-lg-12'
+            'col-sm-1', 'col-sm-2', 'col-sm-3', 'col-sm-4',
+            'col-sm-5', 'col-sm-6', 'col-sm-7', 'col-sm-8',
+            'col-sm-9', 'col-sm-10', 'col-sm-11', 'col-sm-12'
         ];
 
         /**
@@ -39,13 +39,29 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
          * Inverse of colToNum. Given a number, yield a bootstrap column class.
          */
         var numToCol = function(num){
-            return "col-lg-" + num.toString();
+            return "col-sm-" + num.toString();
         };
 
         var serialiseCell = function(cell){
+            const customize = {};
+            for(let formfield of $(cell).find('form.customize')[0].elements){
+                if(formfield.name.length > 0 && formfield.value.length > 0){
+                    let value = formfield.value;
+                    if(formfield.type === "checkbox") {
+                        value = formfield.checked;
+                    }
+                    customize[formfield.name] = value;
+                }
+            }
+
+            console.debug("Customization parameters: ", customize);
             return {
+                title: $(cell).find(".query-title").val(),
                 width: colToNum($(cell).attr("class")),
-                query_id: $(cell).find(".saved-query").val()
+                query_id: $(cell).find(".saved-query").val(),
+                theme_id: $(cell).find("select.theme").val(),
+                refresh_interval: $(cell).find("select.refresh-interval").val(),
+                customize: customize
             };
         };
 
@@ -53,19 +69,49 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             return [$.map($(row).find(".col"), serialiseCell)];
         };
 
-        var _newCol = function(width, queryId){
+        var _newCol = function(width, queryId, title, themeId, refreshInterval, customize){
             var newCol = $colTemplate.clone().show();
-            var select = newCol.find(".saved-query");
+            var themeSelect = newCol.find(".theme");
+            var querySelect = newCol.find(".saved-query");
+            var titleInput = newCol.find(".query-title");
+            var refreshSelect = newCol.find(".refresh-interval");
 
             newCol.removeClass(bootstrapColums.join(" "));
             newCol.addClass(numToCol(width));
-            select.addClass("multiselect-orig").multiselect({
-                buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle"
+            $([themeSelect, querySelect, refreshSelect]).addClass("multiselect-orig").multiselect({
+                buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle",
+                buttonTitle: (options, select) => select[0].title
             });
 
             // Set default value for query
+            if (refreshInterval !== undefined){
+                refreshSelect.val(refreshInterval).multiselect("rebuild");
+            }
             if (queryId !== undefined){
-                select.val(queryId).multiselect("rebuild")
+                querySelect.val(queryId).multiselect("rebuild");
+            }
+            if (title !== undefined){
+                titleInput.val(title);
+            }
+            if(themeId !== undefined && themeId !== null){
+                themeSelect.val(themeId).multiselect("rebuild");
+            }
+
+            if(typeof customize !== "object"){
+                customize = {};
+            }
+            const form = newCol.find('form.customize');
+
+            for(let el of form[0].elements){
+                if(!customize.hasOwnProperty(el.name)){
+                    continue;
+                }
+                if(el.type === "checkbox"){
+                    el.checked = customize[el.name];
+                }
+                else{
+                    el.value = customize[el.name];
+                }
             }
 
             return newCol;
@@ -114,12 +160,20 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
                 data: JSON.stringify(page),
                 contentType: "application/json",
                 headers: {
-                    "X-CSRFTOKEN": $.cookie("csrftoken")
+                    "X-CSRFTOKEN": $.cookie(CSRF_COOKIE_NAME)
                 }
-            }).done(function(){
+            }).done(function () {
                 $save.removeClass("disabled").find("i").removeClass("fa-spin");
+                $save.addClass("btn-success").find("i").addClass("glyphicon-ok").removeClass('glyphicon-floppy-disk');
+
+                setTimeout(() => $save
+                    .removeClass("btn-success")
+                    .find("i")
+                    .removeClass("glyphicon-ok")
+                    .addClass('glyphicon-floppy-disk'), 1000);
+
                 new PNotify({text: "Saving OK", type: "success", delay: 200})
-            }).fail(function(){
+            }).fail(function () {
                 $save.removeClass("disabled").find("i").removeClass("fa-spin");
                 new PNotify({text: "Saving failed", type: "error"})
             })
@@ -177,7 +231,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             var rows = $.map(pageData.rows, function(row){
                 return $("<div class='query-row row'>").append(
                     $.map(row, function(col){
-                        var newCol = _newCol(col.width, col.query_id);
+                        var newCol = _newCol(col.width, col.query_id, col.title, col.theme_id, col.refresh_interval, col.customize);
                         initQueryButtons(newCol);
                         return newCol;
                     })

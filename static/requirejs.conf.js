@@ -5,9 +5,10 @@ requirejs.config({
         "jquery": "jquery/dist/jquery",
         "papaparse": "papaparse/papaparse",
         "highlight": "highlight/build/highlight.pack",
-        "highcharts.core": "highcharts/highcharts",
+        "highcharts.core": "highcharts/highcharts.src",
         "highcharts.data": "highcharts/modules/data",
         "highcharts.exporting": "highcharts/modules/exporting",
+        "highcharts.drilldown": "highcharts/modules/drilldown",
         "highcharts.heatmap": "highcharts/modules/heatmap",
         "bootstrap": "bootstrap/dist/js/bootstrap",
         "bootstrap-multiselect": "bootstrap-multiselect/dist/js/bootstrap-multiselect",
@@ -15,12 +16,18 @@ requirejs.config({
         "bootstrap-datepicker": "bootstrap-datepicker/dist/js/bootstrap-datepicker",
         "bootstrap-switch": "bootstrap-switch/dist/js/bootstrap-switch",
         "moment": "moment/moment",
+        "moment-locale": "moment/locale",
         "renderjson": "renderjson/renderjson",
         "datatables": "datatables/media/js/jquery.dataTables",
         "datatables.tabletools": "datatables/extensions/TableTools/js/dataTables.tableTools",
         "jshashset": "jshashtable/hashset",
         "jshashtable": "jshashtable/hashtable",
-        "query/utils/articlemodal": "amcat-query/query/utils/mock",
+
+        // load alternative articlemodal
+        "query/utils/articlemodal": "../dashboard/articlemodal.dashboard",
+        "query/utils/articlemodal.amcat": "amcat-query/query/utils/articlemodal",
+
+        "amcat-common": "amcat-common/js",
         "jquery.cookie": "jquery-cookie/jquery.cookie",
         "metis-menu": "metisMenu/dist/metisMenu",
         "sb-admin": "startbootstrap-sb-admin-2/dist/js/sb-admin-2",
@@ -77,7 +84,7 @@ requirejs.config({
         "datatables.tabletools":{
             deps: ["datatables"]
         },
-        "datatables.bootstrap":{
+        "amcat-common/dataTables.bootstrap":{
             deps: ["datatables", "bootstrap", "jquery", "datatables.tabletools"]
         },
         "datatables.plugins":{

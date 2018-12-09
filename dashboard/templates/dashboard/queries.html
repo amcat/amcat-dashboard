@@ -1,0 +1,116 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+
+{% block head %}
+{% endblock %}
+
+{% block dashboard-body %}
+
+<div class="alert alert-info" role="alert">
+    <p>
+    By default queries results only expire after an explicit cache invalidation. You can set auto-refresh intervals
+    for every query when editing a page. In order for this to work, add the following as a cronjob on the computer
+    running AmCAT Dashboard:
+    </p>
+
+    <p>
+        <code>* * * * * wget "http://localhost:{{ server_port }}/dashboard/cron-trigger/{{ cron_secret }}" -O /dev/null -q</code>
+    </p>
+
+    <p>
+        Related: <a style="text-decoration: underline;" href="https://askubuntu.com/questions/2368/how-do-i-set-up-a-cron-job">Ask Ubuntu: How do I set up a Cron job?</a>
+    </p>
+</div>
+<div class="panel panel-default">
+<div class="panel-body">
+<div class="row">
+<div class="col-lg-12">
+    <button id="btn-synchronize" class="btn btn-default"><span class="fa fa-fw fa-refresh"></span>Synchronize queries</button>
+</div>
+</div>
+
+<div class="row">
+<div class="col-lg-12">
+<table id="query-cache-table" class="table table-condensed" style="width:auto; min-width:30%">
+    <thead>
+    <tr>
+        <th>AmCAT ID</th>
+        <th>Internal ID</th>
+        <th>Name</th>
+        <th>Schedule</th>
+        <th>Last update (oldest version<sup>1</sup>)</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for cache in caches %}
+        <tr>
+            <th scope="row">{{ cache.query.amcat_query_id }}</th>
+            <td>{{ cache.query_id }} </td>
+            <td>{{ cache.query.amcat_name }}</td>
+            <td>{{ cache.query.refresh_interval }}</td>
+            <td>
+                {% if cache.has_cache %}
+                    <time datetime="{{ cache.cache_timestamp.isoformat }}">{{ cache.cache_timestamp }}</time>
+                {% else %}
+                    Cache cleared
+                {% endif %}
+            </td>
+            <td>
+                <form id="form-refresh-{{ cache.query_id }}" class="hidden"
+                      action="{% url 'dashboard:clear-cache' cache.query_id %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="refresh" value="refresh">
+                </form>
+                <a data-submit="form-refresh-{{ cache.query_id }}" href="#">Refresh cache</a>
+            </td>
+            <td>
+                <form id="form-clear-{{ cache.query_id }}" class="hidden"
+                      action="{% url 'dashboard:clear-cache' cache.query_id %}" method="post">
+                    {% csrf_token %}
+                </form>
+                <a data-submit="form-clear-{{ cache.query_id }}" href="#">Clear cache</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="4">No cached queries found</td>
+        </tr>
+    {% endfor %}
+    {% for query in uncached %}
+        <tr>
+            <th scope="row">{{ query.amcat_query_id }}</th>
+            <td>{{ query.id }} </td>
+            <td>{{ query.amcat_name }}</td>
+            <td></td>
+            <td>never (unused)</td>
+            <td></td>
+            <td></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
+<p>
+    <small>
+        <sup>1</sup> The AmCAT Dashboard keeps multiple versions to accomodate for per-page filters. The timestamp
+        shown is the oldest version currently used.
+    </small>
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<script defer>
+    document.getElementById('query-cache-table').addEventListener('click', e => {
+        const target = e.target.getAttribute('data-submit');
+        if(target !== null) document.getElementById(target).submit();
+    });
+    document.getElementById('btn-synchronize').addEventListener('click', e => {
+        fetch('{% url 'dashboard:synchronise-queries' %}', {credentials: "same-origin"}).then(
+            () => document.location.reload()
+        )
+    })
+</script>
+{% endblock %}

@@ -1,6 +1,12 @@
 {% extends "base.html" %}
-{% load url from future %}
 {% load static %}
+
+{% block css %}
+    <link href="{% static 'dashboard/base.css' %}" rel="stylesheet" type="text/css">
+    {% if global_theme %}
+        <link href="{% static 'theme/theme_' %}{{ global_theme }}.css" rel="stylesheet">
+    {% endif %}
+{% endblock %}
 
 {% block body %}
     {% if messages %}
@@ -29,10 +35,9 @@
     {% endif %}
 
 
-    <link href="{% static 'dashboard/base.css' %}" rel="stylesheet" type="text/css">
     <script>require(["jquery", "bootstrap"]);</script>
 
-    <div id="wrapper">
+    <div id="wrapper" class="{% block pageclasses %}{% endblock %}">
         {% include "dashboard/menu.html" %}
 
         <div id="page-wrapper">

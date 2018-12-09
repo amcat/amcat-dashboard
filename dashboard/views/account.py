@@ -4,7 +4,7 @@ from account import forms as account_forms, views
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.views.generic import FormView
+from django.views.generic import FormView, RedirectView
 
 from dashboard.models import User, System
 
@@ -47,20 +47,6 @@ class UserForm(forms.ModelForm):
         fields = ()
 
 
-class AmCATSettingsView(FormView):
-    form_class = UserForm
-    template_name = "dashboard/amcat_settings.html"
-
-    def get_success_url(self):
-        return reverse("dashboard:amcat-settings")
-
-    def get_context_data(self, **kwargs):
-        return dict(super(AmCATSettingsView, self).get_context_data(**kwargs), system=System.load())
-
-    def get_form_kwargs(self):
-        return dict(super(AmCATSettingsView, self).get_form_kwargs(), instance=self.request.user)
-
-    def form_valid(self, form):
-        super(AmCATSettingsView, self).form_valid(form)
-        form.save()
-        return redirect(reverse("dashboard:index"))
+class AmCATSettingsView(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('dashboard:system-settings', args=[self.request.user.system_id])

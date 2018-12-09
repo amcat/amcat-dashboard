@@ -1,0 +1,46 @@
+{% extends 'dashboard/base.html' %}
+
+{% block dashboard-body %}
+<div class="panel panel-default">
+<div class="panel-heading">
+<h3>{% trans "Themes" %}</h3>
+</div>
+<div class="list-group">
+    {% for theme in object_list %}
+        <div class="list-group-item">
+            <div class="demo-container {{ theme.namespace }}"
+                 data-title="{{ theme.name }}" data-theme="{{ theme.theme_args }}"></div>
+            <div class="btn-group">
+                <a class="btn btn-default" href="{% url "dashboard:system-theme-edit" theme.system_id theme.id %}">Edit</a>
+                <a class="btn btn-default" href="{% url "dashboard:system-theme-delete" theme.system_id theme.id%}">
+                    <span class="text-danger">Delete</span></a>
+            </div>
+        </div>
+    {% endfor %}
+    {% if user.is_superuser %}
+        <a href="{% url "dashboard:system-theme-add" system_id=view.system.id %}" class="list-group-item list-group-item-action"><span class="glyphicon glyphicon-plus"></span> Add theme...</a>
+    {% endif %}
+</div>
+</div>
+
+<script>
+require(['dashboard/highcharts_demo'], function(highchartsDemo){
+
+    for(let container of document.querySelectorAll('.demo-container')){
+        const name = container.getAttribute('data-title');
+        const args = JSON.parse(container.getAttribute('data-theme'));
+        const titleOpts = {title: {text: `Theme "${name}"`}};
+        const sizeOpts = {
+            chart: {
+                width: 500,
+                height: 300
+            }
+        };
+
+        const demoChart = highchartsDemo(container, titleOpts, sizeOpts);
+        demoChart.update(Highcharts.merge(demoChart.options, args));
+    }
+});
+</script>
+
+{% endblock %}

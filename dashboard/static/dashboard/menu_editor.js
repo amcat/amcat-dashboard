@@ -64,7 +64,7 @@ define(["jquery", "pnotify", "jquery.cookie", "bootstrap-switch"], function($, P
                 type: "post",
                 contentType: "application/json",
                 headers: {
-                    "X-CSRFTOKEN": $.cookie("csrftoken")
+                    "X-CSRFTOKEN": $.cookie(CSRF_COOKIE_NAME)
                 }
             }).done(function(){
                 new PNotify({text: "Menu saved.", type: "success", delay: 1500});

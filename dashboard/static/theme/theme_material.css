@@ -1,0 +1,80 @@
+
+@import url('./normalize_bootstrap.css');
+@import url('../components/open-sans-fontface/open-sans.css');
+:root {
+    --shadow-depth: 0.075;
+                       /* x    y blur grow color*/
+    --shadow-height-10: 1px  2px  4px  1px rgba(0, 0, 0, var(--shadow-depth));
+    --shadow-height-20: 2px  4px  8px  2px rgba(0, 0, 0, var(--shadow-depth));
+    --shadow-height-30: 3px  6px 12px  3px rgba(0, 0, 0, var(--shadow-depth));
+    --shadow-height-40: 4px  8px 16px  4px rgba(0, 0, 0, var(--shadow-depth));
+    --shadow-height-50: 5px 10px 20px  5px rgba(0, 0, 0, var(--shadow-depth));
+}
+
+body {
+    font-family: "Segoe UI", "Open Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+}
+
+#page-wrapper{
+    border-left: none;
+    border-bottom: none ;
+    background-color: hsl(0, 0%, 98%);
+}
+
+.panel, .alert {
+    box-shadow: var(--shadow-height-20);
+    border-radius: 3px;
+    margin-bottom: 30px;
+}
+
+.panel-default > .panel-heading {
+    border-top: 3px solid #2e6da4;
+}
+
+.panel-heading > h4 {
+    font-size: 1em;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+
+
+.btn-default {
+    border: none;
+    box-shadow: var(--shadow-height-10);
+    background-color: hsl(0, 0%, 98%);
+}
+
+#filter-form {
+    margin-top: -10px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-height-20);
+}
+
+.navbar-default.navbar-static-top {
+    box-shadow: var(--shadow-height-20);
+}
+
+.sidebar {
+    box-sizing: border-box;
+}
+
+.sidebar-placeholder {
+    display: none
+}
+
+@media (min-width: 768px) {
+    .sidebar-placeholder {
+        display: block;
+        background-color: white;
+        width: 250px;
+        box-sizing: border-box;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        box-shadow: var(--shadow-height-20);
+    }
+    .edit-menu .sidebar-placeholder {
+        width: 500px;
+    }
+}

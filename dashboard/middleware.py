@@ -5,17 +5,13 @@ from django.conf import settings
 from django.shortcuts import redirect
 from dashboard.models import System, Page
 
-try:
-    # Python 3.X
-    from urllib.parse import urlencode
-except ImportError:
-    # Python 2.7
-    from urllib import urlencode
+from urllib.parse import urlencode
 
 EXEMPT_URLS = [re.compile(expr) for expr in getattr(settings, "LOGIN_EXEMPT_URLS", ())]
 
-def in_exempt_urls(path_info):
-    return any(m.match(path_info.lstrip('/')) for m in EXEMPT_URLS)
+
+def in_exempt_urls(path_info, exempt_urls=tuple(EXEMPT_URLS)):
+    return any(m.match(path_info.lstrip('/')) for m in exempt_urls)
 
 
 class LoginRequiredMiddleware:
@@ -31,32 +27,60 @@ class LoginRequiredMiddleware:
     loaded. You'll get an error if they aren't.
     """
     def process_request(self, request):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             if not in_exempt_urls(request.path_info):
                 redirect_url = "{}?{}".format(reverse("account_login"), urlencode({"next": request.path_info}))
                 return HttpResponseRedirect(redirect_url)
 
 
 class APITokenNeededMiddleware:
+    exempt_urls = (
+        re.compile(reverse("dashboard:token-setup").lstrip('/')),
+        re.compile(reverse("dashboard:system-list").lstrip('/')),
+        *EXEMPT_URLS
+    )
+
     def process_request(self, request):
-        if in_exempt_urls(request.path_info):
+        if in_exempt_urls(request.path_info, self.exempt_urls):
             # Do nothing when on login / register page
             return None
 
-        if request.path_info == reverse("dashboard:token-setup"):
+        if not request.user.is_authenticated:
             return None
 
-        if request.user.is_authenticated():
+        has_token = System.objects.exclude(amcat_token=None).exists()
+
+        if not has_token:
+            # no systems exist, a superuser must set one up
+            return redirect(reverse("dashboard:token-setup"))
+
+        if request.user.system is None:
             try:
-                system = System.load()
-            except System.DoesNotExist:
-                token = None
+                request.user.system = System.objects.get()
+            except System.MultipleObjectsReturned:
+                # multiple systems exist, let the user choose
+                return redirect(reverse("dashboard:system-list"))
             else:
-                token = system.amcat_token
+                request.user.save()
 
-            if not request.user.is_superuser:
-                return None
+        return None
 
-            if not token:
-                return redirect(reverse("dashboard:token-setup"))
 
+
+
+class MethodOverrideMiddleware(object):
+    allowed_http_methods = ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'OPTIONS', 'PATCH']
+    http_header = "HTTP_X_HTTP_METHOD_OVERRIDE"
+
+    # https://pypi.python.org/pypi/django-method-override/0.1.0
+    def process_view(self, request, callback, callback_args, callback_kwargs):
+        if request.method != 'POST':
+            return
+        method = self._get_method_override(request)
+        if method in self.allowed_http_methods:
+            setattr(request, method, request.POST.copy())
+            request.method = method
+
+    def _get_method_override(self, request):
+        method = request.META.get(self.http_header)
+        return method and method.upper()

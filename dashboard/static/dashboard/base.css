@@ -1,3 +1,55 @@
 #page-wrapper{
     border-bottom: 1px solid #e7e7e7;
+    padding: 30px 30px;
+}
+
+.article-title {
+    margin: 0.4em 0 0.2em 0;
+}
+
+.article-meta {
+    margin: 0.2em 0 0.3em 0;
+    font-size: 0.9em;
+    color: #7f7f7f;
+}
+
+.article-snippet em, .article-title em {
+    font-style: normal;
+    background-color: lightgoldenrodyellow;
+}
+
+.query-heading {
+    display: flex;
+    align-items: baseline;
+}
+
+.query-heading > h4 {
+    flex: auto;
+}
+.dataTables_scrollBody thead{
+    visibility: collapse;
+}
+
+
+.filter-input-textbox {
+    margin: -4px 0;
+    height: calc(100% + 8px);
+    border: none;
+    border-radius: 3px;
+    padding: 5px;
+    width: 100%;
+    flex: 1 1 auto;
+}
+
+.form-group-lg .form-control-wrapper, .form-group .form-control-wrapper{
+    display: flex;
+    align-items: first baseline;
+}
+
+:placeholder-shown + #filter-clear {
+    visibility: hidden;
+}
+
+.sidebar-placeholder {
+    display: none;
 }

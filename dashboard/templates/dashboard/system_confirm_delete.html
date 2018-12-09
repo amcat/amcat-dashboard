@@ -1,0 +1,16 @@
+{% extends "dashboard/base.html" %}
+{% load i18n %}
+{% block dashboard-body %}
+    <h2>Delete system<br><small>{{ system }}</small></h2>
+    <p>
+    {% blocktrans %}
+        This will permanently remove the system and all of its pages and settings. This action cannot be undone.
+        Are you sure you want to continue?
+    {% endblocktrans %}
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <a class="btn btn-default" href="{{ view.get_success_url }}">{% trans "Cancel" %}</a>
+        <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
+    </form>
+{% endblock %}

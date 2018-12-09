@@ -1,0 +1,27 @@
+
+{% load bootstrap %}
+
+<form id="signup_form" method="post" action="{% url "dashboard:token-setup" %}" autocapitalize="off"
+        {% if form.is_multipart %} enctype="multipart/form-data"{% endif %}>
+    {% csrf_token %}
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {% blocktrans %}
+            Dashboard needs to gain access to an AmCAT instance, to fetch saved
+            queries. Please fill in the form below to provide the dashboard with the necessary authorization.
+            {% endblocktrans %}
+        </div>
+    </div>
+
+    {{ form|bootstrap }}
+
+    <input type="submit" class="btn btn-primary" value="Save">
+</form>
+
+<script type="text/javascript">
+    let tokenInput = $('#id_amcat_token');
+    tokenInput.on('input', e => {
+    });
+    tokenInput.trigger('input');
+
+</script>
