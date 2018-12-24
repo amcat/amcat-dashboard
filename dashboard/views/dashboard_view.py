@@ -109,6 +109,23 @@ def clear_cache(request, query_id):
 
 
 @gzip_page
+def download_query(request, query_id, page_id):
+    try:
+        defaults = dict(query_id=query_id, page_id=page_id)
+        cache, created = QueryCache.objects.get_or_create(defaults=defaults, **defaults)
+    except QueryCache.DoesNotExist:
+        raise Http404("No such object")
+
+    uuid = cache.start_task(extra_options={"output_type": "text/csv"})
+
+    content, content_type = cache.poll(uuid)
+
+    return HttpResponse(content_type=content_type, content=content)
+
+
+
+
+@gzip_page
 def get_saved_query(request, query_id, page_id):
     query = Query.objects.get(id=query_id)
     return HttpResponse(content_type="application/json", content=json.dumps({
@@ -120,6 +137,8 @@ def get_saved_query(request, query_id, page_id):
         "amcat_options": query.get_options(),
         "amcat_url": query.amcat_url,
         "clear_cache_url": reverse('dashboard:clear-cache', args=[query_id]),
+        "download_url": reverse('dashboard:download-query', args=[page_id, query_id]),
+        "is_downloadable": query.get_script().endswith("aggregation"),
         "script": query.get_script(),
         "output_type": query.get_output_type(),
         "articleset_ids": query.get_articleset_ids(),

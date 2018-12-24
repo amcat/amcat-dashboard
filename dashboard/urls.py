@@ -35,6 +35,7 @@ urlpatterns = [
     url("^page/(?P<page_id>[0-9]+)$", dashboard_view.DashboardPageView.as_view(), name="view-page"),
     url("^page/(?P<page_id>[0-9]+)/get_saved_query_result/(?P<query_id>[0-9]+)$", dashboard_view.get_saved_query_result, name="get-saved-query-result"),
     url("^page/(?P<page_id>[0-9]+)/get_saved_query/(?P<query_id>[0-9]+)$", dashboard_view.get_saved_query, name="get-saved-query"),
+    url("^page/(?P<page_id>[0-9]+)/download_query/(?P<query_id>[0-9]+)$", dashboard_view.download_query, name="download-query"),
     url("^page/(?P<page_slug>\w+)$", dashboard_view.DashboardPageView.as_view(), name="view-page"),
     
     url("^menu/$", dashboard_edit.menu, name="edit-menu"),

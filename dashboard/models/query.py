@@ -95,11 +95,15 @@ class Query(models.Model):
         return newquery.getvalue()
 
 
-    def get_parameters(self, query_override=None):
+    def get_parameters(self, query_override=None, extra_options=None):
         parameters = json.loads(self.amcat_parameters)
         if query_override:
             parameters['query'] = self._apply_query_override(parameters['query'], query_override)
             print(parameters['query'])
+
+        if extra_options:
+            parameters.update(extra_options)
+
         try:
             filters = json.loads(parameters['filters'])
         except (KeyError, json.JSONDecodeError):
@@ -221,8 +225,8 @@ class QueryCache(models.Model):
 
         return filters
 
-    def get_parameters(self, query_override=None):
-        query_params = self.query.get_parameters(query_override=query_override)
+    def get_parameters(self, query_override=None, extra_options=None):
+        query_params = self.query.get_parameters(query_override=query_override, extra_options=extra_options)
         query_params['filters'] = json.dumps(self.get_filters(),
                                              ensure_ascii=True,
                                              sort_keys=True)
@@ -259,14 +263,14 @@ class QueryCache(models.Model):
 
         return cache, mimetype
 
-    def start_task(self, query_override=None):
+    def start_task(self, query_override=None, extra_options=None):
         # We need to fetch it from an amcat instance
         s = get_session(self.system)
 
         # Start job
         s.headers["Content-Type"] = "application/x-www-form-urlencoded"
         url = self.Urls.task.format(**self.query.get_url_kwargs())
-        query_params = self.get_parameters(query_override=query_override)
+        query_params = self.get_parameters(query_override=query_override, extra_options=extra_options)
 
         data = urlencode(query_params, True)
 

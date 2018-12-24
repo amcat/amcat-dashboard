@@ -10,7 +10,8 @@ define([
     const STRINGS = {
         actions: _("Actions"),
         viewOnAmcat: _("View on AmCAT"),
-        refresh: _("Refresh")
+        refresh: _("Refresh"),
+        download: _("Download as CSV")
     };
 
     const template = query => `
@@ -28,6 +29,11 @@ define([
                 </form>
                 <a data-submit="#clear-cache-${query.id}">
                     <i class="fa fa-refresh fa-fw"></i> ${STRINGS.refresh}
+                </a>
+            </li>
+            <li class="if-downloadable">
+                <a href="${query.download_url}">
+                    <i class="fa fa-refresh fa-fw"></i> ${STRINGS.download}
                 </a>
             </li>
             <li>
@@ -75,7 +81,9 @@ define([
             const result = await this.fetchQueryResult(query);
             this._preRender(query);
             const [output_type, meaning] = query.output_type.split(';');
-            renderers[output_type](query.amcat_parameters, this.container.find('.query-canvas'), result);
+            const parameters = {...query.amcat_parameters};
+            const extraOptions = {valueRendererOptions: {neverShowId: true}}; // TODO: configurable options
+            renderers[output_type](parameters, this.container.find('.query-canvas'), result, extraOptions);
             this._postRender(query);
         }
 
@@ -135,6 +143,7 @@ define([
             this.bindEvents(this.container);
             await this.onQueryFetched(query);
             this.container.find(".query-name").text(this.title);
+            this.container.find(".if-downloadable").toggle(query.is_downloadable);
         }
 
         bindEvents(container) {
