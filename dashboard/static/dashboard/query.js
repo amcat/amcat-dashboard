@@ -109,7 +109,8 @@ define([
                 el = $(el);
                 const chart = el.highcharts();
                 if (chart instanceof Highcharts.Chart) {
-                    const newOptions = Highcharts.merge({}, chart.options, this.themeArgs, this.customizeArgs);
+                    const newOptions = Highcharts.merge({}, chart.options, this.themeArgs, this.customizeArgs,
+                        this.chartExportingOptions);
                     console.debug("Customize: ", this.customizeArgs);
                     console.debug("Override options: ", newOptions);
                     chart.update(newOptions);
@@ -171,6 +172,12 @@ define([
                 return data;
             }
             return await response.text();
+        }
+
+        get chartExportingOptions(){
+            return {
+                exporting: {chartOptions: {title: {text: this.title}}}
+            }
         }
     }
 
