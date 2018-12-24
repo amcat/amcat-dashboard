@@ -33,7 +33,7 @@ define([
             </li>
             <li class="if-downloadable">
                 <a href="${query.download_url}">
-                    <i class="fa fa-refresh fa-fw"></i> ${STRINGS.download}
+                    <i class="fa fa-download fa-fw"></i> ${STRINGS.download}
                 </a>
             </li>
             <li>
