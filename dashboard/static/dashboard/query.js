@@ -111,6 +111,7 @@ define([
                 if (chart instanceof Highcharts.Chart) {
                     const newOptions = Highcharts.merge({}, chart.options, this.themeArgs, this.customizeArgs,
                         this.chartExportingOptions);
+                    console.debug("Theme: ", this.themeArgs);
                     console.debug("Customize: ", this.customizeArgs);
                     console.debug("Override options: ", newOptions);
                     chart.update(newOptions);

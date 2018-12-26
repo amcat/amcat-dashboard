@@ -54,6 +54,11 @@ define(["jquery", "pnotify", "jquery.cookie", "bootstrap-switch"], function($, P
             this.remove();
         };
 
+        var createCopy = function(){
+            save();
+
+        };
+
         var save = function(){
             var $pages = $.map($("#side-menu").find(".menu-template"), $);
             var pageData = $.map($pages, serializePage);
@@ -77,6 +82,7 @@ define(["jquery", "pnotify", "jquery.cookie", "bootstrap-switch"], function($, P
             item.find(".move-down").click(moveDown.bind(item));
             item.find(".move-up").click(moveUp.bind(item));
             item.find(".delete").click(delete_.bind(item));
+            item.find(".create-copy").click(createCopy.bind(item));
             item.find(".page-visible").bootstrapSwitch();
         };
 

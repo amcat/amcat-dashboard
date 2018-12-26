@@ -63,7 +63,7 @@ class DashboardPageView(BaseDashboardView):
 
         query = self.request.GET.get(self.query_param)
 
-        rows = page.get_cells(select_related=("row", "query"))
+        rows = page.get_cells(select_related=("query",))
         themes = HighchartsTheme.objects.filter(cells__row__in=rows).distinct()
         return dict(super(DashboardPageView, self).get_context_data(**kwargs),
                     page=page, rows=rows, themes=themes, system_info=system_info, query=query)

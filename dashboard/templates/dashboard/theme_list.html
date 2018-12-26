@@ -24,7 +24,7 @@
 </div>
 
 <script>
-require(['dashboard/highcharts_demo'], function(highchartsDemo){
+require(['highcharts.core', 'dashboard/highcharts_demo'], function(Highcharts, highchartsDemo){
 
     for(let container of document.querySelectorAll('.demo-container')){
         const name = container.getAttribute('data-title');

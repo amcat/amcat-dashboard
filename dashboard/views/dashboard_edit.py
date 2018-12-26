@@ -141,7 +141,7 @@ def page(request, page_id):
     system = request.user.system
     page = Page.objects.get(id=page_id)
     # TODO: we only need refresh_interval info from query
-    rows = page.get_cells(select_related=("row", "query"))
+    rows = page.get_cells(select_related=("query",))
 
     page_json = page.serialise()
     page_json.update({

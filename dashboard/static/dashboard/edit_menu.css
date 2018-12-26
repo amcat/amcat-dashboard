@@ -11,3 +11,6 @@
      margin: 0 0 0 500px;
 }
 
+.edit-menu .dropdown-inline{
+    display: inline-block;
+}

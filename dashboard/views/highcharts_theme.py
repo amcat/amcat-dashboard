@@ -8,7 +8,7 @@ from dashboard.views.settings import SystemMixin
 
 class SystemThemeMixin:
     queryset = HighchartsTheme.objects.all()
-    fields = ('system', 'name', 'colors')
+    fields = ('system', 'name', 'colors', 'y_axis_line_width', 'y_axis_has_line_color', 'y_label_has_line_color')
 
     def get_initial(self):
         return dict(super().get_initial(), system=self.system.id)

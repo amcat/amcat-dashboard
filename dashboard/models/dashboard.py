@@ -1,16 +1,18 @@
 from __future__ import absolute_import
 
+import copy
+import itertools
 import json
 import re
 from collections import OrderedDict, namedtuple, defaultdict
 
 from django.contrib.postgres.fields import JSONField
-from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db import transaction
 
 from dashboard.models.query import Query
+from dashboard.util.validators import HighchartsCustomizationValidator
 
 
 class Filter(models.Model):
@@ -29,14 +31,6 @@ def get_active_queries():
     query_ids = Cell.objects.values_list("query__id", flat=True)
     return Query.objects.get(id__in=set(query_ids))
 
-
-def page_filters_validator(val):
-    if not isinstance(val, dict):
-        raise ValidationError
-    if not all(isinstance(v, list) for v in val.values()):
-        raise ValidationError
-    if not all(isinstance(v, str) for vs in val.values() for v in vs):
-        raise ValidationError
 
 class Page(models.Model):
     system = models.ForeignKey('dashboard.System', on_delete=models.CASCADE)
@@ -73,6 +67,42 @@ class Page(models.Model):
         Cell.objects.filter(id__in={c.id for c in cells}).delete()
         super(Page, self).delete(using=using)
 
+    @transaction.atomic
+    def create_copy(self):
+        page = copy.deepcopy(self)
+        page.pk = None
+        page.name = self.get_unique_copy_name()
+        page.ordernr = page.system.page_set.order_by('-ordernr').first().ordernr + 1
+        page.save()
+
+        cells = []
+        rows = []
+        for row, row_cells in self.get_cells().items():
+            row.pk = None
+            for cell in row_cells:
+                cell.pk = None
+                cell.page = page
+
+            cells.extend(row_cells)
+            rows.append(row)
+
+        Cell.objects.bulk_create(cells)
+        Row.objects.bulk_create(rows)
+        return page, cells, rows
+
+    def get_unique_copy_name(self):
+        names = itertools.chain(
+            ['{} (copy)'.format(self.name)],
+            ('{} (copy {})'.format(self.name, i) for i in itertools.count(start=2))
+        )
+        existing = set(Page.objects.filter(system=self.system).values_list('name', flat=True))
+        for name in names:
+            if name not in existing:
+                return name
+
+    def __repr__(self):
+        return "<{cls.__name__}: {self.name}>".format(cls=self.__class__, self=self)
+
     class Meta:
         app_label = "dashboard"
         ordering = ["ordernr"]
@@ -102,24 +132,6 @@ HIGHCHARTS_CUSTOM_PROPERTIES = (
     ("credits.href", HighchartsProperty(str, "text", "Credits url", None, "e.g. http://www.highcharts.com")),
 )
 
-def highcharts_customization_dict_validator(value):
-    errors = []
-    custom_props = dict(HIGHCHARTS_CUSTOM_PROPERTIES)
-    if not isinstance(value, dict):
-        raise ValidationError("Root element must be a dict, got {}".format(type(value)))
-
-    for k, v in value.items():
-        try:
-            prop = custom_props[k]
-        except KeyError:
-            errors.append(ValidationError("Unknown property {}".format(k)))
-            continue
-        if not isinstance(v, prop.type):
-            raise ValidationError("Invalid type for {}, expected {!s}, got {!s}".format(k, prop.type, type(v)))
-
-    if errors:
-        raise ValidationError(errors)
-        
 
 class Cell(models.Model):
     """A cell represents a 'tile' holding a query on the dashboard."""
@@ -128,11 +140,11 @@ class Cell(models.Model):
 
     title = models.CharField(max_length=250, null=True)
     theme = models.ForeignKey('dashboard.HighchartsTheme', related_name="cells", on_delete=models.SET_NULL, null=True)
-    customize = JSONField(validators=(highcharts_customization_dict_validator,), default={})
+    customize = JSONField(validators=(HighchartsCustomizationValidator(HIGHCHARTS_CUSTOM_PROPERTIES),), default={})
 
     # You may expect to find Page.rows().cells(), but storing it this way is more
     # efficient as we can fetch a single page with one query.
-    row = models.ForeignKey(Row, related_name="cells")
+    row = models.ForeignKey(Row, related_name="cells")  # (isn't this just a glorified integer field?)
 
     width = models.PositiveSmallIntegerField()
     ordernr = models.PositiveSmallIntegerField(db_index=True)

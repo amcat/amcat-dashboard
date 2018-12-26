@@ -6,6 +6,8 @@ import dashboard.models.dashboard
 import django.contrib.postgres.fields.jsonb
 from django.db import migrations
 
+import dashboard.util.validators
+
 
 class Migration(migrations.Migration):
 
@@ -17,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cell',
             name='customize',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default={}, validators=[dashboard.models.dashboard.highcharts_customization_dict_validator]),
+            field=django.contrib.postgres.fields.jsonb.JSONField(default={}, validators=[]),
         ),
     ]

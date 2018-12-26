@@ -9,7 +9,11 @@ require([
 
     const previewContainer = document.getElementById("theme-demo-container");
     const previewStyle = document.getElementById("theme-demo-style");
+    const themeForm = document.getElementById("theme-form");
     const colorInput = document.getElementById("id_colors");
+    const yAxisLineWidthInput = document.getElementById("id_y_axis_line_width");
+    const yAxisHasLineColorInput = document.getElementById("id_y_axis_has_line_color");
+    const yLabelHasLineColorInput = document.getElementById("id_y_label_has_line_color");
     const colorPickerContainer = $("#color-picker");
 
     let demoChart = null;
@@ -39,7 +43,7 @@ require([
     const colorPicker = {
         inputs: [],
         defaults: {
-            colors: "#7cb5ec #434348 #90ed7d #f7a35c #8085e9 #f15c80 #e4d354 #2b908f #f45b5b #91e8e1",
+            colors: "#7cb5ec #434348 #90ed7d #f7a35c #8085e9 #f15c80 #e4d354 #2b908f #f45b5b #91e8e1"
         },
 
         init(container) {
@@ -92,17 +96,33 @@ require([
                     options[k] = [input.val()];
                 }
             }
+            if (options.colors) {
+                console.log( yAxisHasLineColorInput.checked );
+                options.yAxis = [
+                    {
+                        lineWidth: yAxisLineWidthInput.value,
+                        lineColor: yAxisHasLineColorInput.checked ? options.colors[0] : "#666666",
+                        title: {style: {color: yLabelHasLineColorInput.checked ? options.colors[0] : "#666666"}}
+                    },
+                    {
+                        lineWidth: yAxisLineWidthInput.value,
+                        lineColor: yAxisHasLineColorInput.checked ? options.colors[1] : "#666666",
+                        title: {style: {color: yLabelHasLineColorInput.checked ? options.colors[1] : "#666666"}}
+                    }];
+            }
             return options;
-        }
+        },
+
     };
 
 
     function initThemeEditor() {
         $(colorInput.parentElement.parentElement).hide();
 
-        colorInput.addEventListener("input", () => {
+        themeForm.addEventListener("input", () => {
             throttledUpdate();
         });
+
 
         demoChart = highchartsDemo(previewContainer);
 
