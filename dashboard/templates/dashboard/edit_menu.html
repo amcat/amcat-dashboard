@@ -37,7 +37,7 @@
         <div class="dropdown dropdown-inline">
             <button class="btn btn-sm btn-default" data-toggle="dropdown"><i class="glyphicon glyphicon-menu-down"></i></button>
             <ul class="dropdown-menu">
-                <li><a class="create-copy">Create copy</a></li>
+                <li><a class="create-copy" data-submit="copy-page-form">Create copy</a></li>
             </ul>
         </div>
     </li>
@@ -48,8 +48,14 @@
                 menu: $("#side-menu"),
                 menuTemplate: $(".menu-template"),
                 pageData: $("#global-options").data("pages"),
-                saveUrl: "{% url 'dashboard:save-menu' %}"
+                saveUrl: "{% url 'dashboard:save-menu' %}",
             });
         });
     </script>
+    <div class="hidden hidden-forms">
+    <form action="{% url 'dashboard:copy-page' %}" method="post" id="copy-page-form">
+        {% csrf_token %}
+        <input name="page" type="hidden">
+    </form>
+    </div>
 {% endblock %}

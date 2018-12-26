@@ -2,11 +2,14 @@ import json
 from itertools import chain, count
 from operator import itemgetter
 
+from django import forms
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods, require_POST
+from django.views.generic import FormView
 
 from dashboard.models import Page, Query, Row, Cell, HighchartsTheme, QueryCache
 from dashboard.models.dashboard import HIGHCHARTS_CUSTOM_PROPERTIES
@@ -163,6 +166,16 @@ def page(request, page_id):
     pages = Page.objects.filter(system=system)
     customizations = HIGHCHARTS_CUSTOM_PROPERTIES
     return render(request, "dashboard/edit_page.html", locals())
+
+
+class CopyPageFormView(FormView):
+    class form_class(forms.Form):
+        page = forms.ModelChoiceField(queryset=Page.objects.all())
+
+    def form_valid(self, form):
+        page = form.cleaned_data['page']
+        page.create_copy()
+        return redirect(reverse("dashboard:edit-menu"))
 
 
 @user_passes_test(lambda u: u.is_superuser)
