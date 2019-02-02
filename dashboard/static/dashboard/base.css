@@ -53,3 +53,7 @@
 .sidebar-placeholder {
     display: none;
 }
+
+.download-progress {
+    width: 100%;
+}

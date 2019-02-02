@@ -51,9 +51,18 @@ class ApiSession(requests.Session):
         elif status == STATUS.FAILED:
             raise ValueError("Task {!r} failed.".format(uuid))
         elif status == STATUS.SUCCESS:
-            return self.get(TASKRESULT_URL.format(uuid=uuid, host=self.system.hostname))
+            return self.get_task_result(uuid)
         else:
             raise ValueError("Unknown status value {!r} returned.".format(status))
+
+    def poll_once(self, uuid):
+        response = self.get(TASK_URL.format(uuid=uuid, host=self.system.hostname))
+        task = json.loads(response.content.decode("utf-8"))
+        status = task["results"][0]["status"]
+        return status, task
+
+    def get_task_result(self, uuid):
+        return self.get(TASKRESULT_URL.format(uuid=uuid, host=self.system.hostname))
 
     def start_task(self, query):
         # Start job

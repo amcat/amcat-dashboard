@@ -32,7 +32,7 @@ define([
                 </a>
             </li>
             <li class="if-downloadable">
-                <a href="${query.download_url}">
+                <a data-init-download-url="${query.init_download_url}" data-target="#download-dialog">
                     <i class="fa fa-download fa-fw"></i> ${STRINGS.download}
                 </a>
             </li>
@@ -142,18 +142,50 @@ define([
         async render() {
             const query = await getJSON(this.url);
             this.container.html(template(query));
-            this.bindEvents(this.container);
+            this.bindEvents(this.container, query);
             await this.onQueryFetched(query);
             this.container.find(".query-name").text(this.title);
             this.container.find(".if-downloadable").toggle(query.is_downloadable);
         }
 
-        bindEvents(container) {
+        bindEvents(container, query) {
             container.find('[data-submit]').each((i, el) => {
                 el = $(el);
                 const tgt = container.find(el.data('submit'));
                 el.click(() => tgt.submit());
-            })
+            });
+            container.find('[data-init-download-url]').click(e => {
+                const self = $(e.target);
+                fetch(self.data("init-download-url")).then(async response => {
+                    const json = await response.json();
+                    const tgt = $(self.data('target'));
+
+                    tgt.attr("data-poll-url", json.poll_uri);
+                    tgt.find('.download-progress').show();
+                    tgt.find('.download-status').html("");
+                    tgt.modal();
+
+                    while(true){
+                        const response = await fetch(json.poll_uri).then(r => r.json());
+                        const result = response['results'][0];
+                        if(result.status === "SUCCESS"){
+                            tgt.find('.download-progress').hide();
+                            tgt.find('.download-status')
+                                .html(`<a class="btn btn-success" href="${response.result_url}">Download</a>`);
+                            break;
+                        }
+                        else if(result.status === "INPROGRESS"){
+                            tgt.find('.download-progress')[0].value = result.progress.completed;
+                        }
+                        else if(result.status === "FAILURE"){
+                            tgt.find('.download-status').html(`Download failed. ${result.error.exc_message}`);
+                            break;
+                        }
+
+                        await sleep(500);
+                    }
+                });
+            });
         }
 
         async fetchQueryResult(query) {

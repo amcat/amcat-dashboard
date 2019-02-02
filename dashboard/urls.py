@@ -36,6 +36,9 @@ urlpatterns = [
     url("^page/(?P<page_id>[0-9]+)/get_saved_query_result/(?P<query_id>[0-9]+)$", dashboard_view.get_saved_query_result, name="get-saved-query-result"),
     url("^page/(?P<page_id>[0-9]+)/get_saved_query/(?P<query_id>[0-9]+)$", dashboard_view.get_saved_query, name="get-saved-query"),
     url("^page/(?P<page_id>[0-9]+)/download_query/(?P<query_id>[0-9]+)$", dashboard_view.download_query, name="download-query"),
+    url("^page/(?P<page_id>[0-9]+)/download_query_results/(?P<query_id>[0-9]+)/(?P<uuid>[A-Za-z0-9-]+)$", dashboard_view.download_query_results, name="download-query-results"),
+    url("^page/(?P<page_id>[0-9]+)/init_download_query/(?P<query_id>[0-9]+)$", dashboard_view.init_download_query, name="init-download-query"),
+    url("^page/(?P<page_id>[0-9]+)/poll_query/(?P<query_id>[0-9]+)/(?P<query_uuid>[A-Za-z0-9-]+)$", dashboard_view.poll_query_by_uuid, name="poll-query-by-uuid"),
     url("^page/(?P<page_slug>\w+)$", dashboard_view.DashboardPageView.as_view(), name="view-page"),
     url("^page/create_copy/$", dashboard_edit.CopyPageFormView.as_view(), name="copy-page"),
     

@@ -199,7 +199,7 @@ class QueryCache(models.Model):
     cache_tag = models.TextField(null=True, max_length=36)
     cache_timestamp = models.DateTimeField(default=EPOCH)
     cache_mimetype = models.TextField(null=True)
-    cache_uuid = models.TextField(null=True)
+    cache_uuid = models.TextField(null=True, db_index=True)
 
     refresh_interval = models.TextField(null=True)
 
@@ -241,6 +241,22 @@ class QueryCache(models.Model):
 
     def is_valid(self, query_override=None):
         return self.cache_uuid and self.cache and self.cache_tag == self.get_query_tag(query_override=query_override)
+
+    def poll_once(self, uuid=None):
+        if uuid is None:
+            uuid = self.cache_uuid
+
+        session = get_session(self.query.system)
+        status, result = session.poll_once(uuid)
+        return status, result
+
+    def get_query_result(self, uuid=None):
+        if uuid is None:
+            uuid = self.cache_uuid
+
+        session = get_session(self.query.system)
+        status, result = session.get_task_result(uuid)
+        return status, result
 
     def poll(self, uuid=None, save_result=False):
         """ Poll for """

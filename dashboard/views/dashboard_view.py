@@ -30,7 +30,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, FormView, UpdateView
 
 from dashboard.models import Query, Page, HighchartsTheme
-from dashboard.util.api import start_task, get_session
+from dashboard.util.api import start_task, get_session, TASKRESULT_URL
 
 from dashboard.models.user import EPOCH
 
@@ -117,11 +117,46 @@ def download_query(request, query_id, page_id):
         raise Http404("No such object")
 
     uuid = cache.start_task(extra_options={"output_type": "text/csv"})
+    cache.uuid = uuid
+    cache.save()
 
     content, content_type = cache.poll(uuid)
 
     return HttpResponse(content_type=content_type, content=content)
 
+@gzip_page
+def download_query_results(request, *, page_id, query_id, uuid):
+    try:
+        query = Query.objects.get(pk=query_id)
+    except Query.DoesNotExist:
+        raise Http404("No such object")
+
+    response = get_session(query.system).get_task_result(uuid)
+    content = response.content.decode('utf-8')
+    content_type = response.headers.get("Content-Type")
+    return HttpResponse(content=content, content_type=content_type)
+
+@gzip_page
+def poll_query_by_uuid(request, *, query_id, page_id, query_uuid):
+    try:
+        cache = QueryCache.objects.get(query_id=query_id, page_id=page_id)
+    except QueryCache.DoesNotExist:
+        raise Http404("No such object")
+
+    status, result = cache.poll_once(query_uuid)
+    result["result_url"] = reverse("dashboard:download-query-results", args=(page_id, query_id, query_uuid))
+    return JsonResponse(result)
+
+@gzip_page
+def init_download_query(request, query_id, page_id):
+    try:
+        defaults = dict(query_id=query_id, page_id=page_id)
+        cache, created = QueryCache.objects.get_or_create(defaults=defaults, **defaults)
+    except QueryCache.DoesNotExist:
+        raise Http404("No such object")
+
+    uuid = cache.start_task(extra_options={"output_type": "text/csv"})
+    return JsonResponse({"poll_uri": reverse('dashboard:poll-query-by-uuid', args=(page_id, query_id, uuid))})
 
 
 
@@ -137,6 +172,7 @@ def get_saved_query(request, query_id, page_id):
         "amcat_options": query.get_options(),
         "amcat_url": query.amcat_url,
         "clear_cache_url": reverse('dashboard:clear-cache', args=[query_id]),
+        "init_download_url": reverse('dashboard:init-download-query', args=[page_id, query_id]),
         "download_url": reverse('dashboard:download-query', args=[page_id, query_id]),
         "is_downloadable": query.get_script().endswith("aggregation"),
         "script": query.get_script(),
