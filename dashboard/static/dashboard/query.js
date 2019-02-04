@@ -162,7 +162,7 @@ define([
 
                     tgt.attr("data-poll-url", json.poll_uri);
                     tgt.find('.download-progress').show();
-                    tgt.find('.download-status').html("");
+                    tgt.find('.download-status').text("Getting ready...");
                     tgt.modal();
 
                     while(true){
