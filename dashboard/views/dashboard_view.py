@@ -1,17 +1,12 @@
 import datetime
 import json
-import logging
-from functools import wraps
-from uuid import uuid4
 
-from django import forms
 from django.core.cache import caches
 from django.db import transaction
 from django.db.models.expressions import RawSQL
 from django.template.response import TemplateResponse
-from django.views.decorators.cache import cache_page
 from django.views.decorators.gzip import gzip_page
-from django.views.decorators.http import condition, require_http_methods
+from django.views.decorators.http import require_http_methods
 from requests import HTTPError
 
 from dashboard.models.query import QueryCache
@@ -25,12 +20,12 @@ except ImportError:
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-from django.http import HttpResponse, Http404, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponse, Http404, JsonResponse
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, FormView, UpdateView
+from django.views.generic import TemplateView
 
 from dashboard.models import Query, Page, HighchartsTheme
-from dashboard.util.api import start_task, get_session, TASKRESULT_URL
+from dashboard.util.api import start_task, get_session
 
 from dashboard.models.user import EPOCH
 
