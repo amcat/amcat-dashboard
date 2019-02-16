@@ -25,5 +25,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_api(self, host):
         return AmcatAPI(host=host, token=self.amcat_token)
 
+    @property
+    def is_staff(self):
+        return self.is_superuser
+
+    def get_short_name(self):
+        return self.email.split("@")[0]
     class Meta:
         app_label = "dashboard"

@@ -309,6 +309,16 @@ class QueryCache(models.Model):
         self.cache_mimetype = None
         self.cache_uuid = None
 
+    @property
+    def content_size(self):
+        return len(self.cache) if self.cache else 0
+
+    def __repr__(self):
+        return "<{} {} query={}>".format(self.__class__.__name__, self.id, self.query_id)
+
+    def __str__(self):
+        return repr(self)
+
     class Urls:
         task = "{host}/api/v4/query/{script}?format=json&project={project}&sets={sets}&jobs={jobs}"
         query = "{host}/api/v4/projects/{project}/querys/{query}/?format=json"
