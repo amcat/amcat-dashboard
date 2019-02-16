@@ -81,7 +81,7 @@ define([
             const result = await this.fetchQueryResult(query);
             this._preRender(query);
             const [output_type, meaning] = query.output_type.split(';');
-            const parameters = {...query.amcat_parameters};
+            const parameters = Object.assign({}, query.amcat_parameters);
             const extraOptions = {valueRendererOptions: {neverShowId: true}}; // TODO: configurable options
             renderers[output_type](parameters, this.container.find('.query-canvas'), result, extraOptions);
             this._postRender(query);
