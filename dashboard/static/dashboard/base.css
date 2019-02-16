@@ -56,4 +56,15 @@
 
 .download-progress {
     width: 100%;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+
+.progress-failed::-webkit-progress-value {
+    background-color: tomato;
+}
+
+.progress-failed::-moz-progress-bar {
+    background-color: tomato;
 }

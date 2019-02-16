@@ -156,34 +156,41 @@ define([
             });
             container.find('[data-init-download-url]').click(e => {
                 const self = $(e.target);
+                const tgt = $(self.data('target'));
+                const progressBar = tgt.find('.download-progress');
+                const statusText = tgt.find('.download-status');
+                progressBar.show();
+                progressBar.removeClass("progress-failed");
+                progressBar[0].removeAttribute("value");
+                statusText.text("Getting ready...");
+                tgt.modal();
                 fetch(self.data("init-download-url")).then(async response => {
                     const json = await response.json();
-                    const tgt = $(self.data('target'));
 
                     tgt.attr("data-poll-url", json.poll_uri);
-                    tgt.find('.download-progress').show();
-                    tgt.find('.download-status').text("Getting ready...");
-                    tgt.modal();
 
                     while(true){
                         const response = await fetch(json.poll_uri).then(r => r.json());
                         const result = response['results'][0];
                         if(result.status === "SUCCESS"){
-                            tgt.find('.download-progress').hide();
-                            tgt.find('.download-status')
+                            progressBar.hide();
+                            statusText
                                 .html(`<a class="btn btn-success" href="${response.result_url}">Download</a>`);
                             break;
                         }
                         else if(result.status === "INPROGRESS"){
-                            tgt.find('.download-progress')[0].value = result.progress.completed;
+                            progressBar[0].value = result.progress.completed;
                         }
                         else if(result.status === "FAILURE"){
-                            tgt.find('.download-status').html(`Download failed. ${result.error.exc_message}`);
+                            statusText.html(`Download failed. ${result.error.exc_message}`);
                             break;
                         }
-
                         await sleep(500);
                     }
+                }).catch(e => {
+                    statusText.text(`Download failed: ${e}`);
+                    progressBar[0].value = Math.max(progressBar[0].value, 20);
+                    progressBar.addClass('progress-failed');
                 });
             });
         }
