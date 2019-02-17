@@ -1,9 +1,15 @@
+from account.views import LoginView
 from django.conf.urls import include, url
 from django.views.generic import RedirectView
 from dashboard.views.account import SignupView
 from django.views.decorators.cache import cache_page
 from django.views.i18n import JavaScriptCatalog
 from .admin import site
+
+
+# WARNING: monkey patch
+LoginView.form_class.base_fields['username'].max_length = 500
+
 
 urlpatterns = [
     url(r"^account/signup/$", SignupView.as_view(), name="account_signup"),
