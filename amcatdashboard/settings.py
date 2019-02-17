@@ -36,6 +36,9 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(",")
 if DEBUG:
     ALLOWED_HOSTS += ["*"]
 
+# Disable large #field checks to allow for large queries
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
 STATIC_ROOT = os.path.join(BASE_DIR, "srv")
 MEDIA_ROOT = os.path.join(BASE_DIR, "srv/media")
 
