@@ -29,6 +29,9 @@ class SignupView(views.SignupView):
     def create_user(self, form, commit=True, **kwargs):
         user = super(SignupView, self).create_user(form, commit=False, **kwargs)
 
+        # Somehow Pinax messes this up:
+        user.set_password(form.cleaned_data['password'])
+
         if not User.objects.exists():
             user.is_superuser = True
 
