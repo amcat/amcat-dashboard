@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from account import forms as account_forms, views
+from account.forms import LoginUsernameForm
 from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
@@ -8,6 +9,7 @@ from django.views.generic import FormView, RedirectView
 
 from dashboard.models import User, System
 
+import logging
 
 class SignupForm(account_forms.SignupForm):
     def __init__(self, *args, **kwargs):
@@ -15,7 +17,8 @@ class SignupForm(account_forms.SignupForm):
         del self.fields["username"]
 
 class LoginView(views.LoginView):
-    form_class = account_forms.LoginEmailForm
+    class form_class(LoginUsernameForm):
+        username = forms.CharField(label="Email", max_length=500)
 
 class SignupView(views.SignupView):
     """The first user who registers is promoted to superuser"""

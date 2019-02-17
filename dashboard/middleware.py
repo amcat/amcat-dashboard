@@ -29,7 +29,7 @@ class LoginRequiredMiddleware:
     def process_request(self, request):
         if not request.user.is_authenticated:
             if not in_exempt_urls(request.path_info):
-                redirect_url = "{}?{}".format(reverse("account_login"), urlencode({"next": request.path_info}))
+                redirect_url = "{}?{}".format(reverse("dashboard-login"), urlencode({"next": request.path_info}))
                 return HttpResponseRedirect(redirect_url)
 
 

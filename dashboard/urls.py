@@ -6,8 +6,7 @@ from dashboard.views import dashboard_edit, amcat_api, cron
 from dashboard.views import dashboard_view
 from dashboard.views import settings
 
-from dashboard.views.account import AmCATSettingsView
-
+from dashboard.views.account import AmCATSettingsView, LoginView
 
 urlpatterns = [
     url("^$", dashboard_view.index, name="index"),

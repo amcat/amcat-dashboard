@@ -10,11 +10,11 @@
         }
     </style>
 
-    <form autocapitalize="off" action="{% url 'account_login' %}" method="post" role="form">
+    <form autocapitalize="off" action="{% url 'dashboard-login' %}" method="post" role="form">
         {% csrf_token %}
 
         {% if form.errors %}
-            <p class="danger">Credentials not recognized. Please try again.</p>
+            <p class="danger">{{form.errors.values|join:' '}}</p>
         {% endif %}
 
         {% if redirect_field_value %}
