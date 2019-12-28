@@ -106,7 +106,6 @@ class Page(models.Model):
     class Meta:
         app_label = "dashboard"
         ordering = ["ordernr"]
-        unique_together = ('system', 'ordernr')
 
 
 class Row(models.Model):

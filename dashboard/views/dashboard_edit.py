@@ -108,11 +108,12 @@ def save_menu(request):
 
     # We must use delete() on a single Page objects, as it deletes associated rows/cells
     existing_pages_ids = list(map(itemgetter("id"), existing_pages))
+
     for page in pages_qs.exclude(id__in=existing_pages_ids):
         Page.objects.only("id").get(id=page.id).delete()
 
-    for page, page_obj in zip(existing_pages, Page.objects.filter(system=system, id__in=existing_pages_ids)):
-        page_obj.system = system
+    for page in existing_pages:
+        page_obj = Page.objects.get(pk=page["id"])
         page_obj.name = page["name"]
         page_obj.visible = page["visible"]
         page_obj.icon = page["icon"]
