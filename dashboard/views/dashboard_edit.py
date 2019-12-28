@@ -65,6 +65,9 @@ def save_rows(request, page_id):
     for row, cols in zip(new_rows, rows):
         for i, col in zip(count(), cols):
             query = queries[int(col["query_id"])]
+            page_link = col["linked_page_id"]
+            if not page_link:
+                page_link = None
             if col['theme_id']:
                 theme = themes[int(col['theme_id'])]
             else:
@@ -88,7 +91,8 @@ def save_rows(request, page_id):
                     row=row,
                     ordernr=i,
                     theme=theme,
-                    customize=customize
+                    customize=customize,
+                    page_link_id=page_link,
                 )
             )
             cells[-1].clean()
@@ -155,7 +159,8 @@ def page(request, page_id):
             "theme_id": cell.theme_id,
             "title": cell.title,
             "refresh_interval": cell.query.refresh_interval,
-            "customize": cell.customize
+            "customize": cell.customize,
+            "linked_page_id": cell.page_link_id,
         }
             for cell in cells]
             for row, cells in rows.items()]
