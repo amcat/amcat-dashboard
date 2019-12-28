@@ -38,7 +38,8 @@ class BaseDashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         pages = Page.objects.filter(system=self.request.user.system).only("id", "name", "icon")
-        return dict(super(BaseDashboardView, self).get_context_data(**kwargs), pages=pages)
+        hide_menu = self.request.user.system.hide_menu and not self.request.user.is_superuser
+        return dict(super(BaseDashboardView, self).get_context_data(**kwargs), pages=pages, hide_menu=hide_menu)
 
 
 class DashboardPageView(BaseDashboardView):

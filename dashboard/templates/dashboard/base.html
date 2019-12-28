@@ -36,7 +36,7 @@
     <script>require(["jquery", "bootstrap"]);</script>
     <div id="wrapper" class="{% block pageclasses %}{% endblock %}">
         {% include "dashboard/menu.html" %}
-        <div id="page-wrapper" class="{% if not request.user.is_superuser %} nomenu {% endif %}">
+        <div id="page-wrapper" class="{% if hide_menu %} nomenu {% endif %}">
             <div class="row">
                 <div class="col-lg-12">
                     {% block dashboard-body %}

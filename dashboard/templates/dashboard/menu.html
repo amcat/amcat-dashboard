@@ -1,6 +1,6 @@
 
 {# placeholder/backdrop for the sidebar for styling purposes #}
-{% if user.is_superuser %}
+{% if not hide_menu %}
     <div class="sidebar-placeholder"></div>
 {% endif %}
 
@@ -17,7 +17,7 @@
     </div>
 
     {% include "dashboard/top_menu.html" %}
-    {% if user.is_superuser %}
+    {% if not hide_menu %}
         {% include "dashboard/left_menu.html" %}
     {% endif %}
 </nav>
