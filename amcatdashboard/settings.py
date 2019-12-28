@@ -58,6 +58,7 @@ MIGRATION_MODULES = {
 }
 
 if DEBUG:
+    SITE_ID = 1
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -137,7 +138,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': os.environ.get("DASHBOARD_DB_NAME", "dashboard"),
-        'USER': os.environ.get("DASHBOARD_DB_USER", "dashboard"),
+        'USER': os.environ.get("DASHBOARD_DB_USER", ""),
         'PASSWORD': os.environ.get("DASHBOARD_DB_PASSWORD", ""),
         'HOST': os.environ.get("DASHBOARD_DB_HOST", ""),
         'PORT': os.environ.get("DASHBOARD_DB_PORT", "")

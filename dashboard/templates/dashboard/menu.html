@@ -1,6 +1,8 @@
 
 {# placeholder/backdrop for the sidebar for styling purposes #}
-<div class="sidebar-placeholder"></div>
+{% if user.is_superuser %}
+    <div class="sidebar-placeholder"></div>
+{% endif %}
 
 {# Navigation #}
 <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
@@ -15,5 +17,7 @@
     </div>
 
     {% include "dashboard/top_menu.html" %}
-    {% include "dashboard/left_menu.html" %}
+    {% if user.is_superuser %}
+        {% include "dashboard/left_menu.html" %}
+    {% endif %}
 </nav>

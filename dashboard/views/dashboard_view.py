@@ -247,7 +247,6 @@ def empty(request):
 def index(request):
     if not Page.objects.filter(system=request.user.system, visible=True).exists():
         return redirect(reverse("dashboard:empty"))
-
     first_page = Page.objects.filter(system=request.user.system).only("id").first()
     url_kwargs = {"page_id": first_page.id}
     return redirect(reverse("dashboard:view-page", kwargs=url_kwargs))
