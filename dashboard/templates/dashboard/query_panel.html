@@ -6,6 +6,9 @@
              {% endif %}
              data-customize="{{ customize_args|escape }}"
              data-title="{{ cell.get_title }}"
+             {% if cell.page_link %}
+             data-pagelink="{% url 'dashboard:view-page' cell.page_link.id %}"
+             {% endif %}
              data-saved-query-src="{% url 'dashboard:get-saved-query' page.id query.id %}">
     </div>
 </div>

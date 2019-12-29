@@ -14,9 +14,18 @@ define([
         download: _("Download as CSV")
     };
 
-    const template = query => `
-<div class="query-heading panel-heading">
-    <h4 class="query-title"><span class="query-name"></span></h4>
+    const template = (query, title, page_link) => {
+
+    if (page_link !== undefined) {
+        title_element = `<a href=${page_link} class="query-name">${title}</a>`
+        heading_attr = `onclick="window.location='${page_link}'"  style="cursor: pointer;"`
+    } else {
+        title_element = `<span class="query-name">${title}</span>`
+        heading_attr = ""
+    }
+    return `
+<div class="query-heading panel-heading" ${heading_attr}>
+    <h4 class="query-title">${title_element}</h4>
     <div class="btn-group">
         <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
             ${STRINGS.actions}
@@ -46,7 +55,7 @@ define([
     </div>
 </div>
 <div class="query-canvas panel-body"></div>
-`;
+`;}
 
     function sleep(milliseconds) {
         return new Promise((resolve) => setTimeout(() => resolve(), milliseconds))
@@ -73,6 +82,7 @@ define([
             this.container = $(container);
             this.themeArgs = this.container.data('theme');
             this.title = this.container.data('title');
+            this.page_link = this.container.data('pagelink');
             this.customizeArgs = this.container.data('customize');
             this.url = this.container.data('saved-query-src');
         }
@@ -141,10 +151,9 @@ define([
 
         async render() {
             const query = await getJSON(this.url);
-            this.container.html(template(query));
+            this.container.html(template(query, this.title, this.page_link));
             this.bindEvents(this.container, query);
             await this.onQueryFetched(query);
-            this.container.find(".query-name").text(this.title);
             this.container.find(".if-downloadable").toggle(query.is_downloadable);
         }
 
