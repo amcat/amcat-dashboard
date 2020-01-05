@@ -204,6 +204,6 @@ CSRF_COOKIE_NAME = 'dashboard__csrftoken'
 SESSION_ID = os.environ.get("DJANGO_SESSION_ID")
 
 # Comment this line to fall back to the default theme.
-GLOBAL_THEME = "material"
+GLOBAL_THEME = "bzk"
 
 DASHBOARD_ALLOW_MULTIPLE_SYSTEMS = True

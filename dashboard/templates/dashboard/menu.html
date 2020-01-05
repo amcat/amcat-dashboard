@@ -13,11 +13,12 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{% url "dashboard:index" %}">BZK Dashboard</a>
+        <a class="navbar-brand" id="menu-logo" href="{% url "dashboard:index" %}"></a>
     </div>
 
     {% include "dashboard/top_menu.html" %}
-    {% if not hide_menu %}
-        {% include "dashboard/left_menu.html" %}
-    {% endif %}
 </nav>
+
+{% if not hide_menu %}
+    {% include "dashboard/left_menu.html" %}
+{% endif %}
