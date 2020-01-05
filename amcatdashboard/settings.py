@@ -45,6 +45,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "srv/media")
 # Application definition
 AUTH_USER_MODEL = 'dashboard.User'
 
+AUTHENTICATION_BACKENDS = (
+        'django.contrib.auth.backends.ModelBackend',
+)
+
 LOGIN_EXEMPT_URLS = [
     '^account/.+',
     '^login/$',
@@ -207,3 +211,22 @@ SESSION_ID = os.environ.get("DJANGO_SESSION_ID")
 GLOBAL_THEME = "bzk"
 
 DASHBOARD_ALLOW_MULTIPLE_SYSTEMS = True
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/amcat/dashboard_bzk.log',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
