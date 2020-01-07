@@ -48,7 +48,8 @@ class DashboardPageView(BaseDashboardView):
     def get_context_data(self, **kwargs):
         page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
         system = page.system
-
+        showintro = self.request.session.get("showintro", True)
+        self.request.session["showintro"] = False
         # this is set as a JS global
         system_info = json.dumps({
             "id": system.id,
@@ -56,13 +57,12 @@ class DashboardPageView(BaseDashboardView):
             "project_id": system.project_id,
             "project_name": system.project_name
         })
-
         query = self.request.GET.get(self.query_param)
 
         rows = page.get_cells(select_related=("query",))
         themes = HighchartsTheme.objects.filter(cells__row__in=rows).distinct()
         return dict(super(DashboardPageView, self).get_context_data(**kwargs),
-                    page=page, rows=rows, themes=themes, system_info=system_info, query=query)
+                    page=page, rows=rows, themes=themes, system_info=system_info, query=query, showintro=showintro)
 
 
 # HTTP GET *must* be nullipotent: browsers might poll GET urls for preview or bookmark purposes.
