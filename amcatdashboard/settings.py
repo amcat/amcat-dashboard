@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import hashlib
+import sys
 from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,7 +22,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
+
+if "DJANGO_DEBUG" in os.environ:
+    DEBUG = os.environ.get("DJANGO_DEBUG") == "1"
+else:
+    DEBUG = "runserver" in sys.argv
+
 
 if "DJANGO_SECRET_KEY" not in os.environ and not DEBUG:
     raise ValueError("You must supply DJANGO_SECRET_KEY as environment variable.")
@@ -208,7 +214,8 @@ CSRF_COOKIE_NAME = 'dashboard__csrftoken'
 SESSION_ID = os.environ.get("DJANGO_SESSION_ID")
 
 # Comment this line to fall back to the default theme.
-GLOBAL_THEME = "bzk"
+if os.environ.get("DASHBOARD_THEME"):
+    GLOBAL_THEME = os.environ['DASHBOARD_THEME']
 
 DASHBOARD_ALLOW_MULTIPLE_SYSTEMS = True
 

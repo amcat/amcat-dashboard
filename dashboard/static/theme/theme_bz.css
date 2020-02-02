@@ -24,9 +24,10 @@ body {
 .navbar {height: 70px}
 
 #menu-logo {
-    background-image: url("https://www.parlement.com/9353000/1/j4nvh0qavhjkdqd_j9vvknrezmh4csi/vjbcgzlv9xwk?sizew=217&sizeh=100&lm=mpz632");
+    background-image: url("https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Ministerie_van_Buitenlandse_Zaken_Logo.jpg/800px-Ministerie_van_Buitenlandse_Zaken_Logo.jpg");
     background-position: bottom left;
     background-repeat: no-repeat;
+    background-size: 217px 70px;
     width: 217px;
     height: 70px;
         position: absolute;
