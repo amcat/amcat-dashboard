@@ -61,7 +61,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
                 query_id: $(cell).find(".saved-query").val(),
                 theme_id: $(cell).find("select.theme").val(),
                 refresh_interval: $(cell).find("select.refresh-interval").val(),
-                linked_page_id: $(cell).find(".saved-page").val(),
+                link: $(cell).find(".link").val(),
                 customize: customize
             };
         };
@@ -70,17 +70,17 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             return [$.map($(row).find(".col"), serialiseCell)];
         };
 
-        var _newCol = function(width, queryId, title, themeId, refreshInterval, customize, linked_page_id){
+        var _newCol = function(width, queryId, title, themeId, refreshInterval, customize, link){
             var newCol = $colTemplate.clone().show();
             var themeSelect = newCol.find(".theme");
             var querySelect = newCol.find(".saved-query");
-            var pageSelect = newCol.find(".saved-page");
+            var linkInput = newCol.find(".link");
             var titleInput = newCol.find(".query-title");
             var refreshSelect = newCol.find(".refresh-interval");
 
             newCol.removeClass(bootstrapColums.join(" "));
             newCol.addClass(numToCol(width));
-            $([themeSelect, querySelect, refreshSelect, pageSelect]).addClass("multiselect-orig").multiselect({
+            $([themeSelect, querySelect, refreshSelect, linkInput]).addClass("multiselect-orig").multiselect({
                 buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle",
                 buttonTitle: (options, select) => select[0].title
             });
@@ -92,8 +92,8 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             if (queryId !== undefined){
                 querySelect.val(queryId).multiselect("rebuild");
             }
-            if (linked_page_id !== undefined) {
-                pageSelect.val(linked_page_id).multiselect("rebuild");
+            if (link !== undefined) {
+                linkInput.val(link);
             }
 
             if (title !== undefined){
@@ -238,7 +238,7 @@ define(["jquery", "pnotify", "bootstrap-multiselect", "jquery.cookie", "query/ut
             var rows = $.map(pageData.rows, function(row){
                 return $("<div class='query-row row'>").append(
                     $.map(row, function(col){
-                        var newCol = _newCol(col.width, col.query_id, col.title, col.theme_id, col.refresh_interval, col.customize, col.linked_page_id);
+                        var newCol = _newCol(col.width, col.query_id, col.title, col.theme_id, col.refresh_interval, col.customize, col.link);
                         initQueryButtons(newCol);
                         return newCol;
                     })

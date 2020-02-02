@@ -136,7 +136,7 @@ class Cell(models.Model):
     """A cell represents a 'tile' holding a query on the dashboard."""
     query = models.ForeignKey(Query, related_name="cells")
     page = models.ForeignKey(Page, related_name="cells")
-    page_link = models.ForeignKey(Page, null=True)
+    link = models.CharField(null=True, blank=True, max_length=255)
 
     title = models.CharField(max_length=250, null=True)
     theme = models.ForeignKey('dashboard.HighchartsTheme', related_name="cells", on_delete=models.SET_NULL, null=True)

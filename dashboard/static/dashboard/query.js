@@ -14,11 +14,11 @@ define([
         download: _("Download as CSV")
     };
 
-    const template = (query, title, page_link) => {
+    const template = (query, title, link) => {
 
-    if (page_link !== undefined) {
-        title_element = `<a href=${page_link} class="query-name">${title}</a>`
-        heading_attr = `onclick="window.location='${page_link}'"  style="cursor: pointer;"`
+    if (link !== undefined) {
+        title_element = `<a href=${link} class="query-name">${title}</a>`
+        heading_attr = `onclick="window.location='${link}'"  style="cursor: pointer;"`
     } else {
         title_element = `<span class="query-name">${title}</span>`
         heading_attr = ""
@@ -82,7 +82,7 @@ define([
             this.container = $(container);
             this.themeArgs = this.container.data('theme');
             this.title = this.container.data('title');
-            this.page_link = this.container.data('pagelink');
+            this.link = this.container.data('link');
             this.customizeArgs = this.container.data('customize');
             this.url = this.container.data('saved-query-src');
         }
@@ -151,7 +151,7 @@ define([
 
         async render() {
             const query = await getJSON(this.url);
-            this.container.html(template(query, this.title, this.page_link));
+            this.container.html(template(query, this.title, this.link));
             this.bindEvents(this.container, query);
             await this.onQueryFetched(query);
             this.container.find(".if-downloadable").toggle(query.is_downloadable);

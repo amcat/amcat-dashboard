@@ -25,7 +25,7 @@
     {% for row, cells in rows.items %}
         <div class="row">
             {% for cell in cells %}
-                {% include "dashboard/query_panel.html" with page_link=cell.page_link panel_size=cell.width panel_id=cell.id query=cell.query theme_args=cell.theme.theme_args customize_args=cell.get_highcharts_custom_json %}
+                {% include "dashboard/query_panel.html" with page_link=cell.link panel_size=cell.width panel_id=cell.id query=cell.query theme_args=cell.theme.theme_args customize_args=cell.get_highcharts_custom_json %}
             {% endfor %}
         </div>
     {% endfor %}

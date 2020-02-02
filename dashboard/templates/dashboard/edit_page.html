@@ -50,12 +50,9 @@
                             {% endfor %}
                         </select>
 
-                        <select class="saved-page">
-                             <option value="">-- choose page --</option>
-                             {% for p in pages %}
-                                <option value="{{ p.id }}">{{ p.name }}</option>
-                             {% endfor %}
-                        </select>
+                        <span class="form-inline form-group form-group-sm">
+                        <input class="form-control link" placeholder="Link URL" />
+                        </span>
                         <select class="refresh-interval" title="Refreshes query results with specified interval">
                             <option value="">No auto-refresh</option>
                             <optgroup label="Every..">
