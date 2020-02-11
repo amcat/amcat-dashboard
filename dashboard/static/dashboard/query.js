@@ -205,12 +205,18 @@ define([
         }
 
         async fetchQueryResult(query) {
-            let q = null;
-            if(this.filterForm !== undefined){
-                q = this.filterForm.elements['q'].value
-            }
-            const querystr = q ? `?q=${encodeURIComponent(q)}` : '';
+            let qparams = {}
 
+            if(this.filterForm !== undefined){
+                let q = this.filterForm.elements['q'].value
+                if (q) qparams["q"] = q
+                let m = $(this.filterForm.elements['m']).val()
+                if (m) qparams["m"] = m
+            }
+            console.log(qparams);
+            let querystr = $.param(qparams, true);
+            if (querystr) querystr = `?${querystr}`;
+            console.log(querystr);
             const response = await get(`${query.result_url}${querystr}`);
             if(query.output_type.indexOf('json') >= 0){
                 const data = await response.json();

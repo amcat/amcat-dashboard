@@ -1,4 +1,13 @@
 {% extends "dashboard/base.html" %}
+{% load static %}
+
+
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard/edit_menu.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'components/bootstrap-multiselect/dist/css/bootstrap-multiselect.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'components/bootstrap-switch/dist/css/bootstrap3/bootstrap-switch.css' %}">
+{% endblock %}
+
 {% block dashboard-body %}
 {% if showintro %}
 <div class="alert alert-info alert-dismissible" role="alert">
@@ -13,6 +22,12 @@
             <div class="form-group form-group-lg">
                 <div class="input-group input-group-lg">
                     <div class="form-control form-control-wrapper">
+                         <select name="m" id="global_medium" multiple="multiple" style="display:none">
+                             {% for med in all_media %}
+                             <option value="{{med}}" {% if med in selected_media %}selected {% endif %}>{{med}}</option>
+                             {% endfor %}
+
+                         </select>
                         <input title="{% trans "Filter" %}" placeholder="{% trans "Filter" %}..." id="filter-input" class="filter-input-textbox" name="q" value="{{ query|default:"" }}">
                         <span class="fa fa-fw fa-times" id="filter-clear" style="cursor: pointer"></span>
                     </div>
@@ -68,7 +83,15 @@
 
         });
 
+        require(["bootstrap-multiselect"], function(){
 
+            $('#global_medium').multiselect({
+             buttonClass: "btn btn-default btn-xs multiselect dropdown-toggle",
+             buttonTitle: (options, select) => "hallo",
+            nonSelectedText: 'Filter Media...',
+            });
+
+            });
     </script>
     {% include "dashboard/articlelist_dialog.html" %}
 {% endblock %}

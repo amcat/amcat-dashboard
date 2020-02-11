@@ -94,12 +94,10 @@ class Query(models.Model):
             newquery.write("\n")
         return newquery.getvalue()
 
-
     def get_parameters(self, query_override=None, extra_options=None):
         parameters = json.loads(self.amcat_parameters)
         if query_override:
             parameters['query'] = self._apply_query_override(parameters['query'], query_override)
-            print(parameters['query'])
 
         if extra_options:
             parameters.update(extra_options)
@@ -216,26 +214,28 @@ class QueryCache(models.Model):
         if not isinstance(extra_filters, dict):
             extra_filters = {}
 
-        filtersets = (query_filters, global_filters, page_filters, extra_filters)
-        filters = defaultdict(set)
-        for field, values in (item for fs in filtersets for item in fs.items()):
-            filters[field] |= set(values)
+        filters = {}
+        for filterset in (query_filters, global_filters, page_filters, extra_filters):
+            for field, values in filterset.items():
+                if field in filters:
+                    filters[field] &= set(values)
+                else:
+                    filters[field] = set(values)
 
         filters = {k: sorted(v) for k, v in filters.items()}  # sorted is important here to ensure consistent cache tags
-
         return filters
 
-    def get_parameters(self, query_override=None, extra_options=None):
+    def get_parameters(self, query_override=None, extra_options=None, extra_filters=None):
         query_params = self.query.get_parameters(query_override=query_override, extra_options=extra_options)
-        query_params['filters'] = json.dumps(self.get_filters(),
+        query_params['filters'] = json.dumps(self.get_filters(extra_filters=extra_filters),
                                              ensure_ascii=True,
                                              sort_keys=True)
         return query_params
 
-    def get_query_tag(self, query_override=None):
+    def get_query_tag(self, query_override=None, extra_filters=None):
         """ Creates a unique tag for these parameters."""
         url = self.Urls.task.format(**self.query.get_url_kwargs())
-        query_params = self.get_parameters(query_override=query_override)
+        query_params = self.get_parameters(query_override=query_override, extra_filters=extra_filters)
         key = json.dumps((self.query_id, url, query_params), ensure_ascii=True, sort_keys=True).encode('ascii')
         return sha512(key).hexdigest()[:36]
 
@@ -279,14 +279,14 @@ class QueryCache(models.Model):
 
         return cache, mimetype
 
-    def start_task(self, query_override=None, extra_options=None):
+    def start_task(self, query_override=None, extra_options=None, extra_filters=None):
         # We need to fetch it from an amcat instance
         s = get_session(self.system)
 
         # Start job
         s.headers["Content-Type"] = "application/x-www-form-urlencoded"
         url = self.Urls.task.format(**self.query.get_url_kwargs())
-        query_params = self.get_parameters(query_override=query_override, extra_options=extra_options)
+        query_params = self.get_parameters(query_override=query_override, extra_options=extra_options, extra_filters=extra_filters)
 
         data = urlencode(query_params, True)
 
