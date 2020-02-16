@@ -41,10 +41,22 @@ class BaseDashboardView(TemplateView):
         hide_menu = self.request.user.system.hide_menu and not self.request.user.is_superuser
         return dict(super(BaseDashboardView, self).get_context_data(**kwargs), pages=pages, hide_menu=hide_menu)
 
-HACK_MEDIA = ["De Volkskrant", "NRC Handelsblad", "Trouw"]
+#HACK_MEDIA = ["De Volkskrant", "NRC Handelsblad", "Trouw"]
+HACK_MEDIA = {"Landelijk": ["De Volkskrant", "NRC Handelsblad", "Trouw", "De Telegraaf", "Algemeen Dagblad", "Financieele Dagblad"],
+              "Regionaal": ["Het Parool", "Noordhollands Dagblad", "Dagblad van het Noorden", "Leeuwarder Courant", "Gelderlander",
+                            "De Gooi- en Eemlander", "Brabants Dagblad", "Einhovens Dagblad", "Dagblad De Limburger", "Provinciale Zeeuwse Courant",
+                            "Haarlems Dagblad", "Eindhovens Dagblad"],
+              "Persbureau": ["Algemeen Nederlands Persbureau ANP"],
+              "Online":["Nu.nl", "NOS.nl", "RTLNieuws.nl"],
+              "Twitter":["Twitter"]}
+#HACK_MEDIA = {"pietje": ["De Volkskrant", "NRC Handelsblad", "Trouw"]}
+
+HACK_DATES = ["Gisteren", "Laatste week", "Laatste twee weken", "Laatste maand", "Laatste drie maanden", "Laatste half jaar", "Laatste jaar"]
+
 class DashboardPageView(BaseDashboardView):
     query_param = 'q'
     medium_param = 'm'
+    date_param = 'd'
 
     def get_context_data(self, **kwargs):
         page = Page.objects.only("name", "icon").get(id=self.kwargs["page_id"])
@@ -60,12 +72,12 @@ class DashboardPageView(BaseDashboardView):
         })
         query = self.request.GET.get(self.query_param)
         selected_media = self.request.GET.getlist(self.medium_param)
-
+        selected_date = self.request.GET.get(self.date_param)
         rows = page.get_cells(select_related=("query",))
         themes = HighchartsTheme.objects.filter(cells__row__in=rows).distinct()
         return dict(super(DashboardPageView, self).get_context_data(**kwargs),
                     page=page, rows=rows, themes=themes, system_info=system_info, showintro=showintro,
-                    all_media=HACK_MEDIA, selected_media=selected_media, query=query)
+                    all_media=HACK_MEDIA, selected_media=selected_media, all_dates=HACK_DATES, selected_date=selected_date, query=query)
 
 
 # HTTP GET *must* be nullipotent: browsers might poll GET urls for preview or bookmark purposes.
@@ -195,14 +207,18 @@ def get_saved_query_result(request, query_id, page_id):
     except QueryCache.DoesNotExist:
         raise Http404("No such object")
 
-    query_override, extra_filters = None, {}
+    query_override, extra_filters, date_override = None, {}, None
     if DashboardPageView.query_param in request.GET:
         query_override = request.GET.get(DashboardPageView.query_param).strip()
     if DashboardPageView.medium_param in request.GET:
         extra_filters["medium"] = request.GET.getlist(DashboardPageView.medium_param)
+    if DashboardPageView.date_param in request.GET:
+        date_override = request.GET.get(DashboardPageView.date_param).strip()
 
-    if query_override or extra_filters:
-        return get_filtered_query_result(request, cache, query_override, extra_filters)
+
+    if query_override or extra_filters or date_override:
+        check = get_filtered_query_result(request, cache, query_override, extra_filters, date_override)
+        return get_filtered_query_result(request, cache, query_override, extra_filters, date_override)
 
     # If we've still got one in cache, use that one
     if cache.is_valid():
@@ -229,12 +245,12 @@ def get_saved_query_result(request, query_id, page_id):
     # Return cached result
     return HttpResponse(cache.cache, content_type=cache.cache_mimetype)
 
-def get_filtered_query_result(request, query_cache: QueryCache, query_override: str, extra_filters: dict):
-    cache_key = query_cache.get_query_tag(query_override=query_override, extra_filters=extra_filters)
+def get_filtered_query_result(request, query_cache: QueryCache, query_override: str, extra_filters: dict, date_override: str):
+    cache_key = query_cache.get_query_tag(query_override=query_override, extra_filters=extra_filters, date_override=date_override)
     cached = caches['query'].get(cache_key)
 
     if not cached or cached['timestamp'].replace(tzinfo=datetime.timezone.utc) < query_cache.cache_timestamp.astimezone():
-        uuid = query_cache.start_task(query_override=query_override, extra_filters=extra_filters)
+        uuid = query_cache.start_task(query_override=query_override, extra_filters=extra_filters, date_override=date_override)
         content, content_type = query_cache.poll(uuid, save_result=False)
         caches['query'].set(cache_key, {
             "content": content,
@@ -242,7 +258,6 @@ def get_filtered_query_result(request, query_cache: QueryCache, query_override: 
             "timestamp": datetime.datetime.now(tz=datetime.timezone.utc)
         })
         return HttpResponse(content, content_type=content_type)
-    print('From cache: {}'.format(request.get_raw_uri()))
     return HttpResponse(cached['content'], content_type=cached['content_type'])
 
 

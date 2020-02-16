@@ -212,6 +212,8 @@ define([
                 if (q) qparams["q"] = q
                 let m = $(this.filterForm.elements['m']).val()
                 if (m) qparams["m"] = m
+                let d = this.filterForm.elements['d'].value
+                if (d) qparams["d"] = d
             }
             console.log(qparams);
             let querystr = $.param(qparams, true);

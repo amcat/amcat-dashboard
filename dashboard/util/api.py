@@ -57,6 +57,7 @@ class ApiSession(requests.Session):
 
     def poll_once(self, uuid):
         response = self.get(TASK_URL.format(uuid=uuid, host=self.system.hostname))
+        print(response)
         task = json.loads(response.content.decode("utf-8"))
         status = task["results"][0]["status"]
         return status, task

@@ -73,7 +73,6 @@ class Query(models.Model):
             project_id=self.system.project_id,
             query_id=self.amcat_query_id
         )
-
     def _apply_query_override(self, query: str, query_override):
         split_re = re.compile('[\t|#]')
         newquery = StringIO()
@@ -94,14 +93,38 @@ class Query(models.Model):
             newquery.write("\n")
         return newquery.getvalue()
 
-    def get_parameters(self, query_override=None, extra_options=None):
+    def _apply_date_override(self, relative_date: str, date_override):
+        if date_override == "Gisteren":
+            date_override = "-86400"
+        if date_override =="Laatste week":
+            date_override = "-604800"
+        if date_override == "Laatste twee weken":
+            date_override = "-1209600"
+        if date_override =="Laatste maand":
+            date_override = "-2592000"
+        if date_override == "Laatste drie maanden":
+            date_override = "-7776000"
+        if date_override == "Laatste half jaar":
+            date_override = "-15552000"
+        if date_override == "Laatste jaar":
+            date_override = "-31536000"
+        newdate = date_override
+        return newdate
+
+    def get_parameters(self, query_override=None, extra_options=None, date_override=None):
         parameters = json.loads(self.amcat_parameters)
         if query_override:
             parameters['query'] = self._apply_query_override(parameters['query'], query_override)
-
         if extra_options:
             parameters.update(extra_options)
-
+        if date_override:
+            parameters['datetype'] = 'relative'
+            parameters['relative_date'] = 'relative'
+            parameters['relative_date'] = self._apply_date_override(parameters['relative_date'], date_override)
+            if 'end_date' in parameters:
+                del parameters['end_date']
+            if 'start_date' in parameters:
+                del parameters['start_date']
         try:
             filters = json.loads(parameters['filters'])
         except (KeyError, json.JSONDecodeError):
@@ -225,22 +248,22 @@ class QueryCache(models.Model):
         filters = {k: sorted(v) for k, v in filters.items()}  # sorted is important here to ensure consistent cache tags
         return filters
 
-    def get_parameters(self, query_override=None, extra_options=None, extra_filters=None):
-        query_params = self.query.get_parameters(query_override=query_override, extra_options=extra_options)
+    def get_parameters(self, query_override=None, extra_options=None, extra_filters=None, date_override=None):
+        query_params = self.query.get_parameters(query_override=query_override, extra_options=extra_options, date_override=date_override)
         query_params['filters'] = json.dumps(self.get_filters(extra_filters=extra_filters),
                                              ensure_ascii=True,
                                              sort_keys=True)
         return query_params
 
-    def get_query_tag(self, query_override=None, extra_filters=None):
+    def get_query_tag(self, query_override=None, extra_filters=None, date_override=None):
         """ Creates a unique tag for these parameters."""
         url = self.Urls.task.format(**self.query.get_url_kwargs())
-        query_params = self.get_parameters(query_override=query_override, extra_filters=extra_filters)
+        query_params = self.get_parameters(query_override=query_override, extra_filters=extra_filters, date_override=date_override)
         key = json.dumps((self.query_id, url, query_params), ensure_ascii=True, sort_keys=True).encode('ascii')
         return sha512(key).hexdigest()[:36]
 
-    def is_valid(self, query_override=None):
-        return self.cache_uuid and self.cache and self.cache_tag == self.get_query_tag(query_override=query_override)
+    def is_valid(self, query_override=None, date_override=None):
+        return self.cache_uuid and self.cache and self.cache_tag == self.get_query_tag(query_override=query_override, date_override=date_override)
 
     def poll_once(self, uuid=None):
         if uuid is None:
@@ -279,14 +302,14 @@ class QueryCache(models.Model):
 
         return cache, mimetype
 
-    def start_task(self, query_override=None, extra_options=None, extra_filters=None):
+    def start_task(self, query_override=None, extra_options=None, extra_filters=None, date_override=None):
         # We need to fetch it from an amcat instance
         s = get_session(self.system)
 
         # Start job
         s.headers["Content-Type"] = "application/x-www-form-urlencoded"
         url = self.Urls.task.format(**self.query.get_url_kwargs())
-        query_params = self.get_parameters(query_override=query_override, extra_options=extra_options, extra_filters=extra_filters)
+        query_params = self.get_parameters(query_override=query_override, extra_options=extra_options, extra_filters=extra_filters, date_override=date_override)
 
         data = urlencode(query_params, True)
 
