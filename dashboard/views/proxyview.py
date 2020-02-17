@@ -19,5 +19,7 @@ class ProxyView(TemplateView):
             logging.warning(f"Cannot proxy, netloc: {parsed.netloc}, this_domain: {this_domain}")
             raise ValueError(f"Cannot proxy to {href}")
         context['href'] = href
+        context['hide_menu'] = self.request.user.system.hide_menu and not self.request.user.is_superuser
+
         return context
 
