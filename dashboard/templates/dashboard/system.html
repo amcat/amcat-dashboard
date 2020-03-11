@@ -9,9 +9,6 @@
                 <div class="panel-heading">Settings</div>
                 <div class="panel-body">
 
-                    <div class="alert alert-warning">Changing the project ID while already having
-                        synchronised queries is not supported. It might work, it might not :-).
-                    </div>
                     <form method="POST" action="{% url "dashboard:system-settings" view.system.id %}">
                         {% csrf_token %}
                         {{ form|bootstrap }}

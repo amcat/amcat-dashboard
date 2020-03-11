@@ -152,6 +152,7 @@ class SystemListView(FormView):
 
 class SystemSettingsForm(forms.ModelForm):
     hostname = forms.CharField(disabled=True)
+    project_id = forms.CharField(disabled=True)
     amcat_token = forms.CharField(widget=TokenWidget)
 
     def __init__(self, *args, **kwargs):
@@ -160,12 +161,7 @@ class SystemSettingsForm(forms.ModelForm):
 
     class Meta:
         model = System
-        exclude = ("project_name", )
-        widgets = {
-            'project_id': forms.TextInput(attrs={'disabled': True}),
-
-        }
-
+        exclude = ("project_name",)
 
 class SystemSettingsView(SystemMixin, FormView):
     form_class = SystemSettingsForm
