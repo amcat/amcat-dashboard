@@ -211,7 +211,7 @@ def get_saved_query_result(request, query_id, page_id):
     if DashboardPageView.query_param in request.GET:
         query_override = request.GET.get(DashboardPageView.query_param).strip()
     if DashboardPageView.medium_param in request.GET:
-        extra_filters["medium"] = request.GET.getlist(DashboardPageView.medium_param)
+        extra_filters["publisher"] = request.GET.getlist(DashboardPageView.medium_param)
     if DashboardPageView.date_param in request.GET:
         date_override = request.GET.get(DashboardPageView.date_param).strip()
 
