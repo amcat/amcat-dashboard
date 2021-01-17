@@ -4,7 +4,7 @@
     "jquery": "~3.3.1",
     "bootstrap": "~3.3.1",
     "requirejs": "",
-    "pnotify": "",
+    "pnotify": "3.2.0",
     "amcat-query": "https://github.com/amcat/amcat-query-js.git#~3.5.2",
     "datatables": "https://github.com/amcat/amcat-datatables.git#1.10.7",
     "amcat-common": "https://github.com/amcat/amcat-common-js.git",
