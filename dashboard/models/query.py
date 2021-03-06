@@ -16,6 +16,9 @@ from dashboard.util.api import get_session, poll
 
 
 def cron_to_set(cron_item):
+    if cron_item.isdigit():
+        return [int(cron_item)]
+    
     if cron_item == "*":
         return range(100)
 
