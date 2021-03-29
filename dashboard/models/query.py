@@ -39,6 +39,8 @@ class Query(models.Model):
 
     amcat_name = models.TextField()
     amcat_parameters = models.TextField()
+    amcat_archived = models.BooleanField()
+
     amcat_options = models.TextField(null=True)
 
     refresh_interval = models.TextField(null=True)

@@ -6,6 +6,7 @@ from django import forms
 from django.contrib.auth.decorators import user_passes_test
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_http_methods, require_POST
@@ -168,7 +169,10 @@ def page(request, page_id):
 
     page_json = json.dumps(page_json)
 
-    queries = Query.objects.filter(system=system).only("amcat_name", "amcat_query_id", "id").order_by("-amcat_query_id", )
+    # Show only queries that are either active/non-archived in AmcAT or used in a cell in this system
+    used_query_ids = {c.query_id for c in Cell.objects.filter(page__system_id=system.id)}
+    queries = (Query.objects.filter(Q(amcat_archived=False) | Q(pk__in=used_query_ids), system=system)
+               .only("amcat_name", "amcat_query_id", "id").order_by("-amcat_query_id", ))
     pages = Page.objects.filter(system=system)
     customizations = HIGHCHARTS_CUSTOM_PROPERTIES
     return render(request, "dashboard/edit_page.html", locals())
