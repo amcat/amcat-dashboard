@@ -168,7 +168,7 @@ def page(request, page_id):
 
     page_json = json.dumps(page_json)
 
-    queries = Query.objects.filter(system=system).only("amcat_name", "id").order_by("amcat_name")
+    queries = Query.objects.filter(system=system).only("amcat_name", "amcat_query_id", "id").order_by("-amcat_query_id", )
     pages = Page.objects.filter(system=system)
     customizations = HIGHCHARTS_CUSTOM_PROPERTIES
     return render(request, "dashboard/edit_page.html", locals())

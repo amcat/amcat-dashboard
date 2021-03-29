@@ -46,7 +46,7 @@
                         <select class="saved-query">
                             <option value="">-- choose query --</option>
                             {% for query in queries %}
-                                <option value="{{ query.id }}">{{ query.amcat_name }}</option>
+                                <option value="{{ query.id }}">{{ query.amcat_query_id}}: {{ query.amcat_name }}</option>
                             {% endfor %}
                         </select>
 
