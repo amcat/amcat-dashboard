@@ -29,7 +29,7 @@ class Filter(models.Model):
 
 def get_active_queries():
     query_ids = Cell.objects.values_list("query__id", flat=True)
-    return Query.objects.get(id__in=set(query_ids))
+    return Query.objects.filter(id__in=set(query_ids))
 
 
 class Page(models.Model):

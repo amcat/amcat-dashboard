@@ -38,10 +38,12 @@ class ApiSession(requests.Session):
 
     def poll(self, uuid, timeout=0.2, max_timeout=2):
         response = self.get(TASK_URL.format(uuid=uuid, host=self.system.hostname))
-
         if response.status_code in (503, 429):  # rate limited
             sleep(1)
             return self.poll(uuid, timeout=min(timeout * 2, max_timeout))
+        elif response.status_code == 500: # Error
+            open("/tmp/test.html", "wb").write(response.content)
+            raise Exception("API Error")
         else:
             task = json.loads(response.content.decode("utf-8"))
             status = task["results"][0]["status"]
