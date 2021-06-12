@@ -94,7 +94,7 @@ define([
                 query: "q", article_ids: "ids",
                 start_date: "start_date", end_date: "end_date",
                 articlesets: "sets", sets: "sets", on_date: "on_date",
-                project: "project"
+                project: "project", relative_date: "relative_date"
             };
 
             var value_map = {
@@ -118,7 +118,6 @@ define([
                 new_filters["q"] = filters["term"];
                 delete filters["term"];
             }
-
             return $.extend({}, new_filters, filters);
         }
 
