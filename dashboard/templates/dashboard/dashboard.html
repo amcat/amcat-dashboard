@@ -38,7 +38,7 @@
                              {% endfor %}
                          </select>
 
-                         <input title="{% trans "Filter" %}" placeholder="{% trans "Filter" %}..." id="filter-input" class="filter-input-textbox" name="q" value="{{ query|default:"" }}">
+                         <input title="{% trans "Filter" %}" placeholder="{% trans "Filter" %}..." id="filter-input" class="filter-input-textbox" name="q" value="{{ q|default:"" }}">
                         <span class="fa fa-fw fa-times" id="filter-clear" style="cursor: pointer"></span>
                     </div>
                     <div class="input-group-addon"><span class="fa fa-fw fa-search"></span></div>

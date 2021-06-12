@@ -9,7 +9,7 @@ from django.views.decorators.gzip import gzip_page
 from django.views.decorators.http import require_http_methods
 from requests import HTTPError
 
-from dashboard.models.query import QueryCache
+from dashboard.models.query import QueryCache, merge_filters
 from dashboard.util.shortcuts import redirect_referrer, safe_referrer
 
 try:
@@ -38,6 +38,7 @@ class BaseDashboardView(TemplateView):
 
     def get_context_data(self, **kwargs):
         pages = Page.objects.filter(system=self.request.user.system).only("id", "name", "icon")
+
         hide_menu = self.request.user.system.hide_menu and not self.request.user.is_superuser
         return dict(super(BaseDashboardView, self).get_context_data(**kwargs), pages=pages, hide_menu=hide_menu)
 
@@ -75,9 +76,16 @@ class DashboardPageView(BaseDashboardView):
         selected_date = self.request.GET.get(self.date_param)
         rows = page.get_cells(select_related=("query",))
         themes = HighchartsTheme.objects.filter(cells__row__in=rows).distinct()
+        params = {self.query_param: query, self.medium_param: selected_media, self.date_param: selected_date}
+        params = {k: v for k, v in params.items() if v}
+        if params:
+            query_suffix = "?" + urlencode(params, True)
+        else:
+            query_suffix = ""
         return dict(super(DashboardPageView, self).get_context_data(**kwargs),
                     page=page, rows=rows, themes=themes, system_info=system_info, showintro=showintro,
-                    all_media=HACK_MEDIA, selected_media=selected_media, all_dates=HACK_DATES, selected_date=selected_date, query=query)
+                    all_media=HACK_MEDIA, selected_media=selected_media, all_dates=HACK_DATES, selected_date=selected_date, q=query,
+                    query_suffix=query_suffix)
 
 
 # HTTP GET *must* be nullipotent: browsers might poll GET urls for preview or bookmark purposes.
@@ -135,6 +143,7 @@ def download_query(request, query_id, page_id):
 
     return HttpResponse(content_type=content_type, content=content)
 
+
 @gzip_page
 def download_query_results(request, *, page_id, query_id, uuid):
     try:
@@ -147,6 +156,7 @@ def download_query_results(request, *, page_id, query_id, uuid):
     content_type = response.headers.get("Content-Type")
     return HttpResponse(content=content, content_type=content_type)
 
+
 @gzip_page
 def poll_query_by_uuid(request, *, query_id, page_id, query_uuid):
     try:
@@ -157,6 +167,7 @@ def poll_query_by_uuid(request, *, query_id, page_id, query_uuid):
     status, result = cache.poll_once(query_uuid)
     result["result_url"] = reverse("dashboard:download-query-results", args=(page_id, query_id, query_uuid))
     return JsonResponse(result)
+
 
 @gzip_page
 def init_download_query(request, query_id, page_id):
@@ -170,16 +181,26 @@ def init_download_query(request, query_id, page_id):
     return JsonResponse({"poll_uri": reverse('dashboard:poll-query-by-uuid', args=(page_id, query_id, uuid))})
 
 
-
 @gzip_page
 def get_saved_query(request, query_id, page_id):
     query = Query.objects.get(id=query_id)
+    query_override, extra_filters, date_override = None, {}, None
+    if DashboardPageView.query_param in request.GET:
+        query_override = request.GET.get(DashboardPageView.query_param).strip()
+    if DashboardPageView.medium_param in request.GET:
+        extra_filters["publisher"] = request.GET.getlist(DashboardPageView.medium_param)
+    if DashboardPageView.date_param in request.GET:
+        date_override = request.GET.get(DashboardPageView.date_param).strip()
+
+    amcat_parameters = query.get_parameters(query_override=query_override, date_override=date_override)
+    filters = merge_filters(json.loads(amcat_parameters['filters']), extra_filters)
+    amcat_parameters['filters'] = json.dumps(filters, ensure_ascii=True, sort_keys=True)
     return HttpResponse(content_type="application/json", content=json.dumps({
         "id": query.id,
         "amcat_project_id": query.amcat_project_id,
         "amcat_query_id": query.amcat_query_id,
         "amcat_name": query.amcat_name,
-        "amcat_parameters": query.get_parameters(),
+        "amcat_parameters": amcat_parameters,
         "amcat_options": query.get_options(),
         "amcat_url": query.amcat_url,
         "clear_cache_url": reverse('dashboard:clear-cache', args=[query_id]),
@@ -191,7 +212,6 @@ def get_saved_query(request, query_id, page_id):
         "articleset_ids": query.get_articleset_ids(),
         "result_url": reverse('dashboard:get-saved-query-result', args=[page_id, query.id])
     }))
-
 
 
 @gzip_page
@@ -214,7 +234,6 @@ def get_saved_query_result(request, query_id, page_id):
         extra_filters["publisher"] = request.GET.getlist(DashboardPageView.medium_param)
     if DashboardPageView.date_param in request.GET:
         date_override = request.GET.get(DashboardPageView.date_param).strip()
-
 
     if query_override or extra_filters or date_override:
         check = get_filtered_query_result(request, cache, query_override, extra_filters, date_override)
@@ -244,6 +263,7 @@ def get_saved_query_result(request, query_id, page_id):
 
     # Return cached result
     return HttpResponse(cache.cache, content_type=cache.cache_mimetype)
+
 
 def get_filtered_query_result(request, query_cache: QueryCache, query_override: str, extra_filters: dict, date_override: str):
     cache_key = query_cache.get_query_tag(query_override=query_override, extra_filters=extra_filters, date_override=date_override)

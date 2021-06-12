@@ -9,6 +9,6 @@
              {% if cell.link %}
              data-link="{{ cell.link }}"
              {% endif %}
-             data-saved-query-src="{% url 'dashboard:get-saved-query' page.id query.id %}">
+             data-saved-query-src="{% url 'dashboard:get-saved-query' page.id query.id %}{{ query_suffix }}">
     </div>
 </div>
