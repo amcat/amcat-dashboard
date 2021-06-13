@@ -214,6 +214,19 @@ class Query(models.Model):
     class Meta:
         unique_together = ("system", "amcat_query_id")
 
+def merge_filters(*filtersets):
+    filters = {}
+    for filterset in filtersets:
+        for field, values in filterset.items():
+            if field in filters:
+                filters[field] &= set(values)
+            else:
+                filters[field] = set(values)
+
+    filters = {k: sorted(v) for k, v in filters.items()}  # sorted is important here to ensure consistent cache tags
+    return filters
+
+
 
 class QueryCache(models.Model):
     """ A persistent cache for queries. Does not expire or get evicted. """
@@ -242,16 +255,8 @@ class QueryCache(models.Model):
         if not isinstance(extra_filters, dict):
             extra_filters = {}
 
-        filters = {}
-        for filterset in (query_filters, global_filters, page_filters, extra_filters):
-            for field, values in filterset.items():
-                if field in filters:
-                    filters[field] &= set(values)
-                else:
-                    filters[field] = set(values)
+        return merge_filters(query_filters, global_filters, page_filters, extra_filters)
 
-        filters = {k: sorted(v) for k, v in filters.items()}  # sorted is important here to ensure consistent cache tags
-        return filters
 
     def get_parameters(self, query_override=None, extra_options=None, extra_filters=None, date_override=None):
         query_params = self.query.get_parameters(query_override=query_override, extra_options=extra_options, date_override=date_override)
