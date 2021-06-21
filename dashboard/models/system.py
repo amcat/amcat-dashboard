@@ -15,6 +15,7 @@ from dashboard.models import Query
 class System(models.Model):
     hostname = models.TextField(default="")
     project_id = models.PositiveIntegerField(help_text=_("AmCAT project this dashboard is linked to"), null=True)
+    dashboard_name = models.TextField(null=True)
     project_name = models.TextField(null=True)
     amcat_token = models.TextField(null=True)
     hide_menu = models.BooleanField(default=False, help_text="Hide left hand menu for non super user")

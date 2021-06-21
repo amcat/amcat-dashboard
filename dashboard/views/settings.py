@@ -154,6 +154,7 @@ class SystemSettingsForm(forms.ModelForm):
     hostname = forms.CharField(disabled=True)
     project_id = forms.CharField(disabled=True)
     amcat_token = forms.CharField(widget=TokenWidget)
+    dashboard_name = forms.CharField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
