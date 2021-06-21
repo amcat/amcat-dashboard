@@ -140,6 +140,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'amcatdashboard.wsgi.application'
 
+if "DASHBOARD_MEDIA_LIST" in os.environ:
+    MEDIA_LIST = os.environ.get("DASHBOARD_MEDIA_LIST")
+else:
+    MEDIA_LIST = os.path.join(BASE_DIR, "media_list.csv")
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases

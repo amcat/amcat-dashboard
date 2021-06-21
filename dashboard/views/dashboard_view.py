@@ -1,6 +1,6 @@
 import datetime
 import json
-
+import csv
 from django.core.cache import caches
 from django.db import transaction
 from django.db.models.expressions import RawSQL
@@ -42,15 +42,23 @@ class BaseDashboardView(TemplateView):
         hide_menu = self.request.user.system.hide_menu and not self.request.user.is_superuser
         return dict(super(BaseDashboardView, self).get_context_data(**kwargs), pages=pages, hide_menu=hide_menu)
 
-#HACK_MEDIA = ["De Volkskrant", "NRC Handelsblad", "Trouw"]
-HACK_MEDIA = {"Landelijk": ["De Volkskrant", "NRC Handelsblad", "Trouw", "De Telegraaf", "Algemeen Dagblad", "Financieele Dagblad"],
-              "Regionaal": ["Het Parool", "Noordhollands Dagblad", "Dagblad van het Noorden", "Leeuwarder Courant", "Gelderlander",
-                            "De Gooi- en Eemlander", "Brabants Dagblad", "Einhovens Dagblad", "Dagblad De Limburger", "Provinciale Zeeuwse Courant",
-                            "Haarlems Dagblad", "Eindhovens Dagblad"],
-              "Persbureau": ["Algemeen Nederlands Persbureau ANP"],
-              "Online":["Nu.nl", "NOS.nl", "RTLNieuws.nl"],
-              "Twitter":["Twitter"]}
-#HACK_MEDIA = {"pietje": ["De Volkskrant", "NRC Handelsblad", "Trouw"]}
+
+def unique_file(file: str):
+    result = {}
+    with open(file, 'r') as f:
+        rows = csv.DictReader(f, delimiter=',')
+        for row in rows:
+            k = row['med_goed']
+            v = row['mediadetail']
+            if k in result:
+                result[k].add(v)
+            else:
+                result[k]={v}
+    for k in result:
+        result[k]=sorted(result[k])
+    return result
+
+HACK_MEDIA = unique_file(settings.MEDIA_LIST)
 
 HACK_DATES = ["Gisteren", "Laatste week", "Laatste twee weken", "Laatste maand", "Laatste drie maanden", "Laatste half jaar", "Laatste jaar"]
 
